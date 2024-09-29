@@ -1,0 +1,31 @@
+/* Contenedor principal */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Barra lateral (Sidebar) */
+.barra-lateral {
+  width: 250px;
+  background-color: #024e9a;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid #ff0000;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* Contenido principal */
+.dashboard-content {
+  flex-grow: 1;
+  margin-left: 250px;
+  padding: 20px;
+  overflow-y: auto;
+  height: 100vh;
+  width: calc(100% - 250px); /* Ajusta el ancho según el sidebar */
+}

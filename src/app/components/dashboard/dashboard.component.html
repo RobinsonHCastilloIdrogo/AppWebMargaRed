@@ -1,1 +1,56 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <!-- Barra lateral compartida -->
+  <app-shared-dashboard></app-shared-dashboard>
+
+  <!-- Contenido específico del Dashboard -->
+  <div class="dashboard-content">
+    <div class="summary-cards">
+      <div class="card blue">
+        <h3>Total de Practicantes</h3>
+        <p>177</p>
+      </div>
+      <div class="card teal">
+        <h3>Practicantes a tiempo</h3>
+        <p>86.11%</p>
+      </div>
+      <div class="card green">
+        <h3>Hoy asistieron a tiempo</h3>
+        <p>110</p>
+      </div>
+      <div class="card yellow">
+        <h3>Hoy asistieron tarde</h3>
+        <p>13</p>
+      </div>
+    </div>
+
+    <div class="reports">
+      <div class="chart-container">
+        <h4>Informe de asistencia mensual</h4>
+        <canvas id="attendanceChart"></canvas>
+      </div>
+
+      <div class="table-container">
+        <h4>Informe de Asistencia</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Nombre</th>
+              <th>Hora Entrada</th>
+              <th>Hora Salida</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sep 28, 2024</td>
+              <td>Cynthia Oviedo Cjumo</td>
+              <td><span class="late">10:50 AM</span></td>
+              <td>12:00 PM</td>
+            </tr>
+            <!-- Agrega más filas aquí -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

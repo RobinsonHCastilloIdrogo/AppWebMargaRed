@@ -1,0 +1,54 @@
+<div class="content-container">
+  <header>
+    <h2 class="h2-list">Lista de Empleados</h2>
+  </header>
+
+  <div class="employee-page">
+    <div class="button-search-container">
+      <button class="add-employee-button" (click)="openModal()">
+        Agregar Empleado
+      </button>
+      <div class="search-filters">
+        <input
+          type="text"
+          placeholder="Buscar por nombre..."
+          [(ngModel)]="searchTerm"
+        />
+        <input type="date" placeholder="dd/mm/aaaa" [(ngModel)]="searchDate" />
+      </div>
+    </div>
+
+    <main>
+      <div class="table-container">
+        <table class="employee-table">
+          <thead>
+            <tr>
+              <th>DNI</th>
+              <th>Nombre</th>
+              <th>Fecha de Ingreso</th>
+              <th>Tipo de Trabajador</th>
+              <th>Cargo</th>
+              <th>Área</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let employee of filteredEmployees()">
+              <td>{{ employee.dni }}</td>
+              <td>{{ employee.name }}</td>
+              <td>{{ employee.entryDate }}</td>
+              <td>{{ employee.workerType }}</td>
+              <td>{{ employee.position }}</td>
+              <td>{{ employee.area }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal de agregar empleado -->
+<app-employee-modal
+  *ngIf="isModalOpen"
+  (closeModal)="closeModal()"
+></app-employee-modal>

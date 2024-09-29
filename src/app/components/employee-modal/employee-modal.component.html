@@ -1,0 +1,31 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <h2>Nuevo Empleado</h2>
+    <form (submit)="addEmployee()">
+      <div class="input-group">
+        <label for="dni">DNI:</label>
+        <input type="text" id="dni" [(ngModel)]="dni" required />
+      </div>
+      <div class="input-group">
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" [(ngModel)]="name" required />
+      </div>
+      <div class="input-group">
+        <label for="workerType">Tipo de trabajador:</label>
+        <input type="text" id="workerType" [(ngModel)]="workerType" required />
+      </div>
+      <div class="input-group">
+        <label for="position">Cargo:</label>
+        <input type="text" id="position" [(ngModel)]="position" required />
+      </div>
+      <div class="input-group">
+        <label for="area">Área:</label>
+        <input type="text" id="area" [(ngModel)]="area" required />
+      </div>
+      <div class="button-group">
+        <button type="button" (click)="close()">Cancelar</button>
+        <button type="submit">Agregar</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+.h2-list {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.employee-page {
+  padding: 20px;
+}
+
+.button-search-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-employee-button {
+  background-color: #f59e0b;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-employee-button:hover {
+  background-color: #f97316;
+}
+
+.search-filters {
+  display: flex;
+  gap: 20px; /* Añade separación entre el input de nombre y la fecha */
+}
+
+.search-filters input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.employee-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.employee-table th,
+.employee-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.employee-table th {
+  background-color: #f4f4f4;
+  text-align: left;
+}
