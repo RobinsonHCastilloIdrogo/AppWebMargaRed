@@ -1,60 +1,88 @@
 .h2-list {
-  font-size: 24px;
-  margin-bottom: 20px;
+  font-size: 26px;
+  margin-bottom: 30px;
+  font-weight: bold;
+  color: #1a202c;
 }
 
 .employee-page {
-  padding: 20px;
+  padding: 30px;
+  background-color: #f9fafb;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .button-search-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .add-employee-button {
-  background-color: #f59e0b;
+  background-color: #2563eb;
   color: white;
-  padding: 10px 20px;
+  padding: 12px 25px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .add-employee-button:hover {
-  background-color: #f97316;
+  background-color: #1e40af;
+  transform: scale(1.05);
 }
 
 .search-filters {
   display: flex;
-  gap: 20px; /* Añade separación entre el input de nombre y la fecha */
+  gap: 15px;
 }
 
 .search-filters input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+}
+
+.search-filters input:focus {
+  border-color: #2563eb;
+  outline: none;
 }
 
 .table-container {
   width: 100%;
   overflow-x: auto;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .employee-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .employee-table th,
 .employee-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px;
+  text-align: left;
 }
 
 .employee-table th {
-  background-color: #f4f4f4;
-  text-align: left;
+  background-color: #2563eb;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.employee-table td {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.employee-table tr:hover {
+  background-color: #f1f5f9;
 }

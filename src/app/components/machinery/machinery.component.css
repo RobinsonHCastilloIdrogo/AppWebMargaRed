@@ -23,9 +23,42 @@
 /* Contenido principal */
 .dashboard-content {
   flex-grow: 1;
-  margin-left: 250px;
+  margin-left: 250px; /* Asegura que el contenido no se superponga al sidebar */
   padding: 20px;
   overflow-y: auto;
   height: 100vh;
+  box-sizing: border-box; /* Incluye el padding en el tamaño total */
   width: calc(100% - 250px); /* Ajusta el ancho según el sidebar */
+}
+
+/* Estilos para las secciones del contenido */
+.machinery-list-section {
+  margin-bottom: 20px;
+}
+
+.modal-button-section {
+  margin-bottom: 20px;
+}
+
+.open-modal-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.open-modal-btn:hover {
+  background-color: #0056b3;
+}
+
+.machine-table th {
+  background-color: #00b8d4; /* Similar al color de la tabla en React */
+  color: white;
+  padding: 10px;
+}
+.machine-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
 }

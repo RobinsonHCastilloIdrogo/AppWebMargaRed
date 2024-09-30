@@ -1,0 +1,109 @@
+/* Contenedor principal */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f4f6f9;
+}
+
+/* Contenido principal */
+.dashboard-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  height: 100vh;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Cuadro que encierra el botón, el filtro y la tabla */
+.content-box {
+  background-color: #f9fafb;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Título h1 */
+.h2-list {
+  font-size: 32px; /* Cambiado el tamaño del h1 */
+  font-weight: bold;
+  color: #1a202c;
+  margin-bottom: 30px;
+}
+
+/* Subtítulo h2 */
+.subheader {
+  font-size: 24px; /* Cambiado el tamaño del h2 */
+  margin-bottom: 20px;
+  color: #4a5568;
+}
+
+/* Botón y campo de búsqueda */
+.button-search-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.add-machine-button {
+  background-color: #2563eb;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.add-machine-button:hover {
+  background-color: #1e40af;
+  transform: scale(1.05);
+}
+
+.search-input {
+  padding: 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+/* Tabla */
+.table-container {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.machine-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.machine-table th,
+.machine-table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.machine-table th {
+  background-color: #2563eb;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.machine-table td {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.machine-table tr:hover td {
+  background-color: #f1f5f9;
+}

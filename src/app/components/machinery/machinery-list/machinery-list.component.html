@@ -1,0 +1,43 @@
+<div class="dashboard-container">
+  <!-- Barra lateral compartida -->
+
+  <!-- Contenido específico de maquinarias -->
+  <div class="dashboard-content">
+    <h1 class="h2-list">Gestión de Maquinaria</h1>
+    <h2 class="subheader">Lista de Maquinarias</h2>
+
+    <!-- Contenedor con sombra para la tabla y el filtro -->
+    <div class="content-box">
+      <div class="button-search-container">
+        <button class="add-machine-button" (click)="openModal()">
+          Agregar Maquinaria
+        </button>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar por nombre..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+
+      <div class="table-container">
+        <table class="machine-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Cantidad Disponible</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let machine of filteredMachines()">
+              <td>{{ machine.name }}</td>
+              <td>{{ machine.quantity }}</td>
+              <td>{{ machine.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

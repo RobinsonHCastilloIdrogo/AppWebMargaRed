@@ -1,0 +1,82 @@
+/* Contenedor principal */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Contenido principal */
+.dashboard-content {
+  flex-grow: 1;
+  margin-left: 250px;
+  padding: 18px;
+  background-color: #f9fafb;
+  color: #333;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Encabezado */
+h2.h2-list {
+  font-size: 36px; /* Aumentar el tamaño de fuente */
+  color: #1a202c; /* Asegúrate de usar un color adecuado */
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* Formulario de asignación */
+.assign-form {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.assign-form label {
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.assign-form select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  background-color: #f1f3f5;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.assign-form select:focus {
+  border-color: #024e9a;
+  outline: none;
+}
+
+/* Botón de Asignación */
+button {
+  background-color: #2563eb;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #1e40af;
+  transform: translateY(-2px);
+}
+
+/* Sombra en formularios */
+.assign-form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}

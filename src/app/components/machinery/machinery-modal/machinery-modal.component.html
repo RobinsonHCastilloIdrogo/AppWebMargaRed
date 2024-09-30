@@ -1,0 +1,33 @@
+<div *ngIf="isOpen" class="modal-overlay">
+  <div class="modal-content">
+    <h2>Nueva Maquinaria</h2>
+    <form (ngSubmit)="handleAddMachine()">
+      <label for="name">Nombre de la maquinaria:</label>
+      <input
+        type="text"
+        id="name"
+        [(ngModel)]="name"
+        name="name"
+        required
+        placeholder="Nombre de la maquinaria"
+      />
+
+      <label for="quantity">Cantidad:</label>
+      <input
+        type="number"
+        id="quantity"
+        [(ngModel)]="quantity"
+        name="quantity"
+        required
+        placeholder="Cantidad disponible"
+      />
+
+      <div class="modal-buttons">
+        <button type="button" (click)="closeModal()" class="button-cancel">
+          Cancelar
+        </button>
+        <button type="submit">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>

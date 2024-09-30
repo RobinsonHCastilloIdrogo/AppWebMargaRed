@@ -1,10 +1,20 @@
 <div class="dashboard-container">
-  <!-- Barra lateral compartida -->
   <app-shared-dashboard></app-shared-dashboard>
 
-  <!-- Contenido específico del Dashboard -->
   <div class="dashboard-content">
-    <h1>Contenido Específico del Dashboard</h1>
-    <p>TU VIEJO EL MOTO</p>
+    <!-- Componente de lista de maquinarias -->
+    <app-machinery-list></app-machinery-list>
+
+    <!-- Botón para abrir el modal -->
+    <button class="open-modal-btn" (click)="openModal()">
+      Agregar Maquinaria
+    </button>
+
+    <!-- Modal de maquinarias -->
+    <app-machinery-modal
+      *ngIf="showModal"
+      [isOpen]="showModal"
+      (close)="handleCloseModal()"
+    ></app-machinery-modal>
   </div>
 </div>

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmployeeListComponent } from './employee-list/employee-list.component';
-
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component'; // Para la barra lateral
 import { EmployeeModalComponent } from './employee-modal/employee-modal.component';
 
