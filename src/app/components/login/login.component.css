@@ -51,12 +51,6 @@
   margin-bottom: 10px;
 }
 
-.h2-login1 {
-  background: linear-gradient(to right, #f59e0b, #f97316);
-
-  color: transparent;
-}
-
 .h2-completa {
   font-size: 14px;
   color: #4b5563;
@@ -80,12 +74,14 @@
 
 .ingresar-button {
   background: linear-gradient(to right, #f59e0b, #f97316);
-  color: white;
+  color: white; /* Asegúrate de que el color del texto sea blanco */
   font-weight: bold;
   padding: 10px 20px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
+  font-size: 16px; /* Aumenta el tamaño de la fuente si es necesario */
+  transition: background 0.3s ease; /* Añade una transición suave al hover */
 }
 
 .ingresar-button:hover {
