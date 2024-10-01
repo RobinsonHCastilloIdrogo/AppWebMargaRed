@@ -17,13 +17,14 @@ import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.c
   styleUrls: ['./machinery.component.css'],
 })
 export class MachineryComponent {
-  showModal: boolean = false;
+  showModal: boolean = false; // Inicialmente oculto
 
   openModal() {
-    this.showModal = true;
+    console.log(this.showModal);
+    this.showModal = true; // Muestra el modal
   }
 
   handleCloseModal() {
-    this.showModal = false;
+    this.showModal = false; // Oculta el modal
   }
 }

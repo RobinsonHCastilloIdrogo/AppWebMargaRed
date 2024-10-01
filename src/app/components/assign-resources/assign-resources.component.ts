@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component'; // Omitimos AngularFirestore
+import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
+import { FirebaseService } from '../../services/firebase.service'; // Asegúrate de que esta ruta sea correcta
 
 @Component({
   selector: 'app-assign-resources',
@@ -11,27 +12,26 @@ import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.c
   styleUrls: ['./assign-resources.component.css'],
 })
 export class AssignResourcesComponent implements OnInit {
-  employees: any[] = [
-    { id: '1', name: 'Empleado 1' },
-    { id: '2', name: 'Empleado 2' },
-  ]; // Datos estáticos de prueba
-  machines: any[] = [
-    { id: '1', name: 'Máquina 1', status: 'Disponible' },
-    { id: '2', name: 'Máquina 2', status: 'Ocupado' },
-  ]; // Datos estáticos de prueba
+  employees: any[] = []; // Array para empleados
+  machines: any[] = []; // Array para máquinas
   selectedEmployee: string = '';
   selectedMachine: string = '';
   selectedMachineName: string = '';
 
-  constructor() {}
+  constructor(private firebaseService: FirebaseService) {}
 
   ngOnInit(): void {
-    // Comentamos las llamadas a Firebase
-    // this.firestore.collection('employees').snapshotChanges() ...
-    // this.firestore.collection('machines').snapshotChanges() ...
+    // Obtener empleados y máquinas desde Firebase y suscribirse a los observables
+    this.firebaseService.getEmployees().subscribe((employees) => {
+      this.employees = employees;
+    });
+
+    this.firebaseService.getMachines().subscribe((machines) => {
+      this.machines = machines;
+    });
   }
 
-  // Function to assign the machine
+  // Función para asignar la máquina
   async handleAssignMachine() {
     if (!this.selectedEmployee || !this.selectedMachine) {
       alert('Por favor selecciona un empleado y una máquina.');
@@ -43,7 +43,7 @@ export class AssignResourcesComponent implements OnInit {
     this.selectedMachine = '';
   }
 
-  // Function to set the selected machine name
+  // Función para establecer el nombre de la máquina seleccionada
   setSelectedMachineName(event: any) {
     const machine = this.machines.find(
       (machine) => machine.id === event.target.value

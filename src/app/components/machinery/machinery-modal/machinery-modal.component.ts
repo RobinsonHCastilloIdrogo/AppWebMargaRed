@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Firestore, collection, addDoc } from '@angular/fire/firestore'; // Importar Firestore
 
 @Component({
   selector: 'app-machinery-modal',
@@ -14,40 +14,35 @@ export class MachineryModalComponent {
   @Input() isOpen: boolean = false;
   @Output() close = new EventEmitter<void>();
 
-  name: string = '';
-  quantity: number = 0;
+  name: string = ''; // Nombre de la maquinaria
+  quantity: number = 0; // Cantidad de la maquinaria
 
-  constructor(private firestore: AngularFirestore) {}
+  constructor(private firestore: Firestore) {}
 
-  handleAddMachine() {
-    if (this.quantity <= 0) {
-      alert('Por favor, ingresa una cantidad válida.');
-      return;
-    }
+  // Función para agregar maquinaria a Firestore
+  addMachine() {
+    const machinesCollection = collection(this.firestore, 'machines'); // Referencia a la colección 'machines'
 
-    this.firestore
-      .collection('machines')
-      .add({
-        name: this.name,
-        quantity: this.quantity,
-        status: 'Disponible',
-      })
+    // Crear una nueva maquinaria
+    const newMachine = {
+      name: this.name,
+      quantity: this.quantity,
+      status: 'Disponible', // Estado por defecto
+    };
+
+    // Agregar la maquinaria a Firestore
+    addDoc(machinesCollection, newMachine)
       .then(() => {
-        alert('Maquinaria agregada');
-        this.resetForm();
-        this.close.emit();
+        console.log('Maquinaria agregada a Firestore:', newMachine);
+        this.closeModal(); // Cerrar el modal después de agregar la maquinaria
       })
-      .catch((error) => {
-        console.error('Error al agregar maquinaria: ', error);
+      .catch((err) => {
+        console.error('Error al agregar maquinaria:', err);
       });
   }
 
-  resetForm() {
-    this.name = '';
-    this.quantity = 0;
-  }
-
+  // Función para cerrar el modal
   closeModal() {
-    this.close.emit();
+    this.close.emit(); // Emitir evento para cerrar el modal
   }
 }

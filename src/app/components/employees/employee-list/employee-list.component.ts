@@ -2,15 +2,10 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EmployeeModalComponent } from '../employee-modal/employee-modal.component';
-
-interface Employee {
-  dni: string;
-  name: string;
-  entryDate: string;
-  workerType: string;
-  position: string;
-  area: string;
-}
+import { Firestore, collectionData, collection } from '@angular/fire/firestore'; // Importar Firestore
+import { Observable } from 'rxjs';
+import { FirebaseAppModule } from '@angular/fire/app';
+import { Employee } from '../../../models/employee.model';
 
 @Component({
   selector: 'app-employee-list',
@@ -20,39 +15,34 @@ interface Employee {
   styleUrls: ['./employee-list.component.css'],
 })
 export class EmployeeListComponent {
-  employees: Employee[] = []; // Lista de empleados
-  searchTerm: string = ''; // Término de búsqueda de nombre
+  employees$: Observable<Employee[]>; // Observable para los empleados
+  searchTerm: string = ''; // Término de búsqueda
   searchDate: string = ''; // Término de búsqueda de fecha
   isModalOpen: boolean = false;
 
-  constructor() {
-    this.employees = [
-      {
-        dni: '12345678',
-        name: 'Juan Perez',
-        entryDate: '2022-01-15',
-        workerType: 'Full-Time',
-        position: 'Developer',
-        area: 'IT',
-      },
-      {
-        dni: '87654321',
-        name: 'Ana Lopez',
-        entryDate: '2021-03-20',
-        workerType: 'Part-Time',
-        position: 'Designer',
-        area: 'Marketing',
-      },
-    ];
+  constructor(private firestore: Firestore) {
+    const employeesCollection = collection(this.firestore, 'employees'); // Referencia a la colección 'employees'
+    this.employees$ = collectionData(employeesCollection, {
+      idField: 'id',
+    }) as Observable<Employee[]>; // Obtener los datos de Firestore
+
+    // Mostrar los datos en la consola del navegador para verificar
+    this.employees$.subscribe((data) => {
+      console.log('Empleados obtenidos:', data); // Mostrar los datos obtenidos
+    });
   }
 
   // Filtrar empleados por nombre y fecha
-  filteredEmployees() {
-    return this.employees.filter((employee) => {
+  filteredEmployees(employees: Employee[] | null) {
+    if (!employees || employees.length === 0) {
+      return []; // Si no hay empleados, retornar un array vacío
+    }
+
+    // Verifica si hay un filtro aplicado y si está afectando la lista
+    return employees.filter((employee) => {
       const matchesName = employee.name
         .toLowerCase()
         .includes(this.searchTerm.toLowerCase());
-
       const matchesDate =
         !this.searchDate || employee.entryDate === this.searchDate;
 

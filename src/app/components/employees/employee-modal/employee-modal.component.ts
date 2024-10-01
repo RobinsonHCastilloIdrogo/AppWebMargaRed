@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Firestore, collection, addDoc } from '@angular/fire/firestore'; // Importar Firestore
 
 @Component({
   selector: 'app-employee-modal',
@@ -17,17 +18,33 @@ export class EmployeeModalComponent {
   workerType: string = '';
   position: string = '';
   area: string = '';
+  entryDate: string = ''; // Fecha de ingreso
 
-  // Simular la función para guardar un empleado
+  constructor(private firestore: Firestore) {}
+
+  // Función para agregar un empleado a Firestore
   addEmployee() {
-    console.log({
+    const employeesCollection = collection(this.firestore, '/employees'); // Referencia a la colección 'employees'
+
+    // Crear un nuevo empleado
+    const newEmployee = {
       dni: this.dni,
       name: this.name,
       workerType: this.workerType,
       position: this.position,
       area: this.area,
-    });
-    this.close(); // Cierra el modal después de guardar
+      entryDate: this.entryDate,
+    };
+
+    // Agregar el empleado a Firestore
+    addDoc(employeesCollection, newEmployee)
+      .then(() => {
+        console.log('Empleado agregado a Firestore:', newEmployee);
+        this.close(); // Cerrar el modal después de agregar el empleado
+      })
+      .catch((err) => {
+        console.error('Error al agregar empleado:', err);
+      });
   }
 
   // Función para cerrar el modal

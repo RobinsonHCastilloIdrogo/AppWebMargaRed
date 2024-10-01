@@ -1,8 +1,6 @@
 <div class="dashboard-container">
-  <!-- Barra lateral compartida -->
   <app-shared-dashboard></app-shared-dashboard>
 
-  <!-- Contenido específico de Asignación de Recursos -->
   <div class="dashboard-content">
     <header>
       <h2 class="h2-list">Asignación de Encargados</h2>
@@ -20,7 +18,10 @@
       <br /><br />
 
       <label class="label-machine">Selecciona una máquina:</label>
-      <select [(ngModel)]="selectedMachine">
+      <select
+        [(ngModel)]="selectedMachine"
+        (change)="setSelectedMachineName($event)"
+      >
         <option value="">Selecciona una máquina</option>
         <ng-container *ngFor="let machine of machines">
           <option *ngIf="machine?.status === 'Disponible'" [value]="machine.id">

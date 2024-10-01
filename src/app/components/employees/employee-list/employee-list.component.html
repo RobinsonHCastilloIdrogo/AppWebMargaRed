@@ -32,13 +32,16 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let employee of filteredEmployees()">
+            <tr *ngFor="let employee of filteredEmployees(employees$ | async)">
               <td>{{ employee.dni }}</td>
               <td>{{ employee.name }}</td>
               <td>{{ employee.entryDate }}</td>
               <td>{{ employee.workerType }}</td>
               <td>{{ employee.position }}</td>
               <td>{{ employee.area }}</td>
+            </tr>
+            <tr *ngIf="filteredEmployees(employees$ | async).length === 0">
+              <td colspan="6">No se encontraron empleados</td>
             </tr>
           </tbody>
         </table>

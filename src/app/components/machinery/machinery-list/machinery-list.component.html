@@ -30,10 +30,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let machine of filteredMachines()">
+            <tr *ngFor="let machine of filteredMachines(machines$ | async)">
               <td>{{ machine.name }}</td>
               <td>{{ machine.quantity }}</td>
               <td>{{ machine.status }}</td>
+            </tr>
+            <tr *ngIf="filteredMachines(machines$ | async).length === 0">
+              <td colspan="3">No se encontraron maquinarias</td>
             </tr>
           </tbody>
         </table>
@@ -41,3 +44,8 @@
     </div>
   </div>
 </div>
+
+<app-machinery-modal
+  *ngIf="isModalOpen"
+  (closeModal)="closeModal()"
+></app-machinery-modal>

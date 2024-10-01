@@ -1,7 +1,7 @@
 <div class="modal-overlay">
   <div class="modal-content">
     <h2>Nuevo Empleado</h2>
-    <form (submit)="addEmployee()">
+    <div>
       <div class="input-group">
         <label for="dni">DNI:</label>
         <input type="text" id="dni" [(ngModel)]="dni" required />
@@ -22,10 +22,15 @@
         <label for="area">Área:</label>
         <input type="text" id="area" [(ngModel)]="area" required />
       </div>
+      <div class="input-group">
+        <label for="entryDate">Fecha de Ingreso:</label>
+        <input type="date" id="entryDate" [(ngModel)]="entryDate" required />
+      </div>
       <div class="button-group">
         <button type="button" (click)="close()">Cancelar</button>
-        <button type="submit">Agregar</button>
+        <button type="button" (click)="addEmployee()">Agregar</button>
+        <!--cosillo lindo para agregar funcion OWO-->
       </div>
-    </form>
+    </div>
   </div>
 </div>
