@@ -34,7 +34,7 @@ export class MachineryModalComponent {
     addDoc(machinesCollection, newMachine)
       .then(() => {
         console.log('Maquinaria agregada a Firestore:', newMachine);
-        this.closeModal(); // Cerrar el modal después de agregar la maquinaria
+        this.closeModal(); // Emitir el evento para cerrar el modal después de agregar la maquinaria
       })
       .catch((err) => {
         console.error('Error al agregar maquinaria:', err);
@@ -43,6 +43,6 @@ export class MachineryModalComponent {
 
   // Función para cerrar el modal
   closeModal() {
-    this.close.emit(); // Emitir evento para cerrar el modal
+    this.close.emit(); // Emitir evento para que el padre cierre el modal
   }
 }

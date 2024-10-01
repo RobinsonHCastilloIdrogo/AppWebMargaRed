@@ -50,12 +50,17 @@ export class FirebaseService {
   // Obtener empleados desde la colección 'employees'
   getEmployees(): Observable<any[]> {
     const employeesCollection = collection(this.firestore, 'employees');
-    return collectionData(employeesCollection, { idField: 'id' });
+    return collectionData(employeesCollection, { idField: 'id' }); // Incluyendo el 'id'
   }
 
   // Obtener máquinas desde la colección 'machines'
   getMachines(): Observable<any[]> {
     const machinesCollection = collection(this.firestore, 'machines');
     return collectionData(machinesCollection, { idField: 'id' });
+  }
+
+  addEmployee(employee: any) {
+    const employeesCollection = collection(this.firestore, 'employees');
+    return addDoc(employeesCollection, employee); // El 'id' será generado automáticamente
   }
 }

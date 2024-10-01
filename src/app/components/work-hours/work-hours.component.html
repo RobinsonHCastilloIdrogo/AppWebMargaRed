@@ -1,8 +1,103 @@
-<app-shared-dashboard></app-shared-dashboard>
+<div class="dashboard-container">
+  <app-shared-dashboard></app-shared-dashboard>
 
-<main class="content-table p-4">
-  <h1 class="mb-4">Roles</h1>
-  <div class="dt-buttons mb-3">
-    <button class="btn btn-primary">Agregar Rol</button>
+  <div class="dashboard-content">
+    <header>
+      <h2 class="h2-list">Gestión de Horas Laborales</h2>
+    </header>
+
+    <!-- Contenedor de la tabla -->
+    <div class="table-container">
+      <!-- Contenedor con el botón de "Asignar Horas" y barra de búsqueda -->
+      <div class="button-search-container">
+        <button class="assign-hours-button" (click)="openModal()">
+          Asignar Horas
+        </button>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar por nombre..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+
+      <!-- Tabla de horas laborales -->
+      <table class="machine-table">
+        <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Lunes</th>
+            <th>Martes</th>
+            <th>Miércoles</th>
+            <th>Jueves</th>
+            <th>Viernes</th>
+            <th>Sábado</th>
+            <th>Domingo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let workHour of filteredEmployees()">
+            <td>{{ workHour.employeeName }}</td>
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="workHour.monday"
+                [readonly]="!isEditing"
+              />
+            </td>
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="workHour.tuesday"
+                [readonly]="!isEditing"
+              />
+            </td>
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="workHour.wednesday"
+                [readonly]="!isEditing"
+              />
+            </td>
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="workHour.thursday"
+                [readonly]="!isEditing"
+              />
+            </td>
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="workHour.friday"
+                [readonly]="!isEditing"
+              />
+            </td>
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="workHour.saturday"
+                [readonly]="!isEditing"
+              />
+            </td>
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="workHour.sunday"
+                [readonly]="!isEditing"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal para asignar horas laborales -->
+    <app-work-hours-modal
+      *ngIf="showModal"
+      (closeModal)="closeModal()"
+      [employees]="employees"
+      (saveHours)="handleSaveHours($event)"
+    ></app-work-hours-modal>
   </div>
-</main>
+</div>
