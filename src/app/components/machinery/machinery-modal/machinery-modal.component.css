@@ -1,58 +1,104 @@
+/* Fondo del modal */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Fondo opaco */
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.7
+  ); /* Fondo más oscuro para mayor contraste */
   display: flex;
   justify-content: center;
   align-items: center;
+  backdrop-filter: blur(
+    1px
+  ); /* Desenfoque de fondo para mejorar la atención al modal */
 }
 
+/* Contenido del modal */
 .modal-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
+  background-color: #ffffff;
+  padding: 30px; /* Aumentar el padding para mayor espacio */
+  border-radius: 12px; /* Esquinas más redondeadas */
   width: 400px;
-  max-width: 100%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 90%; /* Ajustar el ancho máximo en dispositivos pequeños */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra más suave y profunda */
 }
 
+/* Título del modal */
+h2 {
+  font-size: 24px;
+  color: #333; /* Color de texto más oscuro para mejor legibilidad */
+  margin-bottom: 20px; /* Espacio debajo del título */
+}
+
+/* Grupos de entrada */
 .input-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px; /* Espacio entre grupos de entrada */
 }
 
 .input-group label {
   display: block;
   margin-bottom: 5px;
-  font-weight: bold;
+  font-weight: 600; /* Peso de fuente más fuerte */
+  color: #555; /* Color más suave para las etiquetas */
 }
 
+/* Estilos de los inputs */
 .input-group input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 12px; /* Aumentar el padding para un mejor toque */
+  border: 1px solid #d1d5db; /* Borde más claro */
+  border-radius: 6px;
   font-size: 16px;
+  transition: border-color 0.3s ease; /* Transición suave al enfocar */
 }
 
+.input-group input:focus {
+  border-color: #2563eb; /* Color del borde al enfocar */
+  outline: none; /* Eliminar el contorno predeterminado */
+}
+
+/* Grupo de botones */
 .button-group {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 15px; /* Espacio entre botones */
+  margin-top: 20px; /* Mayor espacio arriba de los botones */
 }
 
+/* Estilos de los botones */
 button {
-  padding: 10px 20px;
+  padding: 10px 20px; /* Más padding para un mejor toque */
   border: none;
-  border-radius: 5px;
+  border-radius: 6px; /* Esquinas redondeadas */
   cursor: pointer;
   font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Transición suave */
 }
 
+/* Estilos para el botón de cancelar */
 .button-cancel {
-  background-color: #e74c3c;
+  background-color: #e74c3c; /* Color de fondo rojo */
   color: white;
+}
+
+.button-cancel:hover {
+  background-color: #c0392b; /* Color más oscuro al hacer hover */
+  transform: scale(1.05); /* Efecto de crecimiento al hacer hover */
+}
+
+/* Estilos para el botón de agregar */
+.button-save {
+  background-color: #4caf50; /* Color de fondo verde */
+  color: white;
+}
+
+.button-save:hover {
+  background-color: #388e3c; /* Color más oscuro al hacer hover */
+  transform: scale(1.05); /* Efecto de crecimiento al hacer hover */
 }

@@ -1,0 +1,91 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <h2 class="modal-title">Asignar Horas Laborales</h2>
+    <label for="employee" class="modal-label">Selecciona un empleado:</label>
+    <select [(ngModel)]="selectedEmployee" class="modal-select">
+      <option value="" disabled>Selecciona un empleado</option>
+      <option *ngFor="let employee of employees" [value]="employee.id">
+        {{ employee.name }}
+      </option>
+    </select>
+
+    <h3 class="modal-subtitle">Asignar Horas por Día</h3>
+
+    <div class="modal-input-container">
+      <div class="modal-input-group">
+        <label for="monday" class="modal-label">Lunes:</label>
+        <input
+          type="number"
+          [(ngModel)]="hours.monday"
+          placeholder="Horas Lunes"
+          class="modal-input"
+        />
+      </div>
+
+      <div class="modal-input-group">
+        <label for="tuesday" class="modal-label">Martes:</label>
+        <input
+          type="number"
+          [(ngModel)]="hours.tuesday"
+          placeholder="Horas Martes"
+          class="modal-input"
+        />
+      </div>
+
+      <div class="modal-input-group">
+        <label for="wednesday" class="modal-label">Miércoles:</label>
+        <input
+          type="number"
+          [(ngModel)]="hours.wednesday"
+          placeholder="Horas Miércoles"
+          class="modal-input"
+        />
+      </div>
+
+      <div class="modal-input-group">
+        <label for="thursday" class="modal-label">Jueves:</label>
+        <input
+          type="number"
+          [(ngModel)]="hours.thursday"
+          placeholder="Horas Jueves"
+          class="modal-input"
+        />
+      </div>
+
+      <div class="modal-input-group">
+        <label for="friday" class="modal-label">Viernes:</label>
+        <input
+          type="number"
+          [(ngModel)]="hours.friday"
+          placeholder="Horas Viernes"
+          class="modal-input"
+        />
+      </div>
+
+      <div class="modal-input-group">
+        <label for="saturday" class="modal-label">Sábado:</label>
+        <input
+          type="number"
+          [(ngModel)]="hours.saturday"
+          placeholder="Horas Sábado"
+          class="modal-input"
+        />
+      </div>
+
+      <div class="modal-input-group">
+        <label for="sunday" class="modal-label">Domingo:</label>
+        <input
+          type="number"
+          [(ngModel)]="hours.sunday"
+          placeholder="Horas Domingo"
+          class="modal-input"
+        />
+      </div>
+    </div>
+
+    <div class="modal-buttons">
+      <button class="button-cancel" (click)="close()">Cancelar</button>
+      <button class="button-save" (click)="saveHours()">Guardar</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,95 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* Color de fondo más oscuro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px); /* Añadir un efecto de desenfoque */
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px; /* Esquinas más redondeadas */
+  width: 600px; /* Ancho más amplio para dos columnas */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilo para la sección de inputs */
+.modal-input-container {
+  display: flex;
+  flex-wrap: wrap; /* Permite que los inputs se ajusten a múltiples líneas */
+  justify-content: space-between; /* Espacio entre columnas */
+}
+
+/* Estilo para grupos de inputs */
+.modal-input-group {
+  flex-basis: 48%; /* Dos columnas, ocupan el 48% del ancho cada una */
+  margin-bottom: 15px; /* Espacio entre grupos de input */
+}
+
+/* Resto del CSS sin cambios */
+.modal-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2563eb; /* Color azul para el título */
+  margin-bottom: 20px; /* Espacio entre el título y el contenido */
+}
+
+.modal-subtitle {
+  font-size: 18px;
+  margin-bottom: 15px; /* Espacio entre el subtítulo y los inputs */
+}
+
+.modal-label {
+  font-weight: 500; /* Peso de la fuente un poco más fuerte */
+  margin-bottom: 5px; /* Espacio entre la etiqueta y el input */
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.modal-input:focus {
+  border-color: #2563eb; /* Cambiar color al enfocar */
+  outline: none;
+}
+
+.modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.button-cancel,
+.button-save {
+  background-color: #2563eb;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button-cancel:hover,
+.button-save:hover {
+  background-color: #1e40af; /* Color más oscuro al hacer hover */
+}
+
+.button-save {
+  background-color: #f59e0b; /* Color del botón "Guardar" */
+}
+
+.button-save:hover {
+  background-color: #ea580c; /* Color más oscuro al hacer hover en "Guardar" */
+}

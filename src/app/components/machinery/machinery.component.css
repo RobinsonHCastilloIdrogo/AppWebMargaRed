@@ -8,57 +8,82 @@
 /* Barra lateral (Sidebar) */
 .barra-lateral {
   width: 250px;
-  background-color: #024e9a;
+  background-color: #024e9a; /* Color de fondo más suave */
   padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-right: 1px solid #ff0000;
+  border-right: 2px solid rgba(255, 255, 255, 0.1); /* Borde más sutil */
   height: 100%;
   position: fixed;
   top: 0;
   left: 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sombra para darle profundidad */
 }
 
 /* Contenido principal */
 .dashboard-content {
   flex-grow: 1;
   margin-left: 250px; /* Asegura que el contenido no se superponga al sidebar */
-  padding: 20px;
+  padding: 30px; /* Aumentar el padding para un mejor espacio */
   overflow-y: auto;
   height: 100vh;
   box-sizing: border-box; /* Incluye el padding en el tamaño total */
-  width: calc(100% - 250px); /* Ajusta el ancho según el sidebar */
+  background-color: #f8f9fa; /* Color de fondo más claro para el contenido */
+  transition: margin-left 0.3s ease; /* Transición suave al ajustar el margen */
 }
 
 /* Estilos para las secciones del contenido */
 .machinery-list-section {
-  margin-bottom: 20px;
+  margin-bottom: 30px; /* Espacio más amplio entre secciones */
 }
 
 .modal-button-section {
-  margin-bottom: 20px;
+  margin-bottom: 30px; /* Espacio más amplio entre botones */
 }
 
+/* Botón para abrir modal */
 .open-modal-btn {
-  background-color: #007bff;
+  background-color: #007bff; /* Azul más brillante */
   color: white;
-  padding: 10px 15px;
+  padding: 12px 20px; /* Más padding para un mejor toque */
   border: none;
-  border-radius: 5px;
+  border-radius: 6px; /* Esquinas más redondeadas */
   cursor: pointer;
+  font-weight: 600; /* Hacer texto más audaz */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Transición suave */
 }
 
 .open-modal-btn:hover {
-  background-color: #0056b3;
+  background-color: #0056b3; /* Color más oscuro al hacer hover */
+  transform: scale(1.05); /* Efecto de crecimiento al hacer hover */
+}
+
+/* Estilos de tabla */
+.machine-table {
+  width: 100%;
+  border-collapse: collapse; /* Para eliminar espacios entre celdas */
 }
 
 .machine-table th {
-  background-color: #00b8d4; /* Similar al color de la tabla en React */
+  background-color: #00b8d4; /* Color de fondo de la cabecera */
   color: white;
-  padding: 10px;
+  padding: 12px; /* Aumentar padding */
+  text-align: left; /* Alinear texto a la izquierda */
+  font-weight: bold; /* Texto más audaz */
 }
+
 .machine-table td {
-  padding: 10px;
-  border: 1px solid #ddd;
+  padding: 12px; /* Aumentar padding para las celdas */
+  border: 1px solid #ddd; /* Borde más claro */
+  transition: background-color 0.3s ease; /* Transición suave en el fondo */
+}
+
+.machine-table tr:hover td {
+  background-color: rgba(
+    0,
+    184,
+    212,
+    0.1
+  ); /* Color de fondo suave al pasar el mouse */
 }

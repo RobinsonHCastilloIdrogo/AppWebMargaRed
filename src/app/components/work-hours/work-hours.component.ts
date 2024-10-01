@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
 import { FirebaseService } from '../../services/firebase.service'; // Asegúrate de tener el servicio de Firebase configurado
 import { Employee } from '../../models/employee.model';
-import { WorkHoursModalComponent } from '../work-hours-modal/work-hours-modal.component';
+import { WorkHoursModalComponent } from './work-hours-modal/work-hours-modal.component';
 
 interface WorkHours {
   employeeId: string;
@@ -65,8 +65,7 @@ export class WorkHoursComponent implements OnInit {
 
   // Función para cerrar el modal y deshabilitar la edición
   closeModal() {
-    this.showModal = false;
-    this.isEditing = false; // Deshabilita la edición cuando se cierra el modal
+    this.showModal = false; // Cambia el estado de showModal a false
   }
 
   // Función para filtrar empleados por el término de búsqueda

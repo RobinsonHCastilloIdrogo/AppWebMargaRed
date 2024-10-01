@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Employee } from '../../models/employee.model';
+import { Employee } from '../../../models/employee.model';
 
 @Component({
   selector: 'app-work-hours-modal',
@@ -11,11 +11,11 @@ import { Employee } from '../../models/employee.model';
   styleUrls: ['./work-hours-modal.component.css'],
 })
 export class WorkHoursModalComponent {
-  @Input() employees: Employee[] = []; // Recibe la lista de empleados desde el componente padre
-  @Output() closeModal = new EventEmitter<void>(); // Para cerrar el modal
-  @Output() saveHoursEvent = new EventEmitter<any>(); // Cambiar el nombre para evitar conflictos
+  @Input() employees: Employee[] = [];
+  @Output() closeModal = new EventEmitter<void>();
+  @Output() saveHoursEvent = new EventEmitter<any>();
 
-  selectedEmployee: string = ''; // Aquí almacenas el id del empleado
+  selectedEmployee: string = '';
   hours = {
     monday: 0,
     tuesday: 0,
@@ -26,7 +26,6 @@ export class WorkHoursModalComponent {
     sunday: 0,
   };
 
-  // Función para guardar las horas asignadas
   saveHours() {
     if (!this.selectedEmployee) {
       console.error('Debe seleccionar un empleado');
@@ -35,15 +34,15 @@ export class WorkHoursModalComponent {
 
     const employeeHours = {
       employeeId: this.selectedEmployee,
-      ...this.hours, // Incluye los días con las horas trabajadas
+      ...this.hours,
     };
 
-    this.saveHoursEvent.emit(employeeHours); // Emitir el evento con los datos guardados
-    this.close(); // Cerrar el modal después de guardar las horas
+    this.saveHoursEvent.emit(employeeHours);
+    this.close(); // Cierra el modal
   }
 
-  // Función para cerrar el modal
   close() {
+    console.log('Cerrar modal'); // Verifica si esta función se llama
     this.closeModal.emit(); // Emitir evento para cerrar el modal
   }
 }

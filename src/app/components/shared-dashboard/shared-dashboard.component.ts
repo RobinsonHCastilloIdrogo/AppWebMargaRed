@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router'; // Asegúrate de importar Router
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,6 +11,8 @@ import { CommonModule } from '@angular/common';
 })
 export class SharedDashboardComponent {
   showLogoutModal: boolean = false;
+
+  constructor(private router: Router) {} // Inyecta el Router
 
   // Función para abrir el modal de logout
   openLogoutModal() {
@@ -25,6 +27,7 @@ export class SharedDashboardComponent {
   // Función de logout
   logout() {
     this.showLogoutModal = false;
-    // Aquí puedes redirigir al login, si es necesario
+    // Aquí redirige al login
+    this.router.navigate(['/login']); // Cambia '/login' a la ruta de tu login
   }
 }
