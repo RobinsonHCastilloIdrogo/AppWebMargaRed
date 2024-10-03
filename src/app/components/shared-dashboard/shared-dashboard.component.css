@@ -4,7 +4,6 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  display: flex;
 }
 
 /* Contenedor principal */
@@ -17,7 +16,7 @@ body {
 /* Barra lateral (Menu) */
 .barra-lateral {
   width: 250px; /* Ancho fijo para la barra lateral */
-  background-color: #f8f9fa;
+  background-color: #f8f9fa; /* Color de fondo */
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -27,6 +26,7 @@ body {
   position: fixed; /* Fija la barra lateral en su lugar */
   left: 0;
   top: 0;
+  transition: width 0.3s; /* Suaviza el cambio de ancho */
 }
 
 /* Nombre de la página y logotipo */
@@ -44,41 +44,66 @@ body {
   margin-right: 10px;
 }
 
-/* Botón de cerrar sesión */
-.boton {
-  background-color: #333;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: left;
-  font-size: 16px;
-}
-
-.boton:hover {
-  background-color: #555;
-}
-
 /* Navegación lateral */
 .barra-lateral nav ul {
   list-style-type: none;
   padding: 0;
 }
 
-.barra-lateral nav ul li {
-  margin: 20px 0;
-}
-
-.barra-lateral nav ul li a {
-  text-decoration: none;
-  font-size: 18px;
-  color: #333;
-}
-
-.barra-lateral nav ul li a:hover {
-  color: #000;
+/* Estilos para las secciones */
+.section-title {
   font-weight: bold;
+  color: #34495e;
+  cursor: pointer; /* Indica que es interactivo */
+  padding: 10px; /* Mayor padding para un botón más grande */
+  border-radius: 8px; /* Bordes redondeados */
+  transition: background-color 0.3s; /* Transición suave */
+  margin: 10px 0; /* Margen entre secciones */
+  font-size: 18px; /* Aumenta el tamaño de la fuente */
+  background-color: transparent; /* Fondo transparente por defecto */
+}
+
+.section-title:hover {
+  background-color: rgba(
+    41,
+    128,
+    185,
+    0.2
+  ); /* Color de fondo al pasar el mouse */
+}
+
+.section-title.active {
+  background-color: rgba(
+    41,
+    128,
+    185,
+    0.4
+  ); /* Color cuando la sección está activa */
+}
+
+.section-content {
+  list-style-type: none; /* Sin viñetas */
+  padding-left: 0; /* Sin padding */
+  margin-left: 15px; /* Margen izquierdo para indentación */
+}
+
+/* Estilos de los enlaces */
+.section-content li {
+  margin: 5px 0; /* Espaciado entre elementos */
+}
+
+.section-content a {
+  text-decoration: none; /* Sin subrayado */
+  color: #333; /* Color del texto */
+  padding: 10px; /* Espacio alrededor del texto */
+  border-radius: 5px; /* Bordes redondeados */
+  transition: background-color 0.3s, color 0.3s; /* Transición suave */
+}
+
+.section-content a:hover {
+  background-color: rgba(41, 128, 185, 0.2); /* Color al pasar el mouse */
+  color: #2980b9; /* Color del texto al pasar el mouse */
+  font-weight: bold; /* Negrita al pasar el mouse */
 }
 
 /* Estilo de usuario */
@@ -86,7 +111,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: auto; /* Alinea el usuario en la parte inferior */
 }
 
 .usuario img {
@@ -103,6 +128,26 @@ body {
 .info-usuario .email {
   font-size: 14px;
   color: #888;
+}
+
+/* Botón de cerrar sesión */
+.boton {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 12px 20px; /* Mayor padding para un botón más grande */
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center; /* Centrado del texto */
+  font-size: 16px;
+  transition: background-color 0.3s, transform 0.2s; /* Transición suave */
+  margin-top: 20px; /* Espacio superior */
+  width: 100%; /* Botón ocupa todo el ancho */
+}
+
+.boton:hover {
+  background-color: #555; /* Color de fondo al pasar el mouse */
+  transform: scale(1.05); /* Efecto de crecimiento al hacer hover */
 }
 
 /* Estilo del modal */
@@ -124,6 +169,7 @@ body {
   border-radius: 8px;
   width: 350px; /* Ajusta el ancho del modal */
   text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Sombra suave */
 }
 
 .modal-content p {
@@ -157,11 +203,21 @@ button[type="submit"] {
 button[type="button"] {
   background-color: #6c757d; /* Botón cancelar en gris */
   color: white;
+  transition: background-color 0.3s;
+}
+
+button[type="button"]:hover {
+  background-color: #5a6268; /* Color más oscuro al hacer hover */
 }
 
 button[type="submit"] {
   background-color: #dc3545; /* Botón cerrar sesión en rojo */
   color: white;
+  transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+  background-color: #c82333; /* Color más oscuro al hacer hover */
 }
 
 /* Sombreado al pasar el cursor por los apartados */

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterModule, Router } from '@angular/router'; // Asegúrate de importar Router
+import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -10,9 +10,10 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./shared-dashboard.component.css'],
 })
 export class SharedDashboardComponent {
-  showLogoutModal: boolean = false;
+  showLogoutModal: boolean = false; // Controla la visibilidad del modal de cierre de sesión
+  activeSections: Set<string> = new Set(); // Secciones activas
 
-  constructor(private router: Router) {} // Inyecta el Router
+  constructor(private router: Router) {}
 
   // Función para abrir el modal de logout
   openLogoutModal() {
@@ -27,7 +28,21 @@ export class SharedDashboardComponent {
   // Función de logout
   logout() {
     this.showLogoutModal = false;
-    // Aquí redirige al login
-    this.router.navigate(['/login']); // Cambia '/login' a la ruta de tu login
+    // Redirige al login
+    this.router.navigate(['/login']);
+  }
+
+  // Función para alternar la visibilidad de una sección
+  toggleSection(section: string) {
+    if (this.activeSections.has(section)) {
+      this.activeSections.delete(section); // Si ya está activa, se cierra
+    } else {
+      this.activeSections.add(section); // Si no está activa, se abre
+    }
+  }
+
+  // Verifica si una sección está activa
+  isActive(section: string): boolean {
+    return this.activeSections.has(section);
   }
 }
