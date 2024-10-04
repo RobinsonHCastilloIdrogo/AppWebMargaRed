@@ -1,36 +1,99 @@
+/* Estilo para la cabecera del modal */
 .modal-header {
-  background-color: #f8f9fa;
+  background-color: #007bff; /* Color de fondo más llamativo */
+  color: white; /* Texto en blanco para mejor contraste */
   border-bottom: 1px solid #dee2e6;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 15px;
+  border-top-left-radius: 8px; /* Bordes redondeados superiores */
+  border-top-right-radius: 8px;
 }
 
+.modal-header .close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.modal-header .close:hover {
+  color: #ff4b5c; /* Cambio de color en hover */
+}
+
+/* Estilo para el cuerpo del modal */
 .modal-body {
-  padding: 20px;
+  padding: 25px;
+  background-color: #f9f9f9; /* Color de fondo suave */
+  border-bottom-left-radius: 8px; /* Bordes redondeados inferiores */
+  border-bottom-right-radius: 8px;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .form-control {
-  padding: 10px;
+  padding: 12px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.form-control:focus {
+  border-color: #007bff; /* Borde azul en foco */
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3); /* Sombra suave en foco */
+}
+
+/* Etiquetas mejoradas */
+label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+  color: #495057;
+}
+
+/* Estilo para los botones del modal */
 .modal-footer {
   display: flex;
   justify-content: flex-end;
+  padding: 15px;
+  background-color: #f1f1f1; /* Color de fondo claro para diferenciación */
+  border-top: 1px solid #dee2e6;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 .btn-primary {
-  background-color: #4caf50;
+  background-color: #007bff;
+  color: white;
   border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3; /* Color más oscuro en hover */
 }
 
 .btn-secondary {
   background-color: #6c757d;
+  color: white;
   border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268; /* Color más oscuro en hover */
 }

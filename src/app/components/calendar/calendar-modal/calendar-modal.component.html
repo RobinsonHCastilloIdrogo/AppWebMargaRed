@@ -4,37 +4,38 @@
     <span>&times;</span>
   </button>
 </div>
+
 <div class="modal-body">
   <div class="form-group">
     <label for="empleado">Empleado</label>
-    <input
-      type="text"
-      id="empleado"
-      [(ngModel)]="empleado"
-      class="form-control"
-      placeholder="Nombre del empleado"
-    />
+    <select id="empleado" [(ngModel)]="selectedEmployee" class="form-control">
+      <option value="">Selecciona un empleado</option>
+      <option *ngFor="let emp of employees" [value]="emp.id">
+        {{ emp.name }}
+      </option>
+    </select>
   </div>
+
   <div class="form-group">
     <label for="maquina">Maquinaria</label>
-    <input
-      type="text"
-      id="maquina"
-      [(ngModel)]="maquina"
-      class="form-control"
-      placeholder="Nombre de la máquina"
-    />
+    <select id="maquina" [(ngModel)]="selectedMachine" class="form-control">
+      <option value="">Selecciona una maquinaria</option>
+      <option *ngFor="let maq of machines" [value]="maq.id">
+        {{ maq.name }}
+      </option>
+    </select>
   </div>
+
   <div class="form-group">
     <label for="descripcion">Descripción</label>
     <textarea
-      id="descripcion"
       [(ngModel)]="descripcion"
       class="form-control"
       placeholder="Descripción de la tarea"
     ></textarea>
   </div>
 </div>
+
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">
     Cancelar

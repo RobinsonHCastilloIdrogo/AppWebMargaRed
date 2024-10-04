@@ -9,7 +9,7 @@ bootstrapApplication(AppComponent, {
   ...appConfig,
   providers: [
     ...appConfig.providers,
-    importProvidersFrom(BrowserAnimationsModule),
-    BsModalService, // Agrega el servicio del modal
+    importProvidersFrom(BrowserAnimationsModule), // Mantén la animación
+    BsModalService, // Servicio para el modal
   ],
 });
