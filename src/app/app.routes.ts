@@ -5,8 +5,8 @@ import { EmployeesComponent } from './components/employees/employees.component';
 import { WorkHoursComponent } from './components/work-hours/work-hours.component';
 import { MachineryComponent } from './components/machinery/machinery.component';
 import { LoginComponent } from './components/login/login.component';
-import { AssignResourcesComponent } from './components/assign-resources/assign-resources.component'; // Importar AssignResources
-
+import { AssignResourcesComponent } from './components/assign-resources/assign-resources.component';
+import { CalendarComponent } from './components/calendar/calendar.component';
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent },
@@ -15,5 +15,6 @@ export const routes: Routes = [
   { path: 'work-hours', component: WorkHoursComponent },
   { path: 'machinery', component: MachineryComponent },
   { path: 'assign-resources', component: AssignResourcesComponent },
+  { path: 'calendar', component: CalendarComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' }, // Redirigir al login por defecto
 ];

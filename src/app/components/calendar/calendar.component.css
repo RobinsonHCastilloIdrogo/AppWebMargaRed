@@ -1,0 +1,166 @@
+/* Contenedor principal */
+.dashboard-container {
+  display: flex;
+  height: 100vh; /* Altura completa */
+  width: 100vw; /* Ancho completo */
+  overflow: hidden; /* Evita desbordamiento */
+  background-color: #f4f6f9; /* Fondo suave para todo el layout */
+}
+
+/* Estilos para la barra lateral */
+.barra-lateral {
+  width: 250px;
+  background-color: #2c3e50; /* Fondo oscuro elegante */
+  color: #ecf0f1; /* Texto claro */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 2px solid #34495e; /* Línea divisoria */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh; /* Altura completa */
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15); /* Sombra para darle profundidad */
+}
+
+.barra-lateral .nombre-pagina {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #ecf0f1;
+  margin-bottom: 30px;
+}
+
+.barra-lateral .logo-flor {
+  width: 45px; /* Ajusta el tamaño del logotipo */
+}
+
+.barra-lateral nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.barra-lateral nav ul li {
+  margin: 15px 0;
+}
+
+.barra-lateral nav ul li a {
+  text-decoration: none;
+  font-size: 18px;
+  color: #ecf0f1;
+  display: block;
+  padding: 10px 15px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.barra-lateral nav ul li a:hover {
+  background-color: #34495e; /* Efecto hover en las opciones */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Estilos para el contenido principal */
+.dashboard-content {
+  flex-grow: 1; /* Ocupa todo el espacio disponible */
+  margin-left: 250px; /* Espacio para la barra lateral */
+  padding: 40px; /* Mayor espacio para el contenido */
+  background-color: #ffffff; /* Fondo claro para el contenido */
+  overflow-y: auto; /* Permite scroll en el contenido */
+  height: 100vh; /* Altura completa */
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05); /* Sombra interna */
+}
+
+/* Estilos del calendario */
+.full-calendar {
+  width: 100%; /* El calendario ocupa todo el ancho disponible */
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #ffffff; /* Fondo blanco para el calendario */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra más definida */
+  border: 1px solid #dcdde1; /* Bordes sutiles */
+  transition: box-shadow 0.3s ease;
+}
+
+.full-calendar:hover {
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada en hover */
+}
+
+/* Estilo de usuario en la barra lateral */
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto; /* Alínea en la parte inferior */
+  padding: 15px;
+  border-top: 1px solid #34495e; /* Línea separadora */
+}
+
+.usuario img {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border: 2px solid #ecf0f1;
+}
+
+.usuario .info-usuario {
+  color: #ecf0f1;
+}
+
+.info-usuario .nombre {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.info-usuario .email {
+  font-size: 14px;
+  color: #bdc3c7;
+}
+
+/* Botón de cerrar sesión */
+.boton {
+  background-color: #e74c3c; /* Botón de color rojo */
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 16px;
+  text-align: center;
+  width: 100%;
+  margin-top: 20px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.boton:hover {
+  background-color: #c0392b;
+  transform: scale(1.05); /* Efecto de agrandar ligeramente al pasar el mouse */
+}
+
+/* Responsivo para pantallas más pequeñas */
+@media (max-width: 768px) {
+  .barra-lateral {
+    width: 200px;
+    padding: 15px;
+  }
+
+  .dashboard-content {
+    margin-left: 200px;
+    padding: 20px;
+  }
+
+  .barra-lateral .nombre-pagina {
+    font-size: 20px;
+  }
+
+  .barra-lateral nav ul li a {
+    font-size: 16px;
+  }
+
+  .full-calendar {
+    padding: 10px;
+  }
+}
