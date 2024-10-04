@@ -1,7 +1,12 @@
 <div class="dashboard-container">
-  <app-shared-dashboard></app-shared-dashboard>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <app-shared-dashboard></app-shared-dashboard>
+  </div>
 
+  <!-- Contenido principal: lista de proyectos y detalles del proyecto -->
   <div class="dashboard-content">
+    <!-- Lista de Proyectos -->
     <div class="project-container">
       <header>
         <h2 class="h2-list">Lista de Proyectos</h2>
@@ -13,9 +18,9 @@
       </div>
 
       <div class="cards-container">
-        <div 
-          class="project-card" 
-          *ngFor="let project of projects$ | async" 
+        <div
+          class="project-card"
+          *ngFor="let project of projects$ | async"
           (click)="goToProjectDetails(project.id)"
         >
           <h3 class="project-title">{{ project.name }}</h3>
@@ -25,11 +30,18 @@
         </div>
       </div>
     </div>
+
+    <!-- Detalles del Proyecto -->
+    <div class="project-detail-container">
+      <app-project-detail *ngIf="selectedProjectId"></app-project-detail>
+    </div>
   </div>
 
-  <app-project-modal 
-    *ngIf="isModalOpen" 
-    (projectAdded)="handleProjectAdded()" 
-    (closeModal)="closeModal()">
+  <!-- Modal para agregar proyectos -->
+  <app-project-modal
+    *ngIf="isModalOpen"
+    (projectAdded)="handleProjectAdded()"
+    (closeModal)="closeModal()"
+  >
   </app-project-modal>
 </div>
