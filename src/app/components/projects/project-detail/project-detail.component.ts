@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Firestore, doc, getDocs, getDoc, updateDoc, collection } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, updateDoc, collection, getDocs } from '@angular/fire/firestore';
 import { Project } from '../../../models/projects.model';
 import { Employee } from '../../../models/employee.model';
 import { Machine } from '../../../models/machine.model';
@@ -16,94 +16,138 @@ import { CommonModule } from '@angular/common';
 })
 export class ProjectDetailComponent implements OnInit {
   projectId: string;
-  project: Project | null = null; // Detalles del proyecto
-  employees: Employee[] = []; // Lista de empleados
-  machines: Machine[] = []; // Lista de máquinas
-  selectedEmployeeIds: string[] = []; // IDs de empleados seleccionados
-  selectedMachineIds: string[] = []; // IDs de máquinas seleccionadas
-
-  selectedEmployeeNames: string[] = []; // Nombres de empleados seleccionados
-  selectedMachineNames: string[] = []; // Nombres de máquinas seleccionadas
+  project: Project | null = null;
+  employees: Employee[] = [];
+  machines: Machine[] = [];
+  selectedEmployeeIds: string[] = [];
+  selectedMachineIds: string[] = [];
+  isModalOpen = false;
+  tempEmployeeIds: string[] = [];
+  tempMachineIds: string[] = [];
+  selectedEmployeeNames: string[] = [];
+  selectedMachineNames: string[] = [];
 
   constructor(private route: ActivatedRoute, private firestore: Firestore) {
     this.projectId = this.route.snapshot.paramMap.get('id') || '';
   }
 
   ngOnInit() {
-    this.getProjectDetails();
-    this.getEmployees(); // Obtener empleados
-    this.getMachines(); // Obtener máquinas
+    this.getProjectDetails()
+      .then(() => {
+        return Promise.all([this.getEmployees(), this.getMachines()]);
+      })
+      .then(() => {
+        this.filterAssignedEmployeesAndMachines(); // Filtrar empleados y máquinas no asignados
+      })
+      .catch(error => console.error('Error al cargar datos:', error));
+  }
+
+  updateSelectedNames() {
+    // Actualiza los nombres seleccionados en base a los IDs
+    this.selectedEmployeeNames = this.selectedEmployeeIds.map(id => this.getEmployeeName(id));
+    this.selectedMachineNames = this.selectedMachineIds.map(id => this.getMachineName(id));
   }
 
   async getProjectDetails() {
     const projectDoc = doc(this.firestore, 'projects', this.projectId);
     const projectSnapshot = await getDoc(projectDoc);
-    
+
     if (projectSnapshot.exists()) {
       this.project = projectSnapshot.data() as Project;
-      // Obtener IDs de empleados y máquinas asignados si están en el proyecto
       this.selectedEmployeeIds = this.project.employeeIds || [];
       this.selectedMachineIds = this.project.machineIds || [];
-      
-      // Obtener los nombres de empleados y máquinas asignados
-      this.selectedEmployeeNames = this.getSelectedEmployeeNames();
-      this.selectedMachineNames = this.getSelectedMachineNames();
     } else {
-      console.log('No se encontró el proyecto');
+      console.error('No se encontró el proyecto');
     }
   }
 
+  getEmployeeName(employeeId: string): string {
+    const employee = this.employees.find(emp => emp.id === employeeId);
+    return employee ? employee.name : 'Desconocido';
+  }
+
+  getMachineName(machineId: string): string {
+    const machine = this.machines.find(mac => mac.id === machineId);
+    return machine ? machine.name : 'Desconocido';
+  }
+
   async getEmployees() {
-    // Obtener la lista de empleados desde Firestore y asignarla a this.employees
     const employeeCollection = collection(this.firestore, 'employees');
     const employeeSnapshot = await getDocs(employeeCollection);
     this.employees = employeeSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Employee[];
   }
 
   async getMachines() {
-    // Obtener la lista de máquinas desde Firestore y asignarla a this.machines
     const machineCollection = collection(this.firestore, 'machines');
     const machineSnapshot = await getDocs(machineCollection);
     this.machines = machineSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Machine[];
   }
 
-  getSelectedEmployeeNames(): string[] {
-    return this.selectedEmployeeIds.map(id => {
-      const employee = this.employees.find(emp => emp.id === id);
-      return employee ? employee.name : id; // Retorna el nombre o el ID si no se encuentra
-    });
+  filterAssignedEmployeesAndMachines() {
+    // Filtrar empleados que ya están asignados al proyecto
+    this.employees = this.employees.filter(emp => !this.selectedEmployeeIds.includes(emp.id));
+
+    // Filtrar máquinas que ya están asignadas al proyecto
+    this.machines = this.machines.filter(mac => !this.selectedMachineIds.includes(mac.id));
   }
 
-  getSelectedMachineNames(): string[] {
-    return this.selectedMachineIds.map(id => {
-      const machine = this.machines.find(mach => mach.id === id);
-      return machine ? machine.name : id; // Retorna el nombre o el ID si no se encuentra
-    });
+  openModal() {
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+  }
+
+  updateSelectedEmployee(event: Event) {
+    const selectedOptions = (event.target as HTMLSelectElement).selectedOptions;
+    this.tempEmployeeIds = Array.from(selectedOptions).map(option => option.value);
+  }
+
+  updateSelectedMachine(event: Event) {
+    const selectedOptions = (event.target as HTMLSelectElement).selectedOptions;
+    this.tempMachineIds = Array.from(selectedOptions).map(option => option.value);
+  }
+
+  async assignAll() {
+    await this.assignEmployees();
+    await this.assignMachines();
+
+    // Después de asignar, filtrar nuevamente para que no aparezcan empleados o máquinas asignados
+    this.filterAssignedEmployeesAndMachines();
   }
 
   async assignEmployees() {
-    // Actualizar el proyecto con los IDs de los empleados seleccionados
     if (this.project) {
       const projectDoc = doc(this.firestore, 'projects', this.projectId);
-      await updateDoc(projectDoc, {
-        employeeIds: this.selectedEmployeeIds,
-      });
-      console.log('Empleados asignados al proyecto');
-      // Actualiza los nombres después de la asignación
-      this.selectedEmployeeNames = this.getSelectedEmployeeNames();
+      const updatedEmployeeIds = [...new Set([...this.selectedEmployeeIds, ...this.tempEmployeeIds])];
+
+      await updateDoc(projectDoc, { employeeIds: updatedEmployeeIds });
+
+      this.selectedEmployeeIds = updatedEmployeeIds;
+      this.tempEmployeeIds = []; // Limpiar la lista temporal
+      this.updateSelectedNames(); // Actualizar los nombres después de asignar
+      this.filterAssignedEmployeesAndMachines(); // Filtrar empleados asignados
+      this.closeModal();
+    } else {
+      console.error('No hay proyecto para asignar empleados.');
     }
   }
 
   async assignMachines() {
-    // Actualizar el proyecto con los IDs de las máquinas seleccionadas
     if (this.project) {
       const projectDoc = doc(this.firestore, 'projects', this.projectId);
-      await updateDoc(projectDoc, {
-        machineIds: this.selectedMachineIds,
-      });
-      console.log('Máquinas asignadas al proyecto');
-      // Actualiza los nombres después de la asignación
-      this.selectedMachineNames = this.getSelectedMachineNames();
+      const updatedMachineIds = [...new Set([...this.selectedMachineIds, ...this.tempMachineIds])];
+
+      await updateDoc(projectDoc, { machineIds: updatedMachineIds });
+
+      this.selectedMachineIds = updatedMachineIds;
+      this.tempMachineIds = []; // Limpiar la lista temporal
+      this.updateSelectedNames(); // Actualizar los nombres después de asignar
+      this.filterAssignedEmployeesAndMachines(); // Filtrar máquinas asignadas
+      this.closeModal();
+    } else {
+      console.error('No hay proyecto para asignar máquinas.');
     }
   }
 }
