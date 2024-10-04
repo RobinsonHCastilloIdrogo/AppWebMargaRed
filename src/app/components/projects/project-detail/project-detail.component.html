@@ -1,0 +1,31 @@
+<div *ngIf="project">
+    <h2>{{ project.name }}</h2>
+    <p>ID: {{ project.id }}</p>
+  
+    <h3>Asignar Empleados</h3>
+    <select [(ngModel)]="selectedEmployeeIds" multiple>
+      <option *ngFor="let employee of employees" [ngValue]="employee.name">{{ employee.name }}</option>
+    </select>
+    <button (click)="assignEmployees()">Asignar Empleados</button>
+  
+    <h3>Asignar Máquinas</h3>
+    <select [(ngModel)]="selectedMachineIds" multiple>
+      <option *ngFor="let machine of machines" [ngValue]="machine.name">{{ machine.name }}</option>
+    </select>
+    <button (click)="assignMachines()">Asignar Máquinas</button>
+  
+    <h3>Empleados Asignados</h3>
+    <ul>
+      <li *ngFor="let emp of selectedEmployeeIds">{{ emp }}</li>
+    </ul>
+  
+    <h3>Máquinas Asignadas</h3>
+    <ul>
+      <li *ngFor="let machine of selectedMachineIds">{{ machine }}</li>
+    </ul>
+  </div>
+  
+  <div *ngIf="!project">
+    <p>Cargando detalles del proyecto...</p>
+  </div>
+  
