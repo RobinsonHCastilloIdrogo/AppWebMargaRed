@@ -1,0 +1,64 @@
+<div *ngIf="project">
+  <h2>{{ project.name }}</h2>
+  <p>ID: {{ project.id }}</p>
+  
+  <button (click)="openModal()">Asignar</button>
+
+  <!-- Modal -->
+  <div *ngIf="isModalOpen" class="modal">
+    <div class="modal-content">
+      <span class="close" (click)="closeModal()">&times;</span>
+      <h2>Asignar Empleados y Máquinas</h2>
+
+      <!-- Sección para mostrar empleados seleccionados -->
+      <div class="selected-items">
+        <h3>Empleados Seleccionados:</h3>
+        <div class="selected-list">
+          <span *ngFor="let employeeId of tempEmployeeIds" class="selected-item">{{ employeeId }}</span>
+        </div>
+      </div>
+
+      <!-- Sección para mostrar máquinas seleccionadas -->
+      <div class="selected-items">
+        <h3>Máquinas Seleccionadas:</h3>
+        <div class="selected-list">
+          <span *ngFor="let machineId of tempMachineIds" class="selected-item">{{ machineId }}</span>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="selector-container">
+          <div class="employee-selector">
+            <h3>Seleccionar Empleados</h3>
+            <select (change)="updateSelectedEmployee($event)" multiple>
+              <option *ngFor="let employee of employees" [ngValue]="employee.id">{{ employee.name }}</option>
+            </select>
+          </div>
+      
+          <div class="machine-selector">
+            <h3>Seleccionar Máquinas</h3>
+            <select (change)="updateSelectedMachine($event)" multiple>
+              <option *ngFor="let machine of machines" [ngValue]="machine.id">{{ machine.name }}</option>
+            </select>
+          </div>
+        </div>
+      
+        <button (click)="assignAll()" class="assign-button">Asignar</button>
+      </div>
+    </div>
+  </div>
+
+  <h3>Empleados Asignados</h3>
+  <ul>
+    <li *ngFor="let empId of selectedEmployeeIds">{{ empId }}</li>
+  </ul>
+
+  <h3>Máquinas Asignadas</h3>
+  <ul>
+    <li *ngFor="let machineId of selectedMachineIds">{{ machineId }}</li>
+  </ul>
+</div>
+
+<div *ngIf="!project">
+  <p class="loading-message">Cargando detalles del proyecto...</p>
+</div>

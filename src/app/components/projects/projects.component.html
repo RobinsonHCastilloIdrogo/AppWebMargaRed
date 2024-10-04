@@ -1,0 +1,35 @@
+<div class="dashboard-container">
+  <app-shared-dashboard></app-shared-dashboard>
+
+  <div class="dashboard-content">
+    <div class="project-container">
+      <header>
+        <h2 class="h2-list">Lista de Proyectos</h2>
+      </header>
+      <div class="button-search-container">
+        <button class="add-project-button" (click)="openModal()">
+          Agregar Proyecto
+        </button>
+      </div>
+
+      <div class="cards-container">
+        <div 
+          class="project-card" 
+          *ngFor="let project of projects$ | async" 
+          (click)="goToProjectDetails(project.id)"
+        >
+          <h3 class="project-title">{{ project.name }}</h3>
+        </div>
+        <div *ngIf="!(projects$ | async)?.length" class="no-projects-message">
+          No se encontraron proyectos
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-project-modal 
+    *ngIf="isModalOpen" 
+    (projectAdded)="handleProjectAdded()" 
+    (closeModal)="closeModal()">
+  </app-project-modal>
+</div>
