@@ -1,0 +1,10 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h2>Agregar Proyecto</h2>
+    <input [(ngModel)]="projectName" placeholder="Nombre del Proyecto" />
+    <div class="modal-buttons">
+      <button class="btn-primary" (click)="addProject()">Agregar</button>
+      <button class="btn-secondary" (click)="close()">Cerrar</button>
+    </div>
+  </div>
+</div>
