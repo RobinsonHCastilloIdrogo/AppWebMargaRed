@@ -6,6 +6,7 @@
 </div>
 
 <div class="modal-body">
+  <!-- Selección de Empleado -->
   <div class="form-group">
     <label for="empleado">Empleado</label>
     <select id="empleado" [(ngModel)]="selectedEmployee" class="form-control">
@@ -16,6 +17,7 @@
     </select>
   </div>
 
+  <!-- Selección de Maquinaria -->
   <div class="form-group">
     <label for="maquina">Maquinaria</label>
     <select id="maquina" [(ngModel)]="selectedMachine" class="form-control">
@@ -26,6 +28,30 @@
     </select>
   </div>
 
+  <!-- Selección de Horario -->
+  <div class="form-group">
+    <label>Horario de trabajo</label>
+    <div class="row">
+      <div class="col">
+        <label for="horaInicio">Hora de inicio</label>
+        <select id="horaInicio" [(ngModel)]="horaInicio" class="form-control">
+          <option *ngFor="let hora of horasDisponibles" [value]="hora">
+            {{ hora }}
+          </option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="horaFin">Hora de fin</label>
+        <select id="horaFin" [(ngModel)]="horaFin" class="form-control">
+          <option *ngFor="let hora of horasDisponibles" [value]="hora">
+            {{ hora }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Descripción -->
   <div class="form-group">
     <label for="descripcion">Descripción</label>
     <textarea
