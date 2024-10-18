@@ -14,7 +14,6 @@
           placeholder="Buscar por nombre..."
           [(ngModel)]="searchTerm"
         />
-        <input type="date" placeholder="dd/mm/aaaa" [(ngModel)]="searchDate" />
       </div>
     </div>
 
@@ -25,33 +24,46 @@
             <tr>
               <th>DNI</th>
               <th>Nombre</th>
-              <th>Fecha de Ingreso</th>
-              <th>Tipo de Trabajador</th>
+              <th>Tipo</th>
               <th>Cargo</th>
               <th>Área</th>
+              <th>Fecha de Ingreso</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let employee of filteredEmployees(employees$ | async)">
-              <td>{{ employee.dni }}</td>
-              <td>{{ employee.name }}</td>
-              <td>{{ employee.entryDate }}</td>
-              <td>{{ employee.workerType }}</td>
-              <td>{{ employee.position }}</td>
-              <td>{{ employee.area }}</td>
-            </tr>
-            <tr *ngIf="filteredEmployees(employees$ | async).length === 0">
-              <td colspan="6">No se encontraron empleados</td>
-            </tr>
+            <ng-container *ngIf="employees$ | async as employees">
+              <ng-container
+                *ngFor="let employee of filteredEmployees(employees)"
+              >
+                <tr>
+                  <td>{{ employee.dni }}</td>
+                  <td>{{ employee.name }}</td>
+                  <td>{{ employee.workerType }}</td>
+                  <td>{{ employee.position }}</td>
+                  <td>{{ employee.area }}</td>
+                  <td>{{ employee.entryDate | date }}</td>
+                  <td>
+                    <button (click)="openEditModal(employee)">
+                      <img src="assets/icon-edit.png" alt="Editar" />
+                    </button>
+                    <button (click)="confirmDelete(employee.id)">
+                      <img src="assets/icon-trash.png" alt="Eliminar" />
+                    </button>
+                  </td>
+                </tr>
+              </ng-container>
+            </ng-container>
           </tbody>
         </table>
       </div>
     </main>
+
+    <app-employee-modal
+      *ngIf="isModalOpen"
+      [selectedEmployee]="selectedEmployee"
+      (closeModal)="closeModal()"
+    >
+    </app-employee-modal>
   </div>
 </div>
-
-<!-- Modal de agregar empleado -->
-<app-employee-modal
-  *ngIf="isModalOpen"
-  (closeModal)="closeModal()"
-></app-employee-modal>

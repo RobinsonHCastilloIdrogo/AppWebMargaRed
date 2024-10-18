@@ -1,55 +1,76 @@
-import { Component, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { Firestore, collection, getDocs } from '@angular/fire/firestore';
+import { Chart, registerables } from 'chart.js';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
-import { Chart } from 'chart.js'; // Importar Chart.js
+
+Chart.register(...registerables); // Registrar los componentes de Chart.js
 
 @Component({
-  selector: 'app-dashboard', // Cambié 'app-roles' a 'app-dashboard'
+  selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, SharedDashboardComponent],
   templateUrl: './dashboard.component.html',
+  imports: [SharedDashboardComponent],
   styleUrls: ['./dashboard.component.css'],
 })
-export class DashboardComponent implements AfterViewInit {
-  ngAfterViewInit(): void {
-    this.loadChart(); // Llamar la función del gráfico después de que la vista ha sido inicializada
+export class DashboardComponent implements OnInit {
+  employeesCount: number = 0;
+  machinesCount: number = 0;
+  projectsCount: number = 0;
+  chart: any;
+
+  constructor(private firestore: Firestore) {}
+
+  async ngOnInit() {
+    await this.getCounts();
+    this.createChart();
   }
 
-  // Función para cargar el gráfico
-  loadChart(): void {
-    const ctx = document.getElementById('attendanceChart') as HTMLCanvasElement;
-    new Chart(ctx, {
-      type: 'bar',
+  async getCounts() {
+    const employeesCollection = collection(this.firestore, '/employees');
+    const machinesCollection = collection(this.firestore, '/machines');
+    const projectsCollection = collection(this.firestore, '/projects');
+
+    const employeesSnapshot = await getDocs(employeesCollection);
+    const machinesSnapshot = await getDocs(machinesCollection);
+    const projectsSnapshot = await getDocs(projectsCollection);
+
+    this.employeesCount = employeesSnapshot.size;
+    this.projectsCount = projectsSnapshot.size;
+    // Sumar la cantidad total de máquinas
+    this.machinesCount = 0; // Inicializar la cuenta de máquinas
+    machinesSnapshot.forEach((doc) => {
+      const machineData = doc.data();
+      this.machinesCount += machineData['quantity']; // Usar la sintaxis de corchetes para acceder a 'quantity'
+    });
+  }
+
+  createChart() {
+    const ctx = document.getElementById('myPieChart') as HTMLCanvasElement;
+
+    this.chart = new Chart(ctx, {
+      type: 'pie', // Tipo de gráfico
       data: {
-        labels: ['01 Sep', '02 Sep', '03 Sep', '04 Sep', '05 Sep', '06 Sep'], // Días del mes
+        labels: ['Empleados', 'Máquinas'],
         datasets: [
           {
-            label: 'A tiempo',
-            backgroundColor: '#28a745', // Verde para llegadas a tiempo
-            data: [50, 40, 55, 30, 45, 50], // Datos de empleados a tiempo
-          },
-          {
-            label: 'Tarde',
-            backgroundColor: '#e74c3c', // Rojo para llegadas tarde
-            data: [5, 8, 3, 7, 2, 5], // Datos de empleados que llegaron tarde
+            label: 'Cantidad',
+            data: [this.employeesCount, this.machinesCount],
+            backgroundColor: [
+              'rgba(0, 123, 255, 0.8)', // Color para empleados
+              'rgba(255, 0, 0, 0.8)', // Color para máquinas
+            ],
           },
         ],
       },
       options: {
         responsive: true,
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Días del Mes',
-            },
+        plugins: {
+          legend: {
+            position: 'top',
           },
-          y: {
-            title: {
-              display: true,
-              text: 'Número de Empleados',
-            },
-            beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Cantidad de Empleados y Máquinas',
           },
         },
       },

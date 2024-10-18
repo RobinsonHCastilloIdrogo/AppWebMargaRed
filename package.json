@@ -23,10 +23,11 @@
     "@fullcalendar/daygrid": "^6.1.15",
     "@fullcalendar/interaction": "^6.1.15",
     "bootstrap": "^5.3.3",
-    "chart.js": "^4.4.4",
+    "chart.js": "^4.4.5",
     "firebase": "^10.14.0",
     "ngx-bootstrap": "^18.0.2",
     "rxjs": "~7.8.0",
+    "sweetalert2": "^11.14.3",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
   },
