@@ -1,13 +1,13 @@
 /* Estilo para la cabecera del modal */
 .modal-header {
-  background-color: #007bff; /* Color de fondo más llamativo */
-  color: white; /* Texto en blanco para mejor contraste */
+  background-color: #007bff;
+  color: white;
   border-bottom: 1px solid #dee2e6;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  border-top-left-radius: 8px; /* Bordes redondeados superiores */
+  border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
 
@@ -21,15 +21,25 @@
 }
 
 .modal-header .close:hover {
-  color: #ff4b5c; /* Cambio de color en hover */
+  color: #ff4b5c;
 }
 
-/* Estilo para el cuerpo del modal */
+/* Estilo para el cuerpo del modal en dos columnas */
 .modal-body {
   padding: 25px;
-  background-color: #f9f9f9; /* Color de fondo suave */
-  border-bottom-left-radius: 8px; /* Bordes redondeados inferiores */
+  background-color: #f9f9f9;
+  border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
+}
+
+.modal-body .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.modal-body .col-6 {
+  flex: 0 0 48%; /* Cada columna ocupa aproximadamente la mitad del espacio */
 }
 
 .form-group {
@@ -44,11 +54,11 @@
 }
 
 .form-control:focus {
-  border-color: #007bff; /* Borde azul en foco */
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3); /* Sombra suave en foco */
+  border-color: #007bff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
 }
 
-/* Etiquetas mejoradas */
+/* Etiquetas */
 label {
   font-weight: bold;
   margin-bottom: 8px;
@@ -61,7 +71,7 @@ label {
   display: flex;
   justify-content: flex-end;
   padding: 15px;
-  background-color: #f1f1f1; /* Color de fondo claro para diferenciación */
+  background-color: #f1f1f1;
   border-top: 1px solid #dee2e6;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
@@ -79,7 +89,7 @@ label {
 }
 
 .btn-primary:hover {
-  background-color: #0056b3; /* Color más oscuro en hover */
+  background-color: #0056b3;
 }
 
 .btn-secondary {
@@ -95,5 +105,5 @@ label {
 }
 
 .btn-secondary:hover {
-  background-color: #5a6268; /* Color más oscuro en hover */
+  background-color: #5a6268;
 }

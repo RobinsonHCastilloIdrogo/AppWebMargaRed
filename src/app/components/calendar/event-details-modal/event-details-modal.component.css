@@ -1,0 +1,68 @@
+.custom-modal {
+  background-color: white;
+  padding: 32px;
+  border-radius: 12px;
+  width: 100%; /* Ocupa todo el ancho disponible */
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: stretch; /* Asegura que los elementos ocupen el espacio disponible */
+  margin: 0 auto; /* Centra el modal horizontalmente */
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.3s ease;
+}
+
+.btn-close:hover {
+  color: #000;
+}
+
+.modal-body p {
+  margin: 8px 0;
+  font-size: 16px;
+  color: #444;
+  line-height: 1.5;
+  word-break: break-word; /* Ajusta palabras largas */
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.modal-footer button {
+  background: linear-gradient(45deg, #4caf50, #2e7d32);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.modal-footer button:hover {
+  background: linear-gradient(45deg, #66bb6a, #388e3c);
+  transform: scale(1.05);
+}

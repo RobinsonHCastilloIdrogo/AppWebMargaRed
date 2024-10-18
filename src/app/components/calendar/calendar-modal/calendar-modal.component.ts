@@ -23,11 +23,13 @@ interface Machine {
 })
 export class CalendarModalComponent implements OnInit {
   @Input() selectedDate!: string;
+
+  nombreEvento: string = ''; // Nuevo campo para el nombre del evento
   selectedEmployee: string = '';
   selectedMachine: string = '';
   descripcion: string = '';
-  horaInicio: string = '07:00 AM';
-  horaFin: string = '08:00 PM';
+  horaInicio: string = '';
+  horaFin: string = '';
 
   employees: Employee[] = [];
   machines: Machine[] = [];
@@ -88,6 +90,8 @@ export class CalendarModalComponent implements OnInit {
     this.horasDisponibles = horas;
   }
 
+  // Guardar la asignación en Firebase
+  // calendar-modal.component.ts
   guardarAsignacion(): void {
     if (this.validarFormulario()) {
       const asignacion = {
@@ -97,22 +101,47 @@ export class CalendarModalComponent implements OnInit {
         descripcion: this.descripcion,
         horaInicio: this.horaInicio,
         horaFin: this.horaFin,
+        nombreEvento: this.nombreEvento, // Asegúrate de incluir el nombre del evento
       };
-      console.log('Asignación guardada:', asignacion);
-      this.modalRef.hide();
+
+      this.firebaseService
+        .addAssignment(asignacion)
+        .then(() => {
+          console.log('Asignación guardada:', asignacion);
+          alert('Asignación guardada exitosamente');
+
+          // Actualiza el calendario con el nuevo evento
+          const newEvent = {
+            title: asignacion.nombreEvento, // Mostrar el nombre del evento
+            start: asignacion.date,
+            extendedProps: { ...asignacion },
+          };
+
+          this.modalRef.hide(); // Cerrar el modal
+
+          // Emitir el evento o actualizar directamente el calendario
+          this.firebaseService.emitirEvento(newEvent);
+        })
+        .catch((error) => {
+          console.error('Error al guardar la asignación:', error);
+          alert('Error al guardar la asignación. Inténtalo nuevamente.');
+        });
     } else {
       alert('Por favor, completa todos los campos y verifica las horas.');
     }
   }
 
+  // Validación del formulario para asegurar que todos los campos están completos
   validarFormulario(): boolean {
-    const inicioIndex = this.horasDisponibles.indexOf(this.horaInicio);
-    const finIndex = this.horasDisponibles.indexOf(this.horaFin);
+    const inicioValido = this.horaInicio < this.horaFin; // Validar orden de las horas
     return (
+      this.nombreEvento.trim() !== '' &&
       this.selectedEmployee.trim() !== '' &&
       this.selectedMachine.trim() !== '' &&
       this.descripcion.trim() !== '' &&
-      inicioIndex < finIndex
+      this.horaInicio !== '' &&
+      this.horaFin !== '' &&
+      inicioValido
     );
   }
 }

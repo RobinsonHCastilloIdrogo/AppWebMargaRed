@@ -6,58 +6,78 @@
 </div>
 
 <div class="modal-body">
-  <!-- Selección de Empleado -->
+  <!-- Nombre del Evento separado del resto -->
   <div class="form-group">
-    <label for="empleado">Empleado</label>
-    <select id="empleado" [(ngModel)]="selectedEmployee" class="form-control">
-      <option value="">Selecciona un empleado</option>
-      <option *ngFor="let emp of employees" [value]="emp.id">
-        {{ emp.name }}
-      </option>
-    </select>
+    <label for="eventName">Nombre del Evento</label>
+    <input
+      type="text"
+      id="eventName"
+      [(ngModel)]="nombreEvento"
+      class="form-control"
+      placeholder="Ingrese el nombre del evento"
+    />
   </div>
 
-  <!-- Selección de Maquinaria -->
-  <div class="form-group">
-    <label for="maquina">Maquinaria</label>
-    <select id="maquina" [(ngModel)]="selectedMachine" class="form-control">
-      <option value="">Selecciona una maquinaria</option>
-      <option *ngFor="let maq of machines" [value]="maq.id">
-        {{ maq.name }}
-      </option>
-    </select>
-  </div>
-
-  <!-- Selección de Horario -->
-  <div class="form-group">
-    <label>Horario de trabajo</label>
-    <div class="row">
-      <div class="col">
-        <label for="horaInicio">Hora de inicio</label>
-        <select id="horaInicio" [(ngModel)]="horaInicio" class="form-control">
-          <option *ngFor="let hora of horasDisponibles" [value]="hora">
-            {{ hora }}
+  <div class="row mt-3">
+    <!-- Primera columna -->
+    <div class="col-6">
+      <div class="form-group">
+        <label for="empleado">Empleado</label>
+        <select
+          id="empleado"
+          [(ngModel)]="selectedEmployee"
+          class="form-control"
+        >
+          <option value="">Selecciona un empleado</option>
+          <option *ngFor="let emp of employees" [value]="emp.id">
+            {{ emp.name }}
           </option>
         </select>
       </div>
-      <div class="col">
-        <label for="horaFin">Hora de fin</label>
-        <select id="horaFin" [(ngModel)]="horaFin" class="form-control">
-          <option *ngFor="let hora of horasDisponibles" [value]="hora">
-            {{ hora }}
+
+      <div class="form-group">
+        <label for="maquina">Maquinaria</label>
+        <select id="maquina" [(ngModel)]="selectedMachine" class="form-control">
+          <option value="">Selecciona una maquinaria</option>
+          <option *ngFor="let maq of machines" [value]="maq.id">
+            {{ maq.name }}
           </option>
         </select>
       </div>
     </div>
+
+    <!-- Segunda columna -->
+    <div class="col-6">
+      <div class="form-group">
+        <label for="horaInicio">Hora Inicio</label>
+        <input
+          type="time"
+          id="horaInicio"
+          [(ngModel)]="horaInicio"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="horaFin">Hora Fin</label>
+        <input
+          type="time"
+          id="horaFin"
+          [(ngModel)]="horaFin"
+          class="form-control"
+        />
+      </div>
+    </div>
   </div>
 
-  <!-- Descripción -->
-  <div class="form-group">
+  <!-- Descripción debajo de las columnas -->
+  <div class="form-group mt-3">
     <label for="descripcion">Descripción</label>
     <textarea
       [(ngModel)]="descripcion"
       class="form-control"
       placeholder="Descripción de la tarea"
+      rows="3"
     ></textarea>
   </div>
 </div>

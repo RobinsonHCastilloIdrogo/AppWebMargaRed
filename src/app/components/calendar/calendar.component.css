@@ -140,6 +140,12 @@
   transform: scale(1.05); /* Efecto de agrandar ligeramente al pasar el mouse */
 }
 
+.fc-event {
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Responsivo para pantallas más pequeñas */
 @media (max-width: 768px) {
   .barra-lateral {
