@@ -1,6 +1,6 @@
 <div class="modal-overlay">
   <div class="modal-content">
-    <h2>Nuevo Empleado</h2>
+    <h2>{{ selectedEmployee ? 'Editar Empleado' : 'Nuevo Empleado' }}</h2>
     <div class="modal-grid">
       <div class="input-group">
         <label for="dni">DNI:</label>
@@ -29,7 +29,9 @@
     </div>
     <div class="button-group">
       <button type="button" (click)="close()">Cancelar</button>
-      <button type="button" (click)="addEmployee()">Agregar</button>
+      <button type="button" (click)="selectedEmployee ? editEmployee() : addEmployee()">
+        {{ selectedEmployee ? 'Actualizar' : 'Agregar' }}
+      </button>
     </div>
   </div>
 </div>

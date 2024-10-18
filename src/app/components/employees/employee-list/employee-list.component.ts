@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EmployeeModalComponent } from '../employee-modal/employee-modal.component';
-import { Firestore, collectionData, collection } from '@angular/fire/firestore'; // Importar Firestore
+import { Firestore, collectionData, collection, doc, deleteDoc, updateDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { FirebaseAppModule } from '@angular/fire/app';
 import { Employee } from '../../../models/employee.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-employee-list',
@@ -15,46 +15,72 @@ import { Employee } from '../../../models/employee.model';
   styleUrls: ['./employee-list.component.css'],
 })
 export class EmployeeListComponent {
-  employees$: Observable<Employee[]>; // Observable para los empleados
-  searchTerm: string = ''; // Término de búsqueda
-  searchDate: string = ''; // Término de búsqueda de fecha
+  employees$: Observable<Employee[]>;
+  searchTerm: string = '';
   isModalOpen: boolean = false;
+  selectedEmployee: Employee | null = null;
 
   constructor(private firestore: Firestore) {
-    const employeesCollection = collection(this.firestore, 'employees'); // Referencia a la colección 'employees'
-    this.employees$ = collectionData(employeesCollection, {
-      idField: 'id',
-    }) as Observable<Employee[]>; // Obtener los datos de Firestore
+    const employeesCollection = collection(this.firestore, 'employees');
+    this.employees$ = collectionData(employeesCollection, { idField: 'id' }) as Observable<Employee[]>;
 
-    // Mostrar los datos en la consola del navegador para verificar
     this.employees$.subscribe((data) => {
-      console.log('Empleados obtenidos:', data); // Mostrar los datos obtenidos
+      console.log('Empleados obtenidos:', data);
     });
   }
 
-  // Filtrar empleados por nombre y fecha
   filteredEmployees(employees: Employee[] | null) {
     if (!employees || employees.length === 0) {
-      return []; // Si no hay empleados, retornar un array vacío
+      return [];
     }
 
-    // Verifica si hay un filtro aplicado y si está afectando la lista
     return employees.filter((employee) => {
-      const matchesName = employee.name
-        .toLowerCase()
-        .includes(this.searchTerm.toLowerCase());
-      const matchesDate =
-        !this.searchDate || employee.entryDate === this.searchDate;
-
-      return matchesName && matchesDate;
+      const matchesName = employee.name.toLowerCase().includes(this.searchTerm.toLowerCase());
+      return matchesName;
     });
   }
 
   openModal() {
+    this.selectedEmployee = null; // Reinicia el empleado seleccionado
     this.isModalOpen = true;
   }
 
   closeModal() {
     this.isModalOpen = false;
+    this.selectedEmployee = null;
+  }
+
+  openEditModal(employee: Employee) {
+    this.selectedEmployee = employee;
+    this.isModalOpen = true;
+  }
+
+  confirmDelete(employeeId: string) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "No podrás revertir esto!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, borrar!',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.deleteEmployee(employeeId);
+        Swal.fire('Eliminado!', 'El empleado ha sido eliminado.', 'success');
+      }
+    });
+  }
+
+  deleteEmployee(employeeId: string) {
+    const employeeDocRef = doc(this.firestore, `employees/${employeeId}`);
+    deleteDoc(employeeDocRef)
+      .then(() => {
+        console.log('Empleado eliminado:', employeeId);
+      })
+      .catch((err) => {
+        console.error('Error al eliminar empleado:', err);
+      });
   }
 }
