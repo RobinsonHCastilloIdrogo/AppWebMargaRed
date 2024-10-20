@@ -31,17 +31,12 @@
       </div>
     </div>
 
-    <!-- Detalles del Proyecto -->
-    <div class="project-detail-container">
-      <app-project-detail *ngIf="selectedProjectId"></app-project-detail>
-    </div>
+    <!-- Modal para agregar proyectos -->
+    <app-project-modal
+      *ngIf="isModalOpen"
+      (projectAdded)="handleProjectAdded()"
+      (closeModal)="closeModal()"
+    >
+    </app-project-modal>
   </div>
-
-  <!-- Modal para agregar proyectos -->
-  <app-project-modal
-    *ngIf="isModalOpen"
-    (projectAdded)="handleProjectAdded()"
-    (closeModal)="closeModal()"
-  >
-  </app-project-modal>
 </div>

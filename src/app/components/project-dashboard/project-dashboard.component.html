@@ -1,0 +1,115 @@
+<div class="dashboard-container">
+  <!-- Barra lateral del proyecto -->
+  <div class="barra-lateral">
+    <div class="nombre-pagina">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="proyecto-seleccionado-icon"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="#000000"
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+        <path
+          d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"
+        />
+        <path d="M10 17l2 -3" />
+        <path d="M15 17c-2.5 0 -2.5 -6 -5 -6" />
+      </svg>
+      <span>{{ project?.name || "Proyecto" }}</span>
+    </div>
+
+    <nav>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a [routerLink]="['details']"
+            ><svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="icon icon-tabler icon-tabler-id"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="#000000"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path
+                d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"
+              />
+              <path d="M9 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+              <path d="M15 8l2 0" />
+              <path d="M15 12l2 0" />
+              <path d="M7 16l10 0" /></svg
+            >Detalles</a
+          >
+        </li>
+        <li class="nav-item">
+          <a [routerLink]="['tasks']"
+            ><svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="icon icon-tabler icon-tabler-list-check"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="#000000"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />
+              <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />
+              <path d="M3.5 17.5l1.5 1.5l2.5 -2.5" />
+              <path d="M11 6l9 0" />
+              <path d="M11 12l9 0" />
+              <path d="M11 18l9 0" /></svg
+            >Tareas</a
+          >
+        </li>
+        <li class="nav-item">
+          <a [routerLink]="['team']"
+            ><svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="icon icon-tabler icon-tabler-users-group"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="#000000"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+              <path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1" />
+              <path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+              <path d="M17 10h2a2 2 0 0 1 2 2v1" />
+              <path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+              <path d="M3 13v-1a2 2 0 0 1 2 -2h2" /></svg
+            >Equipo</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <button class="boton" (click)="returnToDashboard()">
+      Volver al Dashboard Principal
+    </button>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="content">
+    <h1>Bienvenido al Proyecto: {{ project?.name }}</h1>
+    <p>{{ project?.description || "Descripción no disponible." }}</p>
+    <router-outlet></router-outlet>
+  </div>
+</div>

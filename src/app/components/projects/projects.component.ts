@@ -7,7 +7,6 @@ import { Observable } from 'rxjs';
 import { Project } from '../../models/projects.model';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
 import { ProjectModalComponent } from '../projects/project-modal/project-modal.component';
-import { ProjectDetailComponent } from './project-detail/project-detail.component';
 
 @Component({
   selector: 'app-project',
@@ -17,7 +16,6 @@ import { ProjectDetailComponent } from './project-detail/project-detail.componen
     FormsModule,
     SharedDashboardComponent,
     ProjectModalComponent,
-    ProjectDetailComponent,
   ],
   templateUrl: './projects.component.html',
   styleUrls: ['./projects.component.css'],

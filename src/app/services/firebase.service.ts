@@ -157,4 +157,22 @@ export class FirebaseService {
   emitirEvento(event: any) {
     this.nuevoEventoSubject.next(event);
   }
+
+  // Obtener proyectos desde la colección 'projects'
+  getProjects(): Observable<{ id: string; name: string }[]> {
+    const projectsCollection = collection(this.firestore, 'projects');
+
+    return collectionData(projectsCollection, { idField: 'id' }).pipe(
+      map((projects: any[]) =>
+        projects.map((project) => ({
+          id: project.id,
+          name: project.name || 'Sin Nombre', // Manejo seguro del campo 'name'
+        }))
+      ),
+      catchError((error) => {
+        console.error('Error al cargar proyectos:', error);
+        return []; // Retornar un array vacío en caso de error
+      })
+    );
+  }
 }

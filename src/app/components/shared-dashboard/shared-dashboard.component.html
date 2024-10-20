@@ -6,6 +6,26 @@
       <span>MargaRed</span>
     </div>
 
+    <!-- Selector de Proyectos -->
+    <div class="dropdown mt-3">
+      <button (click)="toggleDropdown()" class="dropdown-btn">
+        Administración General
+        <span [class.open]="isDropdownOpen">&#9660;</span>
+      </button>
+      <ul
+        *ngIf="isDropdownOpen"
+        class="dropdown-menu"
+        style="border: 2px solid red"
+      >
+        <li *ngFor="let project of projects" (click)="selectProject(project)">
+          {{ project.name }}
+        </li>
+      </ul>
+      <p *ngIf="isDropdownOpen && projects.length === 0">
+        No hay proyectos disponibles.
+      </p>
+    </div>
+
     <nav>
       <ul class="nav flex-column">
         <li class="nav-item">

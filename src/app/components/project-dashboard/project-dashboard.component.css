@@ -1,0 +1,123 @@
+/* Estilos generales */
+body {
+  font-family: "Arial", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Contenedor principal */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+/* Barra lateral del proyecto */
+.barra-lateral {
+  width: 250px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #e0e0e0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+}
+
+/* Icono solo para el proyecto seleccionado */
+.proyecto-seleccionado-icon {
+  width: 35px; /* Tamaño específico para este ícono */
+  height: 35px;
+}
+
+/* Encabezado del proyecto (nombre) */
+.nombre-pagina {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.icon {
+  width: 24px; /* Aumenta el ancho */
+  height: 24px; /* Aumenta la altura */
+}
+
+/* Navegación lateral */
+.barra-lateral nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.barra-lateral nav li {
+  margin: 10px 0;
+}
+
+/* Navegación lateral del proyecto */
+.barra-lateral nav a {
+  text-decoration: none;
+  color: #34495e; /* Color del texto */
+  font-size: 18px; /* Tamaño de fuente más grande */
+  font-weight: 600; /* Resaltar el texto */
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.barra-lateral nav a:hover {
+  background-color: rgba(41, 128, 185, 0.2); /* Fondo al pasar el mouse */
+  color: #007bff; /* Color del texto al pasar el mouse */
+  font-weight: 700; /* Aumenta el grosor al hacer hover */
+}
+
+/* Botón de retorno */
+.boton {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+  margin-top: auto; /* Asegura que el botón esté abajo */
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.boton:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Contenido principal */
+.content {
+  margin-left: 250px;
+  padding: 40px;
+  width: calc(100% - 250px);
+  overflow-y: auto;
+}
+
+.content h1 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.content p {
+  font-size: 18px;
+  color: #555;
+}
+
+/* Ajuste para los enlaces activos */
+.nav-item a.active {
+  background-color: rgba(41, 128, 185, 0.4);
+  color: #007bff;
+  font-weight: bold;
+}
