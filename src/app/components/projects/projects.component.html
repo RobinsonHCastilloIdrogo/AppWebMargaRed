@@ -4,30 +4,37 @@
     <app-shared-dashboard></app-shared-dashboard>
   </div>
 
-  <!-- Contenido principal: lista de proyectos y detalles del proyecto -->
+  <!-- Contenido principal: lista de proyectos -->
   <div class="dashboard-content">
-    <!-- Lista de Proyectos -->
-    <div class="project-container">
-      <header>
-        <h2 class="h2-list">Lista de Proyectos</h2>
-      </header>
-      <div class="button-search-container">
-        <button class="add-project-button" (click)="openModal()">
-          Agregar Proyecto
-        </button>
+    <header>
+      <h2 class="h2-list">Proyectos Actuales</h2>
+    </header>
+
+    <div class="button-search-container">
+      <button class="add-project-button" (click)="openModal()">
+        Agregar Proyecto
+      </button>
+    </div>
+
+    <div class="cards-container">
+      <div class="project-card" *ngFor="let project of projects$ | async">
+        <h3 class="project-title">{{ project.name }}</h3>
+
+        <div class="project-actions">
+          <button class="btn-edit" (click)="editProject(project.id, $event)">
+            Editar
+          </button>
+          <button
+            class="btn-delete"
+            (click)="deleteProject(project.id, $event)"
+          >
+            Eliminar
+          </button>
+        </div>
       </div>
 
-      <div class="cards-container">
-        <div
-          class="project-card"
-          *ngFor="let project of projects$ | async"
-          (click)="goToProjectDetails(project.id)"
-        >
-          <h3 class="project-title">{{ project.name }}</h3>
-        </div>
-        <div *ngIf="!(projects$ | async)?.length" class="no-projects-message">
-          No se encontraron proyectos
-        </div>
+      <div *ngIf="!(projects$ | async)?.length" class="no-projects-message">
+        No se encontraron proyectos.
       </div>
     </div>
 

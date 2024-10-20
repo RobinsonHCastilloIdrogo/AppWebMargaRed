@@ -1,12 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // Importa Router
-import { Firestore, collectionData, collection } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
+import {
+  Firestore,
+  collectionData,
+  collection,
+  doc,
+  deleteDoc,
+  query,
+  orderBy,
+  DocumentData,
+} from '@angular/fire/firestore';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Project } from '../../models/projects.model';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
-import { ProjectModalComponent } from '../projects/project-modal/project-modal.component';
+import { ProjectModalComponent } from './project-modal/project-modal.component';
 
 @Component({
   selector: 'app-project',
@@ -20,37 +30,66 @@ import { ProjectModalComponent } from '../projects/project-modal/project-modal.c
   templateUrl: './projects.component.html',
   styleUrls: ['./projects.component.css'],
 })
-export class ProjectComponent {
-  projects$: Observable<Project[]>; // Observable para los proyectos
-  selectedProjectId: string | null = null;
+export class ProjectComponent implements OnInit {
+  projects$: Observable<Project[]> = of([]); // Inicializa como Observable vacío para evitar errores
   isModalOpen: boolean = false;
 
-  constructor(private firestore: Firestore, private router: Router) {
-    const projectsCollection = collection(this.firestore, 'projects'); // Referencia a la colección 'projects'
-    this.projects$ = collectionData(projectsCollection, {
-      idField: 'id',
-    }) as Observable<Project[]>; // Obtener los datos de Firestore
+  constructor(private firestore: Firestore, private router: Router) {}
 
-    // Mostrar los datos en la consola del navegador para verificar
-    this.projects$.subscribe((data) => {
-      console.log('Proyectos obtenidos:', data); // Mostrar los datos obtenidos
-    });
+  ngOnInit(): void {
+    this.loadProjects(); // Cargar proyectos al iniciar
   }
 
-  openModal() {
+  // Método para cargar los proyectos desde Firestore ordenados por fecha
+  loadProjects(): void {
+    const projectsCollection = collection(this.firestore, 'projects');
+    const projectsQuery = query(
+      projectsCollection,
+      orderBy('createdAt', 'asc') // Ordenar por fecha de creación ascendente
+    );
+
+    // Asignar el Observable con manejo de errores
+    this.projects$ = collectionData(projectsQuery, { idField: 'id' }).pipe(
+      catchError((error) => {
+        console.error('Error al cargar los proyectos:', error);
+        return of([]); // En caso de error, devolver un Observable vacío
+      })
+    );
+  }
+
+  openModal(): void {
     this.isModalOpen = true;
   }
 
-  closeModal() {
+  closeModal(): void {
     this.isModalOpen = false;
   }
 
-  handleProjectAdded() {
-    // Aquí puedes realizar cualquier acción adicional después de agregar un proyecto
+  handleProjectAdded(): void {
     console.log('Se ha agregado un nuevo proyecto.');
+    this.loadProjects(); // Recargar proyectos después de agregar uno
   }
 
-  goToProjectDetails(projectId: string) {
-    this.router.navigate(['/project', projectId]); // Asegúrate de que la ruta esté configurada correctamente
+  goToProjectDetails(projectId: string): void {
+    this.router.navigate(['/project', projectId]);
+  }
+
+  editProject(projectId: string, event: Event): void {
+    event.stopPropagation(); // Evitar activar el clic en la tarjeta
+    this.router.navigate([`/edit-project/${projectId}`]);
+  }
+
+  async deleteProject(projectId: string, event: Event): Promise<void> {
+    event.stopPropagation(); // Evitar activar el clic en la tarjeta
+    if (confirm('¿Estás seguro de que deseas eliminar este proyecto?')) {
+      try {
+        const projectDoc = doc(this.firestore, `projects/${projectId}`);
+        await deleteDoc(projectDoc);
+        console.log(`Proyecto ${projectId} eliminado.`);
+        this.loadProjects(); // Recargar proyectos después de eliminar uno
+      } catch (error) {
+        console.error('Error al eliminar el proyecto:', error);
+      }
+    }
   }
 }

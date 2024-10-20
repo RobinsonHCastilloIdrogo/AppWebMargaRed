@@ -1,6 +1,11 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, addDoc } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  Timestamp,
+} from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-project-modal',
@@ -12,22 +17,32 @@ import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 export class ProjectModalComponent {
   projectName: string = ''; // Nombre del proyecto
 
-  @Output() projectAdded = new EventEmitter<void>(); // Evento para notificar que un proyecto ha sido agregado
-  @Output() closeModal = new EventEmitter<void>(); // Evento para cerrar el modal
+  @Output() projectAdded = new EventEmitter<void>(); // Notificación de proyecto agregado
+  @Output() closeModal = new EventEmitter<void>(); // Notificación para cerrar el modal
 
   constructor(private firestore: Firestore) {}
 
   async addProject() {
     if (this.projectName.trim()) {
-      const projectsCollection = collection(this.firestore, 'projects');
-      
+      const projectsCollection = collection(this.firestore, 'projects'); // Colección de proyectos
+
       try {
-        // Agregar el nuevo proyecto a Firestore
-        await addDoc(projectsCollection, { name: this.projectName });
-        console.log('Proyecto agregado a Firestore:', { name: this.projectName });
-        
-        this.projectName = ''; // Limpiar el campo de entrada
-        this.projectAdded.emit(); // Emitir el evento para que el componente padre sepa que se ha agregado un nuevo proyecto
+        // Obtener fecha y hora exacta en formato Timestamp de Firebase
+        const creationTimestamp = Timestamp.now();
+
+        // Guardar el proyecto con nombre y timestamp de creación
+        await addDoc(projectsCollection, {
+          name: this.projectName,
+          createdAt: creationTimestamp, // Registrar fecha y hora de creación
+        });
+
+        console.log('Proyecto agregado:', {
+          name: this.projectName,
+          createdAt: creationTimestamp.toDate(), // Mostrar fecha y hora en consola
+        });
+
+        this.projectName = ''; // Limpiar el input del nombre del proyecto
+        this.projectAdded.emit(); // Notificar que se ha agregado un proyecto
         this.closeModal.emit(); // Cerrar el modal
       } catch (error) {
         console.error('Error al agregar proyecto:', error);
@@ -36,7 +51,7 @@ export class ProjectModalComponent {
   }
 
   close() {
-    this.projectName = ''; // Limpiar el nombre del proyecto al cerrar
-    this.closeModal.emit(); // Emitir evento para que el padre cierre el modal
+    this.projectName = ''; // Limpiar el nombre al cerrar
+    this.closeModal.emit(); // Cerrar el modal
   }
 }
