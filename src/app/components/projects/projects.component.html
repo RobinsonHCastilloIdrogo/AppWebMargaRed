@@ -1,36 +1,59 @@
 <div class="dashboard-container">
-  <!-- Sidebar -->
   <div class="sidebar">
     <app-shared-dashboard></app-shared-dashboard>
   </div>
 
-  <!-- Contenido principal: lista de proyectos -->
   <div class="dashboard-content">
-    <header>
+    <header class="header-container">
       <h2 class="h2-list">Proyectos Actuales</h2>
     </header>
 
-    <div class="button-search-container">
+    <div class="actions-container">
       <button class="add-project-button" (click)="openModal()">
         Agregar Proyecto
       </button>
+      <div class="right-actions">
+        <button class="btn-actions" (click)="toggleEditTable()">
+          Acciones
+        </button>
+      </div>
     </div>
 
-    <div class="cards-container">
-      <div class="project-card" *ngFor="let project of projects$ | async">
-        <h3 class="project-title">{{ project.name }}</h3>
+    <!-- Tabla de edición -->
+    <div *ngIf="showEditTable" class="edit-table-container">
+      <table class="edit-table">
+        <thead>
+          <tr>
+            <th>Nombre del Proyecto</th>
+            <th>Fecha de Creación</th>
+            <th>Hora de Creación</th>
+            <th>Opciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let project of projects$ | async">
+            <td>{{ project.name }}</td>
+            <td>{{ project.createdAt | date : "yyyy-MM-dd" }}</td>
+            <td>{{ project.createdAt | date : "HH:mm:ss" }}</td>
+            <td>
+              <button (click)="startEditProject(project)">Editar</button>
+              <button (click)="deleteProject(project.id, $event)">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-        <div class="project-actions">
-          <button class="btn-edit" (click)="editProject(project.id, $event)">
-            Editar
-          </button>
-          <button
-            class="btn-delete"
-            (click)="deleteProject(project.id, $event)"
-          >
-            Eliminar
-          </button>
-        </div>
+    <!-- Lista de proyectos -->
+    <div class="cards-container" *ngIf="!showEditTable">
+      <div
+        class="project-card"
+        *ngFor="let project of projects$ | async"
+        (click)="goToProjectDetails(project.id)"
+      >
+        <h3 class="project-title">{{ project.name }}</h3>
       </div>
 
       <div *ngIf="!(projects$ | async)?.length" class="no-projects-message">
@@ -38,12 +61,10 @@
       </div>
     </div>
 
-    <!-- Modal para agregar proyectos -->
     <app-project-modal
       *ngIf="isModalOpen"
       (projectAdded)="handleProjectAdded()"
       (closeModal)="closeModal()"
-    >
-    </app-project-modal>
+    ></app-project-modal>
   </div>
 </div>

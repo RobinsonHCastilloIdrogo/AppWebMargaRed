@@ -1,19 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   Firestore,
-  collectionData,
   collection,
   doc,
   deleteDoc,
+  updateDoc,
   query,
   orderBy,
-  DocumentData,
+  getDocs,
+  Timestamp,
+  CollectionReference,
+  Query,
+  collectionData,
 } from '@angular/fire/firestore';
-import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, BehaviorSubject, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Project } from '../../models/projects.model';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
 import { ProjectModalComponent } from './project-modal/project-modal.component';
@@ -31,30 +35,58 @@ import { ProjectModalComponent } from './project-modal/project-modal.component';
   styleUrls: ['./projects.component.css'],
 })
 export class ProjectComponent implements OnInit {
-  projects$: Observable<Project[]> = of([]); // Inicializa como Observable vacío para evitar errores
+  private projectsSubject = new BehaviorSubject<Project[]>([]);
+  projects$ = this.projectsSubject.asObservable();
   isModalOpen: boolean = false;
+  showEditTable: boolean = false;
+  editingProjectId: string | null = null;
 
-  constructor(private firestore: Firestore, private router: Router) {}
+  constructor(
+    private firestore: Firestore,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    this.loadProjects(); // Cargar proyectos al iniciar
+    this.loadProjects();
   }
 
-  // Método para cargar los proyectos desde Firestore ordenados por fecha
+  // Cargar los proyectos desde Firestore
   loadProjects(): void {
-    const projectsCollection = collection(this.firestore, 'projects');
+    const projectsCollection = collection(
+      this.firestore,
+      'projects'
+    ) as CollectionReference<Project>;
+
     const projectsQuery = query(
       projectsCollection,
-      orderBy('createdAt', 'asc') // Ordenar por fecha de creación ascendente
-    );
+      orderBy('createdAt', 'asc')
+    ) as Query<Project>;
 
-    // Asignar el Observable con manejo de errores
-    this.projects$ = collectionData(projectsQuery, { idField: 'id' }).pipe(
+    collectionData(projectsQuery, { idField: 'id' }).pipe(
+      map((projects: Project[]) =>
+        projects.map((project) => ({
+          ...project,
+          createdAt: this.getValidDate(project.createdAt),
+        }))
+      ),
       catchError((error) => {
         console.error('Error al cargar los proyectos:', error);
-        return of([]); // En caso de error, devolver un Observable vacío
+        return of([]); // Observable vacío en caso de error
       })
     );
+  }
+
+  // Validar y convertir Timestamp a Date
+  getValidDate(timestamp: any): Date {
+    if (timestamp instanceof Timestamp) {
+      return timestamp.toDate();
+    } else if (timestamp && !isNaN(Date.parse(timestamp))) {
+      return new Date(timestamp);
+    } else {
+      console.warn('Fecha inválida encontrada:', timestamp);
+      return new Date(); // Fecha actual como fallback
+    }
   }
 
   openModal(): void {
@@ -67,28 +99,66 @@ export class ProjectComponent implements OnInit {
 
   handleProjectAdded(): void {
     console.log('Se ha agregado un nuevo proyecto.');
-    this.loadProjects(); // Recargar proyectos después de agregar uno
+    this.loadProjects();
   }
 
   goToProjectDetails(projectId: string): void {
     this.router.navigate(['/project', projectId]);
   }
 
-  editProject(projectId: string, event: Event): void {
-    event.stopPropagation(); // Evitar activar el clic en la tarjeta
-    this.router.navigate([`/edit-project/${projectId}`]);
+  toggleEditTable(): void {
+    this.showEditTable = !this.showEditTable;
+    if (this.showEditTable) {
+      this.loadProjects();
+    }
+  }
+
+  startEditProject(project: Project): void {
+    this.editingProjectId = project.id;
+  }
+
+  isEditing(project: Project): boolean {
+    return this.editingProjectId === project.id;
+  }
+
+  async saveProject(project: Project): Promise<void> {
+    try {
+      const projectDoc = doc(this.firestore, `projects/${project.id}`);
+      await updateDoc(projectDoc, { name: project.name });
+      console.log(`Proyecto ${project.name} actualizado.`);
+      this.editingProjectId = null;
+      this.loadProjects();
+    } catch (error) {
+      console.error('Error al actualizar el proyecto:', error);
+    }
   }
 
   async deleteProject(projectId: string, event: Event): Promise<void> {
-    event.stopPropagation(); // Evitar activar el clic en la tarjeta
+    event.stopPropagation();
     if (confirm('¿Estás seguro de que deseas eliminar este proyecto?')) {
       try {
         const projectDoc = doc(this.firestore, `projects/${projectId}`);
         await deleteDoc(projectDoc);
-        console.log(`Proyecto ${projectId} eliminado.`);
-        this.loadProjects(); // Recargar proyectos después de eliminar uno
+        this.loadProjects();
       } catch (error) {
         console.error('Error al eliminar el proyecto:', error);
+      }
+    }
+  }
+
+  async deleteAllProjects(event: Event): Promise<void> {
+    event.stopPropagation();
+    if (confirm('¿Estás seguro de que deseas eliminar todos los proyectos?')) {
+      try {
+        const projectsCollection = collection(this.firestore, 'projects');
+        const snapshot = await getDocs(projectsCollection);
+        const batchDeletePromises = snapshot.docs.map((doc) =>
+          deleteDoc(doc.ref)
+        );
+        await Promise.all(batchDeletePromises);
+        this.loadProjects();
+      } catch (error) {
+        console.error('Error al eliminar todos los proyectos:', error);
       }
     }
   }
