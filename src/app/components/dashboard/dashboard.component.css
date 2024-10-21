@@ -1,113 +1,132 @@
 /* Contenedor principal */
 .dashboard-container {
   display: flex;
-  height: 100vh; /* Altura completa de la ventana */
-  overflow: hidden; /* Evitar el desplazamiento en la pantalla principal */
-}
-
-/* Barra lateral (Sidebar) */
-.barra-lateral {
-  width: 250px;
-  background-color: #024e9a; /* Color de fondo más suave */
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border-right: 2px solid rgba(255, 255, 255, 0.1); /* Borde más sutil */
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sombra para darle profundidad */
+  height: 100vh;
 }
 
 /* Contenido principal */
 .dashboard-content {
-  flex-grow: 1;
-  margin-left: 250px; /* Asegura que el contenido no se superponga al sidebar */
-  padding: 30px; /* Espaciado para el contenido */
-  overflow-y: auto; /* Permitir desplazamiento si es necesario, pero no hacia abajo */
-  height: 100vh; /* Altura completa de la ventana */
-  box-sizing: border-box; /* Incluye el padding en el tamaño total */
-  display: flex; /* Hacer que el contenido principal use flexbox */
-  flex-wrap: wrap; /* Permitir que los elementos se envuelvan */
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr; /* 3 columnas: 1 grande y 2 pequeñas */
+  grid-template-rows: 1fr 1fr 1.2fr; /* Ajuste: aumentar la altura de la última fila */
+  grid-gap: 20px;
+  width: 100%;
+  padding: 30px;
+  margin-left: 250px; /* Espacio para la barra lateral */
 }
 
-/* Estilo para la tarjeta */
-.card {
-  background-color: white; /* Color de fondo blanco para la tarjeta */
-  border-radius: 8px; /* Bordes redondeados */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra para darle profundidad */
-  border-left: 5px solid #007bff; /* Borde izquierdo azul */
-  padding: 20px; /* Espaciado interno de la tarjeta */
-  margin: 20px; /* Margen alrededor de la tarjeta para separación */
-  display: flex; /* Hacer que el contenido de la tarjeta use flexbox */
-  flex-direction: column; /* Apilar los elementos verticalmente */
-  width: fit-content; /* Ajustar el ancho al contenido */
-  height: fit-content; /* Ajustar la altura al contenido */
+/* Cuadro grande del gráfico a la izquierda */
+.large-chart {
+  grid-column: 1 / 2;
+  grid-row: 1 / 3;
+  height: 540px;
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-left: 5px solid #007bff;
 }
 
 /* Contenedor del gráfico */
 .chart-container {
-  width: 100%; /* Hacer que el contenedor del gráfico ocupe todo el ancho */
-  height: auto; /* Altura automática para que se ajuste al contenido */
-  margin-top: 10px; /* Espaciado superior para separar el título del gráfico */
+  width: 100%;
+  height: 100%;
+  display: flex; /* Habilitar flexbox */
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center; /* Centrar verticalmente */
+  position: relative; /* Mantener el contexto para el canvas */
 }
 
-/* Canvas */
+/* Contenedor del gráfico de lineas */
+.chart-container-line {
+  width: 100%;
+  height: 227px; /* Asegúrate de que la altura sea suficiente */
+  display: flex; /* Habilitar flexbox */
+  overflow: hidden; /* Evitar que se desborde el contenido */
+  position: relative; /* Mantener el contexto para el canvas */
+}
+
+/* Ajustar el canvas del gráfico de líneas */
+#myLineChart {
+  width: 100% !important; /* Asegura que el canvas ocupe todo el ancho */
+  height: 100% !important; /* Asegura que el canvas ocupe toda la altura */
+  display: block; /* Evitar que se muestre como inline */
+  position: absolute; /* Posición absoluta para llenar el contenedor */
+  top: 0; /* Alinear al borde superior */
+  left: 0; /* Alinear al borde izquierdo */
+  margin: 0; /* Eliminar margen */
+}
+
 canvas {
-  width: 100% !important; /* Asegurarse de que el canvas use todo el ancho disponible */
-  height: 300px !important; /* Establecer un alto fijo para el gráfico */
+  max-width: 100%; /* Ajustar el ancho como desees */
+  max-height: 100%; /* Ajustar la altura como desees */
+  position: relative; /* Cambiar de absolute a relative */
 }
 
-/* Estilo para la tarjeta de Proyectos */
+/* Cuadros pequeños a la derecha (dos tarjetas de proyectos) */
 .project-card {
-  background-color: #f9f9f9; /* Color de fondo más claro */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra para darle profundidad */
-  border-left: 5px solid #007bff; /* Borde izquierdo azul */
-  position: relative; /* Posición relativa para los elementos dentro */
-  overflow: hidden; /* Para evitar que los elementos sobresalgan */
-  width: 400px; /* Ajusta el ancho de la tarjeta de proyectos */
+  background-color: #f9f9f9;
+  border-left: 5px solid #007bff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  height: 200px; /* Ajustar la altura aquí según tus preferencias */
 }
 
-/* Título */
-.project-card h3 {
-  margin: 0 0 15px; /* Espaciado para el título */
-  font-size: 30px; /* Tamaño del texto del título */
-  color: #007bff; /* Color azul para el título */
+/* Cuadro resumen debajo de las dos tarjetas de proyectos */
+.summary-card {
+  grid-column: 2 / 4;
+  grid-row: 2 / 3;
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-left: 5px solid #007bff;
+  height: 320px; /* Ajusta la altura según sea necesario */
+  margin-top: -60px; /* Ajusta el valor del margen negativo para elevarlo */
 }
 
-/* Contenedor de información del proyecto */
+/* Cuadro de ancho completo al final */
+.full-width-card {
+  grid-column: 1 / 4; /* Ocupa todo el ancho */
+  grid-row: 3 / 4;
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-left: 5px solid #007bff;
+  height: 100%; /* Altura flexible para que ocupe más espacio */
+}
+
+/* Estilos comunes para las tarjetas */
+.card {
+  border-radius: 8px;
+  padding: 20px;
+}
+
+/* Estilo para el título de los proyectos */
+.project-card h3,
+.summary-card h3,
+.full-width-card h3 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  color: #007bff;
+}
+
 .project-info {
-  display: flex; /* Flexbox para alinear el icono y el número */
-  align-items: center; /* Centrar verticalmente */
-  justify-content: center; /* Centrar horizontalmente */
+  display: flex;
+  align-items: center;
 }
 
-/* Icono del proyecto */
 .project-icon {
-  width: 60px; /* Tamaño del icono */
-  height: 60px; /* Altura del icono */
-  margin-right: 10px; /* Espacio entre el icono y el número */
+  width: 60px;
+  height: 60px;
+  margin-right: 10px;
 }
 
-/* Número de proyectos */
 .project-count {
-  font-size: 50px; /* Tamaño de fuente grande para el conteo */
-  font-weight: bold; /* Texto en negrita */
-  color: #333; /* Color del texto */
-  display: flex; /* Usar flexbox para centrar */
-  align-items: center; /* Centrar verticalmente */
-  justify-content: center; /* Centrar horizontalmente */
-  text-align: center; /* Asegurar que el texto esté centrado */
-  line-height: 60px; /* Ajustar la altura de línea al tamaño del icono */
-  vertical-align: middle; /* Alinear verticalmente */
-  margin: 0; /* Asegurarse de que no haya márgenes que desajusten la alineación */
+  font-size: 50px;
+  font-weight: bold;
+  color: #333;
 }
 
-/* Descripción */
 .project-description {
-  font-size: 20px; /* Tamaño de fuente más pequeño para la descripción */
-  color: #666; /* Color gris para la descripción */
-  margin-top: 15px; /* Espacio superior para la descripción */
+  font-size: 16px;
+  color: #666;
 }
