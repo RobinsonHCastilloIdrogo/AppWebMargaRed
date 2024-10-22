@@ -1,0 +1,49 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <span class="close" (click)="close()">&times;</span>
+    <h2>Lista de Proyectos</h2>
+
+    <table class="project-table">
+      <thead>
+        <tr>
+          <th>Nombre del Proyecto</th>
+          <th>Fecha de Creación</th>
+          <th>Hora de Creación</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let project of projects">
+          <td>
+            <input
+              [(ngModel)]="project.name"
+              [readonly]="!isEditing(project.id)"
+              class="project-input"
+            />
+          </td>
+          <td>{{ project.createdAt | date : "yyyy-MM-dd" }}</td>
+          <td>{{ project.createdAt | date : "HH:mm:ss" }}</td>
+          <td>
+            <button
+              (click)="startEditing(project.id)"
+              *ngIf="!isEditing(project.id)"
+            >
+              Editar
+            </button>
+            <button
+              (click)="saveChanges(project)"
+              *ngIf="isEditing(project.id)"
+            >
+              Guardar
+            </button>
+            <button (click)="deleteProject(project.id)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="modal-buttons">
+      <button class="btn btn-primary" (click)="close()">Cerrar</button>
+    </div>
+  </div>
+</div>

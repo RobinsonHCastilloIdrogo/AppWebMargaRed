@@ -9,62 +9,68 @@
     </header>
 
     <div class="actions-container">
-      <button class="add-project-button" (click)="openModal()">
+      <button class="btn" (click)="toggleProjectModal()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          width="20"
+          height="20"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 5v14"></path>
+          <path d="M5 12h14"></path>
+        </svg>
         Agregar Proyecto
       </button>
-      <div class="right-actions">
-        <button class="btn-actions" (click)="toggleEditTable()">
-          Acciones
-        </button>
-      </div>
+
+      <button class="btn" (click)="toggleTableModal()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          width="20"
+          height="20"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M6 9l6 6 6-6"></path>
+        </svg>
+        Acciones
+      </button>
     </div>
 
-    <!-- Tabla de edición -->
-    <div *ngIf="showEditTable" class="edit-table-container">
-      <table class="edit-table">
-        <thead>
-          <tr>
-            <th>Nombre del Proyecto</th>
-            <th>Fecha de Creación</th>
-            <th>Hora de Creación</th>
-            <th>Opciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let project of projects$ | async">
-            <td>{{ project.name }}</td>
-            <td>{{ project.createdAt | date : "yyyy-MM-dd" }}</td>
-            <td>{{ project.createdAt | date : "HH:mm:ss" }}</td>
-            <td>
-              <button (click)="startEditProject(project)">Editar</button>
-              <button (click)="deleteProject(project.id, $event)">
-                Eliminar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Lista de proyectos -->
-    <div class="cards-container" *ngIf="!showEditTable">
+    <div class="cards-container">
       <div
         class="project-card"
-        *ngFor="let project of projects$ | async"
-        (click)="goToProjectDetails(project.id)"
+        *ngFor="let project of projects"
+        (click)="toggleTableModal()"
       >
         <h3 class="project-title">{{ project.name }}</h3>
       </div>
 
-      <div *ngIf="!(projects$ | async)?.length" class="no-projects-message">
+      <div *ngIf="!projects.length" class="no-projects-message">
         No se encontraron proyectos.
       </div>
     </div>
 
+    <!-- Modal para agregar proyecto -->
     <app-project-modal
-      *ngIf="isModalOpen"
+      *ngIf="isProjectModalOpen"
+      (close)="toggleProjectModal()"
       (projectAdded)="handleProjectAdded()"
-      (closeModal)="closeModal()"
     ></app-project-modal>
+
+    <app-project-modal-table
+      *ngIf="isModalOpen"
+      [projects]="projects"
+      (closeModal)="toggleTableModal()"
+      (projectUpdated)="loadProjects()"
+    ></app-project-modal-table>
   </div>
 </div>

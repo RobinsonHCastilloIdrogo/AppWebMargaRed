@@ -1,0 +1,148 @@
+/* Overlay para el modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo más oscuro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Contenido del modal */
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25); /* Sombra más pronunciada */
+  width: 80%;
+  max-width: 900px;
+  animation: fadeIn 0.3s ease-in-out;
+  position: relative;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tabla de proyectos */
+.project-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-family: "Arial", sans-serif;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Cabecera de la tabla */
+.project-table thead th {
+  background-color: #007bff;
+  color: white;
+  padding: 16px;
+  text-align: left;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-bottom: 2px solid #0056b3;
+}
+
+/* Filas de la tabla */
+.project-table tbody tr {
+  transition: background-color 0.3s;
+}
+
+.project-table tbody tr:hover {
+  background-color: #f1f1f1; /* Efecto hover */
+}
+
+/* Celdas de la tabla */
+.project-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  vertical-align: middle;
+}
+
+/* Inputs dentro de la tabla */
+.project-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.3s;
+}
+
+.project-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+/* Botones de acciones */
+button {
+  padding: 10px 14px;
+  margin-right: 8px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+/* Botón primario */
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Botón secundario */
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+/* Botón de cerrar */
+.close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s, transform 0.2s;
+}
+
+.close:hover {
+  color: #ff4c4c;
+  transform: scale(1.2);
+}
+
+/* Contenedor de botones del modal */
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}

@@ -22,36 +22,42 @@ export class ProjectModalComponent {
 
   constructor(private firestore: Firestore) {}
 
-  async addProject() {
+  // Función para agregar un proyecto
+  async addProject(): Promise<void> {
     if (this.projectName.trim()) {
-      const projectsCollection = collection(this.firestore, 'projects'); // Colección de proyectos
+      const projectsCollection = collection(this.firestore, 'projects'); // Colección de Firebase
 
       try {
-        // Obtener fecha y hora exacta en formato Timestamp de Firebase
-        const creationTimestamp = Timestamp.now();
+        const creationTimestamp = Timestamp.now(); // Obtener la fecha y hora actual
 
-        // Guardar el proyecto con nombre y timestamp de creación
+        // Guardar el proyecto en Firebase
         await addDoc(projectsCollection, {
           name: this.projectName,
-          createdAt: creationTimestamp, // Registrar fecha y hora de creación
+          createdAt: creationTimestamp,
         });
 
         console.log('Proyecto agregado:', {
           name: this.projectName,
-          createdAt: creationTimestamp.toDate(), // Mostrar fecha y hora en consola
+          createdAt: creationTimestamp.toDate(),
         });
 
-        this.projectName = ''; // Limpiar el input del nombre del proyecto
-        this.projectAdded.emit(); // Notificar que se ha agregado un proyecto
-        this.closeModal.emit(); // Cerrar el modal
+        this.resetForm(); // Limpiar el input
+        this.projectAdded.emit(); // Emitir evento para notificar al padre
+        this.closeModal.emit(); // Emitir evento para cerrar el modal
       } catch (error) {
         console.error('Error al agregar proyecto:', error);
       }
     }
   }
 
-  close() {
-    this.projectName = ''; // Limpiar el nombre al cerrar
-    this.closeModal.emit(); // Cerrar el modal
+  // Función para cerrar el modal y limpiar el input
+  close(): void {
+    this.resetForm();
+    this.closeModal.emit();
+  }
+
+  // Función para limpiar el formulario
+  private resetForm(): void {
+    this.projectName = '';
   }
 }
