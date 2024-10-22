@@ -1,31 +1,46 @@
-// dashboard.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Firestore, collection, getDocs } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+} from '@angular/fire/firestore';
 import { Chart, registerables } from 'chart.js';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
+import { NgIf, NgFor, DatePipe } from '@angular/common';
 
-Chart.register(...registerables); // Registrar los componentes de Chart.js
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   templateUrl: './dashboard.component.html',
-  imports: [SharedDashboardComponent],
+  imports: [SharedDashboardComponent, NgIf, NgFor, DatePipe],
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
   employeesCount: number = 0;
   machinesCount: number = 0;
   projectsCount: number = 0;
+  events: {
+    id: string;
+    name: string;
+    date: Date;
+    horaInicio: string;
+    horaFin: string;
+  }[] = [];
   chart: any;
-  lineChart: any; // Añadir variable para el gráfico de líneas
+  lineChart: any;
+  showLogoutModal: boolean = false;
 
   constructor(private firestore: Firestore) {}
 
   async ngOnInit() {
     await this.getCounts();
+    await this.loadEvents();
     this.createChart();
-    this.createLineChart(); // Llamar a la función para crear el gráfico de líneas
+    this.createLineChart();
   }
 
   async getCounts() {
@@ -39,16 +54,61 @@ export class DashboardComponent implements OnInit {
 
     this.employeesCount = employeesSnapshot.size;
     this.projectsCount = projectsSnapshot.size;
-    this.machinesCount = 0; // Inicializar la cuenta de máquinas
+    this.machinesCount = 0;
     machinesSnapshot.forEach((doc) => {
       const machineData = doc.data();
-      this.machinesCount += machineData['quantity']; // Usar la sintaxis de corchetes para acceder a 'quantity'
+      this.machinesCount += machineData['quantity'];
     });
+  }
+
+  async loadEvents() {
+    try {
+      const eventsCollection = collection(this.firestore, '/assignments');
+      const eventsSnapshot = await getDocs(eventsCollection);
+
+      this.events = eventsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data()['nombreEvento'] ?? 'Evento sin nombre',
+        date: new Date(doc.data()['date']),
+        horaInicio: doc.data()['horaInicio'] ?? '00:00',
+        horaFin: doc.data()['horaFin'] ?? '00:00',
+      }));
+
+      console.log('Eventos cargados:', this.events);
+    } catch (error) {
+      console.error('Error al cargar eventos:', error);
+    }
+  }
+
+  async deleteEvent(eventId: string) {
+    try {
+      await deleteDoc(doc(this.firestore, `/assignments/${eventId}`));
+      console.log(`Evento ${eventId} eliminado`);
+      this.events = this.events.filter((event) => event.id !== eventId);
+    } catch (error) {
+      console.error('Error al eliminar evento:', error);
+    }
+  }
+
+  viewEvent(eventId: string) {
+    console.log(`Visualizando evento con ID: ${eventId}`);
+  }
+
+  openLogoutModal() {
+    this.showLogoutModal = true;
+  }
+
+  closeLogoutModal() {
+    this.showLogoutModal = false;
+  }
+
+  logout() {
+    this.closeLogoutModal();
+    console.log('Cierre de sesión exitoso');
   }
 
   createChart() {
     const ctx = document.getElementById('myPieChart') as HTMLCanvasElement;
-
     this.chart = new Chart(ctx, {
       type: 'pie',
       data: {
@@ -57,23 +117,15 @@ export class DashboardComponent implements OnInit {
           {
             label: 'Cantidad',
             data: [this.employeesCount, this.machinesCount],
-            backgroundColor: [
-              'rgba(0, 123, 255, 0.8)', // Color para empleados
-              'rgba(255, 0, 0, 0.8)', // Color para máquinas
-            ],
+            backgroundColor: ['rgba(0, 123, 255, 0.8)', 'rgba(255, 0, 0, 0.8)'],
           },
         ],
       },
       options: {
         responsive: true,
         plugins: {
-          legend: {
-            position: 'top',
-          },
-          title: {
-            display: true,
-            text: 'Cantidad de Empleados y Máquinas',
-          },
+          legend: { position: 'top' },
+          title: { display: true, text: 'Cantidad de Empleados y Máquinas' },
         },
       },
     });
@@ -81,8 +133,6 @@ export class DashboardComponent implements OnInit {
 
   createLineChart() {
     const ctx = document.getElementById('myLineChart') as HTMLCanvasElement;
-
-    // Datos ficticios de litros de combustible a lo largo de seis meses
     const labels = [
       'Enero',
       'Febrero',
@@ -97,7 +147,7 @@ export class DashboardComponent implements OnInit {
       'Noviembre',
       'Diciembre',
     ];
-    const data = [300, 400, 250, 500, 450, 600, 700, 800, 650, 900, 750, 1000]; // Cantidad de litros
+    const data = [300, 400, 250, 500, 450, 600, 700, 800, 650, 900, 750, 1000];
 
     this.lineChart = new Chart(ctx, {
       type: 'line',
@@ -118,21 +168,15 @@ export class DashboardComponent implements OnInit {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            position: 'top',
-          },
+          legend: { position: 'top' },
           title: {
             display: true,
             text: 'Consumo de Combustible a lo Largo del Tiempo',
           },
         },
         scales: {
-          y: {
-            beginAtZero: true,
-          },
-          x: {
-            beginAtZero: true,
-          },
+          y: { beginAtZero: true },
+          x: { beginAtZero: true },
         },
       },
     });

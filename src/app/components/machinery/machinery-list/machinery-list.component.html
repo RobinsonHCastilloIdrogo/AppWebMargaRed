@@ -1,12 +1,8 @@
 <div class="dashboard-container">
-  <!-- Barra lateral compartida -->
-
-  <!-- Contenido específico de maquinarias -->
   <div class="dashboard-content">
     <h1 class="h2-list">Gestión de Maquinaria</h1>
     <h2 class="subheader">Lista de Maquinarias</h2>
 
-    <!-- Contenedor con sombra para la tabla y el filtro -->
     <div class="content-box">
       <div class="button-search-container">
         <button class="add-machine-button" (click)="openModal()">
@@ -27,6 +23,7 @@
               <th>Nombre</th>
               <th>Cantidad Disponible</th>
               <th>Estado</th>
+              <th>Opciones</th>
             </tr>
           </thead>
           <tbody>
@@ -34,18 +31,57 @@
               <td>{{ machine.name }}</td>
               <td>{{ machine.quantity }}</td>
               <td>{{ machine.status }}</td>
+              <td>
+                <button class="icon-button" (click)="openModal(machine)">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    width="24"
+                    height="24"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"
+                    ></path>
+                    <path d="M13.5 6.5l4 4"></path>
+                  </svg>
+                </button>
+                <button class="icon-button" (click)="deleteMachine(machine.id)">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    width="24"
+                    height="24"
+                    stroke-width="2"
+                  >
+                    <path d="M4 7l16 0"></path>
+                    <path d="M10 11l0 6"></path>
+                    <path d="M14 11l0 6"></path>
+                    <path
+                      d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"
+                    ></path>
+                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                  </svg>
+                </button>
+              </td>
             </tr>
+
             <tr *ngIf="filteredMachines(machines$ | async).length === 0">
-              <td colspan="3">No se encontraron maquinarias</td>
+              <td colspan="4">No se encontraron maquinarias</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
-</div>
 
-<app-machinery-modal
-  *ngIf="isModalOpen"
-  (closeModal)="closeModal()"
-></app-machinery-modal>
+  <app-machinery-modal
+    *ngIf="isModalOpen"
+    [machinery]="selectedMachine"
+    (closeModal)="closeModal()"
+  ></app-machinery-modal>
+</div>

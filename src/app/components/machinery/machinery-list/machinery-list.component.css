@@ -2,39 +2,39 @@
 .dashboard-container {
   display: flex;
   height: 100vh;
-  overflow: hidden;
   background-color: #f4f6f9;
 }
 
 /* Contenido principal */
 .dashboard-content {
   flex-grow: 1;
-  overflow-y: auto;
   height: 100vh;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
 }
 
-/* Cuadro que encierra el botón, el filtro y la tabla */
+/* Contenedor de la tabla y filtro */
 .content-box {
   background-color: #f9fafb;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 /* Título h1 */
 .h2-list {
-  font-size: 32px; /* Cambiado el tamaño del h1 */
+  font-size: 32px;
   font-weight: bold;
   color: #1a202c;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 /* Subtítulo h2 */
 .subheader {
-  font-size: 24px; /* Cambiado el tamaño del h2 */
+  font-size: 24px;
   margin-bottom: 20px;
   color: #4a5568;
 }
@@ -44,7 +44,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 15px;
 }
 
 .add-machine-button {
@@ -68,6 +68,7 @@
   border: 1px solid #cbd5e0;
   border-radius: 6px;
   transition: border-color 0.3s ease;
+  width: 250px;
 }
 
 .search-input:focus {
@@ -77,20 +78,24 @@
 
 /* Tabla */
 .table-container {
-  background-color: white;
+  overflow-y: auto;
+  max-height: 70vh;
   border-radius: 8px;
-  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .machine-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* Previene movimiento de filas */
 }
 
 .machine-table th,
 .machine-table td {
   padding: 12px;
   text-align: left;
+  white-space: nowrap;
 }
 
 .machine-table th {
@@ -98,6 +103,9 @@
   color: white;
   font-weight: bold;
   text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .machine-table td {
@@ -106,4 +114,34 @@
 
 .machine-table tr:hover td {
   background-color: #f1f5f9;
+}
+
+/* Opciones de botones */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  margin: 0 5px; /* Espaciado entre los botones */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, stroke 0.2s ease;
+}
+
+/* Efecto hover */
+.icon-button:hover {
+  transform: scale(1.1);
+}
+
+/* Estilo de los íconos SVG */
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+  stroke: #4a5568;
+}
+
+/* Cambio de color al hacer hover */
+.icon-button:hover svg {
+  stroke: #1f2937;
 }

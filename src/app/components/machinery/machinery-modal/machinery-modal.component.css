@@ -3,102 +3,113 @@
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(
-    0,
-    0,
-    0,
-    0.7
-  ); /* Fondo más oscuro para mayor contraste */
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo más oscuro */
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(
-    1px
-  ); /* Desenfoque de fondo para mejorar la atención al modal */
+  backdrop-filter: blur(4px); /* Mayor desenfoque para el fondo */
+  z-index: 1000; /* Asegurar que esté siempre sobre otros elementos */
 }
 
 /* Contenido del modal */
 .modal-content {
-  background-color: #ffffff;
-  padding: 30px; /* Aumentar el padding para mayor espacio */
-  border-radius: 12px; /* Esquinas más redondeadas */
+  background-color: #fff;
+  padding: 40px; /* Espacio cómodo para contenido */
+  border-radius: 12px;
   width: 400px;
-  max-width: 90%; /* Ajustar el ancho máximo en dispositivos pequeños */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra más suave y profunda */
+  max-width: 90%; /* Adaptable en pantallas pequeñas */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25); /* Sombra más marcada */
+  animation: fadeIn 0.3s ease-in-out; /* Animación de aparición */
+}
+
+/* Animación para aparición suave del modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Título del modal */
 h2 {
   font-size: 24px;
-  color: #333; /* Color de texto más oscuro para mejor legibilidad */
-  margin-bottom: 20px; /* Espacio debajo del título */
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center; /* Centrar el título */
+  font-weight: 700;
 }
 
 /* Grupos de entrada */
 .input-group {
-  margin-bottom: 20px; /* Espacio entre grupos de entrada */
+  margin-bottom: 20px;
 }
 
 .input-group label {
   display: block;
   margin-bottom: 5px;
-  font-weight: 600; /* Peso de fuente más fuerte */
-  color: #555; /* Color más suave para las etiquetas */
+  font-weight: 600;
+  color: #444;
 }
 
-/* Estilos de los inputs */
-.input-group input {
+/* Estilo de los inputs */
+.input-field {
   width: 100%;
-  padding: 12px; /* Aumentar el padding para un mejor toque */
-  border: 1px solid #d1d5db; /* Borde más claro */
-  border-radius: 6px;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
   font-size: 16px;
-  transition: border-color 0.3s ease; /* Transición suave al enfocar */
+  transition: border-color 0.3s ease;
 }
 
-.input-group input:focus {
-  border-color: #2563eb; /* Color del borde al enfocar */
-  outline: none; /* Eliminar el contorno predeterminado */
+.input-field:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
 }
 
 /* Grupo de botones */
-.button-group {
+.modal-buttons {
   display: flex;
-  justify-content: flex-end;
-  gap: 15px; /* Espacio entre botones */
-  margin-top: 20px; /* Mayor espacio arriba de los botones */
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
 }
 
-/* Estilos de los botones */
+/* Botones con estilo */
 button {
-  padding: 10px 20px; /* Más padding para un mejor toque */
+  padding: 10px;
   border: none;
-  border-radius: 6px; /* Esquinas redondeadas */
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s ease, transform 0.2s ease; /* Transición suave */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  flex: 1; /* Asegura que los botones ocupen el mismo ancho */
 }
 
-/* Estilos para el botón de cancelar */
-.button-cancel {
-  background-color: #e74c3c; /* Color de fondo rojo */
+/* Botón de Cancelar */
+.btn-secondary {
+  background-color: #6c757d;
   color: white;
 }
 
-.button-cancel:hover {
-  background-color: #c0392b; /* Color más oscuro al hacer hover */
-  transform: scale(1.05); /* Efecto de crecimiento al hacer hover */
+.btn-secondary:hover {
+  background-color: #5a6268;
+  transform: scale(1.05);
 }
 
-/* Estilos para el botón de agregar */
-.button-save {
-  background-color: #4caf50; /* Color de fondo verde */
+/* Botón de Agregar */
+.btn-primary {
+  background-color: #007bff;
   color: white;
 }
 
-.button-save:hover {
-  background-color: #388e3c; /* Color más oscuro al hacer hover */
-  transform: scale(1.05); /* Efecto de crecimiento al hacer hover */
+.btn-primary:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
 }

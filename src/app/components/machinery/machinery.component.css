@@ -2,7 +2,6 @@
 .dashboard-container {
   display: flex;
   height: 100vh;
-  overflow: hidden;
 }
 
 /* Barra lateral (Sidebar) */
@@ -25,8 +24,7 @@
 .dashboard-content {
   flex-grow: 1;
   margin-left: 250px; /* Asegura que el contenido no se superponga al sidebar */
-  padding: 30px; /* Aumentar el padding para un mejor espacio */
-  overflow-y: auto;
+
   height: 100vh;
   box-sizing: border-box; /* Incluye el padding en el tamaño total */
   background-color: #f8f9fa; /* Color de fondo más claro para el contenido */

@@ -62,7 +62,7 @@
     <!-- Modal para agregar proyecto -->
     <app-project-modal
       *ngIf="isProjectModalOpen"
-      (close)="toggleProjectModal()"
+      (closeModal)="toggleProjectModal()"
       (projectAdded)="handleProjectAdded()"
     ></app-project-modal>
 
