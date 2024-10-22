@@ -26,11 +26,10 @@ export class SharedDashboardComponent implements OnInit {
   constructor(private router: Router, private firestore: Firestore) {}
 
   ngOnInit(): void {
-    // Cargar proyectos al inicializar
     this.loadProjects();
   }
 
-  // Carga y ordena los proyectos desde Firebase Firestore por fecha de creación
+  // Carga y ordena los proyectos desde Firebase Firestore
   async loadProjects(): Promise<void> {
     if (this.projectsLoaded) return; // Evita recargas múltiples
 
@@ -39,36 +38,63 @@ export class SharedDashboardComponent implements OnInit {
       const projectsQuery = query(
         projectsCollection,
         orderBy('createdAt', 'asc')
-      ); // Ordenar por fecha y hora
+      );
 
       const snapshot = await getDocs(projectsQuery);
-
       this.projects = snapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data()['name'] ?? 'Sin Nombre',
-        createdAt: doc.data()['createdAt'].toDate() ?? new Date(), // Convertir timestamp a Date
+        createdAt: doc.data()['createdAt']?.toDate() ?? new Date(),
       }));
 
-      this.projectsLoaded = true; // Marcar como cargado
-      console.log('Proyectos cargados:', this.projects);
+      this.projectsLoaded = true;
+      console.log('%cProyectos cargados:', 'color: green', this.projects);
     } catch (error) {
-      console.error('Error al cargar proyectos:', error);
+      console.error('❌ Error al cargar proyectos:', error);
     }
   }
 
-  // Alterna la apertura del dropdown
   toggleDropdown(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
-    console.log('Dropdown abierto:', this.isDropdownOpen);
+    console.log('📂 Dropdown abierto:', this.isDropdownOpen);
+
+    // Si el dropdown está abierto, agregamos un listener para detectar clics fuera
+    if (this.isDropdownOpen) {
+      setTimeout(() => {
+        window.addEventListener(
+          'click',
+          this.closeDropdownOnClickOutside.bind(this)
+        );
+      }, 0);
+    }
   }
 
-  // Navega al dashboard del proyecto seleccionado
+  closeDropdownOnClickOutside(event: Event): void {
+    const target = event.target as HTMLElement;
+    const dropdownElement = document.querySelector('.dropdown');
+
+    if (dropdownElement && !dropdownElement.contains(target)) {
+      this.isDropdownOpen = false; // Cierra el dropdown
+      console.log('📂 Dropdown cerrado por clic fuera');
+      window.removeEventListener(
+        'click',
+        this.closeDropdownOnClickOutside.bind(this)
+      );
+    }
+  }
+
+  // Ajusta la función para que cierre el dropdown al seleccionar un proyecto
   selectProject(project: { id: string; name: string }): void {
     this.isDropdownOpen = false;
-    console.log(`Navegando al proyecto: ${project.name}`);
+    console.log(`✅ Navegando al proyecto: ${project.name}`);
     this.router.navigate([`/projects/${project.id}`]);
-  }
 
+    // Remover el listener para evitar conflictos
+    window.removeEventListener(
+      'click',
+      this.closeDropdownOnClickOutside.bind(this)
+    );
+  }
   // Control del modal de logout
   openLogoutModal(): void {
     this.showLogoutModal = true;

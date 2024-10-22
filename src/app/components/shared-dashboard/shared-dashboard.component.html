@@ -7,16 +7,13 @@
     </div>
 
     <!-- Selector de Proyectos -->
+    <!-- Dropdown modificado -->
     <div class="dropdown mt-3">
       <button (click)="toggleDropdown()" class="dropdown-btn">
         Administración General
         <span [class.open]="isDropdownOpen">&#9660;</span>
       </button>
-      <ul
-        *ngIf="isDropdownOpen"
-        class="dropdown-menu"
-        style="border: 2px solid red"
-      >
+      <ul [class.open]="isDropdownOpen" class="dropdown-menu">
         <li *ngFor="let project of projects" (click)="selectProject(project)">
           {{ project.name }}
         </li>

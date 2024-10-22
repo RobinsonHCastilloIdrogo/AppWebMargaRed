@@ -227,6 +227,7 @@ body {
   margin: 0;
   z-index: 1000;
   display: block; /* Asegura que se muestre */
+  transition: opacity 0.3s ease-in-out, visibility 0.3s;
 }
 
 .dropdown-menu li {
@@ -237,6 +238,16 @@ body {
 
 .dropdown-menu li:hover {
   background-color: #f0f0f0;
+}
+
+.dropdown-menu.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dropdown-menu:not(.open) {
+  opacity: 0;
+  visibility: hidden;
 }
 
 button[type="button"],
