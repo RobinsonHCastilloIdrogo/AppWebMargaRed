@@ -1,18 +1,27 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-event-details-modal',
   templateUrl: './event-details-modal.component.html',
   styleUrls: ['./event-details-modal.component.css'],
   standalone: true,
+  imports: [NgIf],
 })
-export class EventDetailsModalComponent {
-  @Input() eventDetails: any;
+export class EventDetailsModalComponent implements OnInit {
+  @Input() eventDetails: any = {};
 
-  constructor(public bsModalRef: BsModalRef) {}
+  isEvent!: boolean;
 
-  close() {
-    this.bsModalRef.hide(); // Cerrar el modal
+  constructor(public modalRef: BsModalRef) {}
+
+  ngOnInit(): void {
+    // Determinar si es un evento o un proyecto
+    this.isEvent = !!this.eventDetails.nombreEvento;
+  }
+
+  close(): void {
+    this.modalRef.hide();
   }
 }

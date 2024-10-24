@@ -1,24 +1,32 @@
-<div class="custom-modal-overlay">
-  <div class="custom-modal">
-    <!-- Encabezado del modal -->
-    <div class="modal-header">
-      <span>Detalles del Evento</span>
-      <button class="btn-close" aria-label="Cerrar" (click)="close()">×</button>
-    </div>
+<div class="modal-header">
+  <h5 class="modal-title">
+    Detalles del {{ isEvent ? "Evento" : "Proyecto" }}
+  </h5>
+  <button type="button" class="close" (click)="close()">
+    <span>&times;</span>
+  </button>
+</div>
 
-    <!-- Cuerpo del modal -->
-    <div class="modal-body">
-      <p><strong>Evento:</strong> {{ eventDetails.nombreEvento }}</p>
-      <p><strong>Empleado:</strong> {{ eventDetails.empleado }}</p>
-      <p><strong>Maquinaria:</strong> {{ eventDetails.maquina }}</p>
-      <p><strong>Descripción:</strong> {{ eventDetails.descripcion }}</p>
-      <p><strong>Inicio:</strong> {{ eventDetails.horaInicio }}</p>
-      <p><strong>Fin:</strong> {{ eventDetails.horaFin }}</p>
-    </div>
-
-    <!-- Pie del modal -->
-    <div class="modal-footer">
-      <button (click)="close()">Cerrar</button>
-    </div>
+<div class="modal-body">
+  <div *ngIf="isEvent; else projectDetails">
+    <p><strong>Evento:</strong> {{ eventDetails.nombreEvento }}</p>
+    <p><strong>Empleado:</strong> {{ eventDetails.empleado }}</p>
+    <p><strong>Maquinaria:</strong> {{ eventDetails.maquina }}</p>
+    <p><strong>Descripción:</strong> {{ eventDetails.descripcion }}</p>
+    <p><strong>Inicio:</strong> {{ eventDetails.horaInicio }}</p>
+    <p><strong>Fin:</strong> {{ eventDetails.horaFin }}</p>
   </div>
+
+  <ng-template #projectDetails>
+    <p><strong>Proyecto:</strong> {{ eventDetails.nombreProyecto }}</p>
+    <p><strong>Descripción:</strong> {{ eventDetails.descripcion }}</p>
+    <p><strong>Inicio:</strong> {{ eventDetails.horaInicio }}</p>
+    <p><strong>Fin:</strong> {{ eventDetails.horaFin }}</p>
+  </ng-template>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-success" (click)="close()">
+    Cerrar
+  </button>
 </div>
