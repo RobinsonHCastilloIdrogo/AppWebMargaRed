@@ -114,10 +114,12 @@ export class FirebaseService {
     return addDoc(assignmentsCollection, assignment).then((docRef) => {
       const event = {
         id: docRef.id, // Capturar el ID generado por Firebase
-        title: assignment.nombreEvento,
+        title:
+          assignment.nombreProyecto || assignment.nombreEvento || 'Sin nombre', // Verificar el nombre correcto
         start: assignment.date,
         extendedProps: { ...assignment },
       };
+      console.log('Evento emitido:', event); // Verificación en consola
       this.emitirEvento(event); // Emitir el evento
     });
   }
@@ -129,13 +131,25 @@ export class FirebaseService {
 
     return collectionData(assignmentsCollection, { idField: 'id' }).pipe(
       map((assignments: any[]) =>
-        assignments.map((assignment) => ({
-          id: assignment.id,
-          title: assignment.nombreEvento,
-          start: assignment.date,
-          extendedProps: { ...assignment },
-        }))
-      )
+        assignments.map((assignment) => {
+          const title =
+            assignment.nombreProyecto ||
+            assignment.nombreEvento ||
+            'Sin nombre';
+          console.log(`Título asignado: ${title}`); // Depuración
+
+          return {
+            id: assignment.id,
+            title: title, // Asignar el nombre correcto aquí
+            start: assignment.date,
+            extendedProps: { ...assignment },
+          };
+        })
+      ),
+      catchError((error) => {
+        console.error('Error al cargar asignaciones:', error);
+        return []; // Retornar un array vacío en caso de error
+      })
     );
   }
 
