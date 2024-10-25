@@ -1,14 +1,18 @@
 /* Contenedor principal */
 .dashboard-container {
   display: flex;
-  height: 100vh;
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center; /* Centrar verticalmente si es necesario */
+  height: 100vh; /* Asegura que ocupe la altura completa de la ventana */
+  padding: 20px; /* Espacio para que el contenido no quede pegado al borde */
+  box-sizing: border-box;
 }
 
 /* Contenido principal */
 .dashboard-content {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr; /* 3 columnas: 1 grande y 2 pequeñas */
-  grid-template-rows: 1fr 1fr 1.2fr; /* Ajuste: aumentar la altura de la última fila */
+  grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr; /* Ajuste: añadir una columna adicional para la tercera tarjeta */
+  grid-template-rows: 1fr 1fr 1.2fr;
   grid-gap: 20px;
   width: 100%;
   padding: 30px;
@@ -73,25 +77,25 @@ canvas {
 
 /* Cuadro resumen debajo de las dos tarjetas de proyectos */
 .summary-card {
-  grid-column: 2 / 4;
+  grid-column: 2 / 5; /* Ajuste: Se expande desde la segunda hasta la cuarta columna */
   grid-row: 2 / 3;
   background-color: white;
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-left: 5px solid #007bff;
-  height: 320px; /* Ajusta la altura según sea necesario */
-  margin-top: -60px; /* Ajusta el valor del margen negativo para elevarlo */
+  height: 320px;
+  margin-top: -60px;
 }
 
 /* Cuadro de ancho completo al final */
 .full-width-card {
-  grid-column: 1 / 4; /* Ocupa todo el ancho */
+  grid-column: 1 / 5; /* Ajuste: ocupa toda la fila */
   grid-row: 3 / 4;
   background-color: white;
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-left: 5px solid #007bff;
-  height: 100%; /* Altura flexible para que ocupe más espacio */
+  height: 100%;
 }
 
 /* Estilos comunes para las tarjetas */

@@ -25,6 +25,9 @@ export class DashboardComponent implements OnInit {
   employeesCount: number = 0;
   machinesCount: number = 0;
   projectsCount: number = 0;
+  projectsInProgressCount: number = 0; // Proyectos en curso
+  projectsPendingCount: number = 0; // Proyectos pendientes
+  projectsCompletedCount: number = 0; // Proyectos finalizados
 
   isEventSelected: boolean = true; // Controla si se muestran eventos o proyectos
   events: any[] = []; // Almacena los eventos cargados
@@ -89,13 +92,27 @@ export class DashboardComponent implements OnInit {
 
     this.projects = projectsSnapshot.docs
       .filter((doc) => doc.data()['nombreProyecto']) // Filtra solo proyectos
-      .map((doc) => ({
-        id: doc.id,
-        nombreProyecto: doc.data()['nombreProyecto'],
-        date: new Date(doc.data()['date']),
-        horaInicio: doc.data()['horaInicio'] ?? '00:00',
-        horaFin: doc.data()['horaFin'] ?? '00:00',
-      }));
+      .map((doc) => {
+        const projectData = doc.data();
+        const status = projectData['status']; // Suponemos que tienes un campo 'status' para el estado del proyecto
+
+        // Clasificar proyectos según el estado
+        if (status === 'en curso') {
+          this.projectsInProgressCount++;
+        } else if (status === 'pendiente') {
+          this.projectsPendingCount++;
+        } else if (status === 'finalizado') {
+          this.projectsCompletedCount++;
+        }
+
+        return {
+          id: doc.id,
+          nombreProyecto: projectData['nombreProyecto'],
+          date: new Date(projectData['date']),
+          horaInicio: projectData['horaInicio'] ?? '00:00',
+          horaFin: projectData['horaFin'] ?? '00:00',
+        };
+      });
 
     console.log('Proyectos cargados:', this.projects);
   }
