@@ -1,6 +1,8 @@
 <div class="dashboard-container">
   <app-shared-dashboard></app-shared-dashboard>
+
   <div class="dashboard-content">
+    <!-- Gráfico de Recursos -->
     <div class="card chart-card large-chart">
       <h2>Gráfico de Recursos</h2>
       <div class="chart-container">
@@ -8,6 +10,7 @@
       </div>
     </div>
 
+    <!-- Proyectos en Curso -->
     <div class="card project-card">
       <h3>Proyectos</h3>
       <div class="project-info">
@@ -21,6 +24,7 @@
       <p class="project-description">Cantidad total de proyectos en curso.</p>
     </div>
 
+    <!-- Proyectos Finalizados -->
     <div class="card project-card">
       <h3>Proyectos Finalizados</h3>
       <div class="project-info">
@@ -36,15 +40,28 @@
       </p>
     </div>
 
+    <!-- Reporte de Eventos / Proyectos -->
     <div class="card summary-card">
-      <h3>Reporte de Eventos</h3>
+      <div class="header-dropdown">
+        <h3 class="header-title">
+          Reporte de {{ isEventSelected ? "Eventos" : "Proyectos" }}
+        </h3>
+        <select
+          [(ngModel)]="isEventSelected"
+          (ngModelChange)="selectView($event)"
+          class="dropdown-select"
+        >
+          <option [ngValue]="true">Eventos</option>
+          <option [ngValue]="false">Proyectos</option>
+        </select>
+      </div>
 
-      <!-- Contenedor con scroll para la tabla -->
+      <!-- Contenedor de la tabla -->
       <div class="table-container">
         <table class="event-table modern-table">
           <thead>
             <tr>
-              <th>Nombre del Evento</th>
+              <th>Nombre</th>
               <th>Fecha</th>
               <th>Hora de Inicio</th>
               <th>Hora de Fin</th>
@@ -52,16 +69,16 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let event of events">
-              <td>{{ event.name }}</td>
-              <td>{{ event.date | date : "MM/dd/yy" }}</td>
-              <td>{{ event.horaInicio }}</td>
-              <td>{{ event.horaFin }}</td>
+            <tr *ngFor="let item of displayedItems">
+              <td>{{ item.nombreEvento || item.nombreProyecto }}</td>
+              <td>{{ item.date | date : "MM/dd/yy" }}</td>
+              <td>{{ item.horaInicio }}</td>
+              <td>{{ item.horaFin }}</td>
               <td>
                 <div class="action-buttons">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    (click)="viewEvent(event.id)"
+                    (click)="viewItem(item.id)"
                     width="20"
                     height="20"
                     fill="none"
@@ -75,12 +92,10 @@
                       d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"
                     ></path>
                     <path d="M13.5 6.5l4 4"></path>
-                    <path d="M16 19h6"></path>
-                    <path d="M19 16v6"></path>
                   </svg>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    (click)="deleteEvent(event.id)"
+                    (click)="deleteItem(item.id)"
                     width="20"
                     height="20"
                     fill="none"
@@ -104,11 +119,12 @@
         </table>
       </div>
 
-      <p *ngIf="events.length === 0" class="no-events">
-        No hay eventos disponibles.
+      <p *ngIf="displayedItems.length === 0" class="no-items">
+        No hay {{ isEventSelected ? "eventos" : "proyectos" }} disponibles.
       </p>
     </div>
 
+    <!-- Gráfico de Líneas -->
     <div class="card full-width-card">
       <h3>Gráfico de líneas</h3>
       <div class="chart-container-line">
@@ -117,7 +133,7 @@
     </div>
   </div>
 
-  <!-- Modal de confirmación de cierre de sesión -->
+  <!-- Modal de Confirmación de Cierre de Sesión -->
   <div *ngIf="showLogoutModal" class="modal-overlay">
     <div class="modal-content">
       <h2>Confirmar Cierre de Sesión</h2>
