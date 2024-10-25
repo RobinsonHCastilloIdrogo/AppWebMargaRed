@@ -1,1 +1,40 @@
-<p>project-team works!</p>
+<div class="team-container">
+  <h2>Equipo del Proyecto</h2>
+
+  <div class="add-member-form">
+    <select [(ngModel)]="selectedEmployeeId">
+      <option *ngFor="let employee of employees" [value]="employee.id">
+        {{ employee.name }}
+      </option>
+    </select>
+
+    <input
+      type="text"
+      [(ngModel)]="newMemberRole"
+      placeholder="Rol en el proyecto..."
+    />
+
+    <select [(ngModel)]="selectedMachineId">
+      <option *ngFor="let machine of machines" [value]="machine.id">
+        {{ machine.name }}
+      </option>
+    </select>
+
+    <button (click)="addMember()">Agregar Miembro</button>
+  </div>
+
+  <ul class="team-list">
+    <li *ngFor="let member of teamMembers">
+      <div class="member-info">
+        <p>
+          <strong>{{ member.employeeName }}</strong> - {{ member.role }} <br />
+          <em>Máquina asignada: {{ member.machineName || "No asignada" }}</em>
+        </p>
+      </div>
+      <div class="member-actions">
+        <button (click)="editMember(member)">Editar</button>
+        <button (click)="deleteMember(member.id)">Eliminar</button>
+      </div>
+    </li>
+  </ul>
+</div>

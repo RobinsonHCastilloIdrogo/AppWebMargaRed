@@ -1,0 +1,88 @@
+.team-container {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #2d3748;
+  text-align: center;
+}
+
+.add-member-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.add-member-form select,
+.add-member-form input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+.add-member-form button {
+  padding: 10px 20px;
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-member-form button:hover {
+  background-color: #2b6cb0;
+}
+
+.team-list {
+  list-style: none;
+  padding: 0;
+}
+
+.team-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.member-info {
+  font-size: 18px;
+  color: #2d3748;
+}
+
+.member-actions button {
+  margin-left: 10px;
+  padding: 8px 12px;
+  background-color: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.member-actions button:hover {
+  background-color: #c53030;
+}
+
+@media (max-width: 768px) {
+  .add-member-form {
+    flex-direction: column;
+  }
+
+  .team-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

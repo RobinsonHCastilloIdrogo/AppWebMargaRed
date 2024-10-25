@@ -1,1 +1,32 @@
-<p>project-details works!</p>
+<div class="details-container">
+  <h2>Detalles del Proyecto</h2>
+
+  <div class="project-info">
+    <div class="info-group">
+      <label>Nombre del Proyecto:</label>
+      <p>{{ project?.name || "No disponible" }}</p>
+    </div>
+
+    <div class="info-group">
+      <label>Descripción:</label>
+      <p>{{ project?.description || "No disponible" }}</p>
+    </div>
+
+    <div class="info-group">
+      <label>Fecha de Inicio:</label>
+      <p>{{ project?.startDate | date : "longDate" }}</p>
+    </div>
+
+    <div class="info-group">
+      <label>Fecha de Finalización:</label>
+      <p>{{ project?.endDate | date : "longDate" }}</p>
+    </div>
+
+    <div class="info-group">
+      <label>Estado:</label>
+      <p>{{ project?.status || "No disponible" }}</p>
+    </div>
+  </div>
+
+  <button class="edit-button" (click)="editProject()">Editar Proyecto</button>
+</div>
