@@ -8,6 +8,7 @@ import { LoginComponent } from './components/login/login.component';
 import { AssignResourcesComponent } from './components/assign-resources/assign-resources.component';
 import { ProjectComponent } from './components/projects/projects.component';
 import { CalendarComponent } from './components/calendar/calendar.component';
+import { FuelManagementComponent } from './components/fuel-management/fuel-management.component';
 import { ProjectDashboardComponent } from './components/project-dashboard/project-dashboard.component'; // Importamos el nuevo componente
 import { ProjectDetailsComponent } from './components/project-dashboard/project-details/project-details.component';
 import { ProjectTasksComponent } from './components/project-dashboard/project-tasks/project-tasks.component';
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: 'machinery', component: MachineryComponent },
   { path: 'assign-resources', component: AssignResourcesComponent },
   { path: 'projects', component: ProjectComponent },
+  { path: 'fuel', component: FuelManagementComponent },
   { path: 'calendar', component: CalendarComponent },
 
   // Nueva ruta para ProjectDashboard con subrutas

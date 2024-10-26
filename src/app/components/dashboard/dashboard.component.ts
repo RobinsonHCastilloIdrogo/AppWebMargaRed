@@ -9,6 +9,7 @@ import {
 import { Chart, registerables } from 'chart.js';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
 import { NgIf, NgFor, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // Import FormsModule
 
 Chart.register(...registerables);
 
@@ -16,7 +17,7 @@ Chart.register(...registerables);
   selector: 'app-dashboard',
   standalone: true,
   templateUrl: './dashboard.component.html',
-  imports: [SharedDashboardComponent, NgIf, NgFor, DatePipe],
+  imports: [SharedDashboardComponent, NgIf, NgFor, DatePipe, FormsModule],
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
@@ -34,11 +35,15 @@ export class DashboardComponent implements OnInit {
   lineChart: any;
   showLogoutModal: boolean = false;
 
+  resources: string[] = []; // Para almacenar los nombres de los proyectos
+  selectedResource: string = ''; // Para el proyecto seleccionado
+
   constructor(private firestore: Firestore) {}
 
   async ngOnInit() {
     await this.getCounts();
     await this.loadEvents();
+    await this.loadProjects();
     this.createChart();
     this.createLineChart();
   }
@@ -80,9 +85,20 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  async loadProjects() {
+    try {
+      const projectsCollection = collection(this.firestore, '/projects');
+      const projectsSnapshot = await getDocs(projectsCollection);
+      this.resources = projectsSnapshot.docs.map((doc) => doc.data()['name'] ?? 'Proyecto sin nombre');
+      console.log('Proyectos cargados:', this.resources);
+    } catch (error) {
+      console.error('Error al cargar proyectos:', error);
+    }
+  }
+
   async deleteEvent(eventId: string) {
     try {
-      await deleteDoc(doc(this.firestore, `/assignments/${eventId}`));
+      await deleteDoc(doc(this.firestore, `assignments/${eventId}`));
       console.log(`Evento ${eventId} eliminado`);
       this.events = this.events.filter((event) => event.id !== eventId);
     } catch (error) {
@@ -180,5 +196,9 @@ export class DashboardComponent implements OnInit {
         },
       },
     });
+  }
+  onResourceChange() {
+    console.log('Proyecto seleccionado:', this.selectedResource);
+    // Aquí puedes agregar la lógica que necesites al cambiar el proyecto seleccionado
   }
 }

@@ -2,12 +2,17 @@
   <app-shared-dashboard></app-shared-dashboard>
   <div class="dashboard-content">
     <div class="card chart-card large-chart">
-      <h2>Gráfico de Recursos</h2>
+      <div class="title-selector-container">
+        <h2>Gráfico de Recursos</h2>
+        <select class="resource-selector" [(ngModel)]="selectedResource" (change)="onResourceChange()">
+          <option *ngFor="let resource of resources" [value]="resource">{{ resource }}</option>
+        </select>
+      </div>
       <div class="chart-container">
         <canvas id="myPieChart" width="100" height="100"></canvas>
       </div>
     </div>
-
+    
     <div class="card project-card">
       <h3>Proyectos</h3>
       <div class="project-info">
@@ -20,7 +25,6 @@
       </div>
       <p class="project-description">Cantidad total de proyectos en curso.</p>
     </div>
-
     <div class="card project-card">
       <h3>Proyectos Finalizados</h3>
       <div class="project-info">
@@ -35,11 +39,8 @@
         Cantidad total de proyectos finalizados.
       </p>
     </div>
-
     <div class="card summary-card">
       <h3>Reporte de Eventos</h3>
-
-      <!-- Contenedor con scroll para la tabla -->
       <div class="table-container">
         <table class="event-table modern-table">
           <thead>
@@ -103,12 +104,10 @@
           </tbody>
         </table>
       </div>
-
       <p *ngIf="events.length === 0" class="no-events">
         No hay eventos disponibles.
       </p>
     </div>
-
     <div class="card full-width-card">
       <h3>Gráfico de líneas</h3>
       <div class="chart-container-line">
@@ -117,7 +116,6 @@
     </div>
   </div>
 
-  <!-- Modal de confirmación de cierre de sesión -->
   <div *ngIf="showLogoutModal" class="modal-overlay">
     <div class="modal-content">
       <h2>Confirmar Cierre de Sesión</h2>
