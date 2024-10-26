@@ -4,12 +4,9 @@ import { NgIf } from '@angular/common';
 import {
   Firestore,
   collection,
-  addDoc,
-  updateDoc,
   setDoc,
   doc,
   getDoc,
-  Timestamp,
 } from '@angular/fire/firestore';
 import { Machine, MachineryData } from '/Users/Estefano Quito/Documents/GitHub/AppWebMargaRed/src/app/models/machine.model'; // Verifica la ruta correcta
 
@@ -45,34 +42,40 @@ export class MachineryModalComponent implements OnInit {
       try {
         const machineryCollection = collection(this.firestore, 'machines');
         const machineryDocRef = doc(machineryCollection, this.machinery.name); // Usa el nombre como ID
-  
+
         const existingDataSnapshot = await getDoc(machineryDocRef);
         let existingData: MachineryData;
-  
+        let isEditMode = !!this.machinery.id; // Modo de edición si existe ID
+
         if (existingDataSnapshot.exists()) {
           existingData = existingDataSnapshot.data() as MachineryData;
-  
-          // Si ya existe, simplemente actualizar la cantidad
-          existingData.quantity = this.machinery.quantity;
-  
-          // Actualizar el array de máquinas con la nueva cantidad
-          const machines: Machine[] = Array.from({ length: this.machinery.quantity }, (_, index) => ({
-            id: this.generateMachineryCode(this.machinery.name, index + 1), // Asigna el ID aquí
-            name: this.machinery.name,
-            quantity: 1, // Cada máquina tiene una unidad
-            status: 'Disponible', // O el estado que necesites
-          }));
-  
-          existingData.machines = machines; // Reemplazar el array de máquinas
-        } else {
-          // Si no existe, inicializarlo
-          const machines: Machine[] = Array.from({ length: this.machinery.quantity }, (_, index) => ({
-            id: this.generateMachineryCode(this.machinery.name, index + 1), // Asigna el ID aquí
+
+          if (isEditMode) {
+            // Editar: Actualiza la cantidad
+            existingData.quantity = this.machinery.quantity;
+          } else {
+            // Agregar: Sumar la cantidad existente con la nueva
+            existingData.quantity += this.machinery.quantity;
+          }
+
+          // Actualizar el array de máquinas con la cantidad adecuada
+          const machines: Machine[] = Array.from({ length: existingData.quantity }, (_, index) => ({
+            id: this.generateMachineryCode(this.machinery.name, index + 1),
             name: this.machinery.name,
             quantity: 1,
             status: 'Disponible',
           }));
-  
+
+          existingData.machines = machines; // Reemplazar el array de máquinas
+        } else {
+          // Si no existe, inicializarlo
+          const machines: Machine[] = Array.from({ length: this.machinery.quantity }, (_, index) => ({
+            id: this.generateMachineryCode(this.machinery.name, index + 1),
+            name: this.machinery.name,
+            quantity: 1,
+            status: 'Disponible',
+          }));
+
           existingData = {
             id: this.machinery.name,
             name: this.machinery.name,
@@ -81,9 +84,9 @@ export class MachineryModalComponent implements OnInit {
             machines: machines,
           };
         }
-  
+
         await setDoc(machineryDocRef, existingData); // Guardar los datos
-  
+
         console.log('✅ Maquinaria guardada con éxito:', existingData);
         this.resetForm();
         this.machineryAdded.emit();
@@ -95,8 +98,6 @@ export class MachineryModalComponent implements OnInit {
       console.error('❌ Entrada inválida: Completa los campos correctamente.');
     }
   }
-  
-
 
   // Validar que los campos no estén vacíos
   isValidInput(): boolean {

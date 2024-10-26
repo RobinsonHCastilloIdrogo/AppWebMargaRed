@@ -71,19 +71,23 @@ export class FuelManagementComponent implements OnInit {
   async assignFuel(): Promise<void> {
     if (this.selectedMachine && this.fuelAmount > 0) {
       try {
-        const tractorDocRef = doc(this.firestore, 'machines', 'Tractor');
-        const tractorDoc = await getDoc(tractorDocRef);
+        // Selecciona el documento de la máquina basada en el tipo seleccionado
+        const machineDocRef = doc(this.firestore, 'machines', this.selectedMachineType as string);
+        const machineDoc = await getDoc(machineDocRef);
         
-        if (tractorDoc.exists()) {
-          const tractorData = tractorDoc.data() as { machines: Machine[] };
-          const updatedMachines = tractorData.machines.map(machine => {
+        if (machineDoc.exists()) {
+          const machineData = machineDoc.data() as { machines: Machine[] };
+          
+          // Actualiza el campo de combustible solo para la máquina seleccionada
+          const updatedMachines = machineData.machines.map(machine => {
             if (this.selectedMachine && machine.id === this.selectedMachine.id) {
-              return { ...machine, fuel: this.fuelAmount };
+              return { ...machine, fuel: this.fuelAmount }; // Asigna combustible a la máquina
             }
             return machine;
           });
   
-          await updateDoc(tractorDocRef, { machines: updatedMachines });
+          // Guarda el array de máquinas actualizado
+          await updateDoc(machineDocRef, { machines: updatedMachines });
           
           // Muestra un mensaje de éxito con SweetAlert2
           Swal.fire({
@@ -92,19 +96,19 @@ export class FuelManagementComponent implements OnInit {
             icon: 'success',
             confirmButtonText: 'Aceptar',
           });
-  
+          
           this.resetForm();
         } else {
-          // Muestra un mensaje de error con SweetAlert2
+          // Documento no encontrado
           Swal.fire({
             title: '¡Error!',
-            text: 'Documento de tractor no encontrado.',
+            text: `Documento de ${this.selectedMachineType} no encontrado.`,
             icon: 'error',
             confirmButtonText: 'Aceptar'
           });
         }
       } catch (error) {
-        // Muestra un mensaje de error con SweetAlert2
+        // Error al asignar combustible
         Swal.fire({
           title: '¡Error!',
           text: 'Error al asignar combustible. Intente nuevamente.',
@@ -114,7 +118,7 @@ export class FuelManagementComponent implements OnInit {
         console.error('Error al asignar combustible:', error);
       }
     } else {
-      // Muestra un mensaje de advertencia con SweetAlert2
+      // Advertencia por selección inválida
       Swal.fire({
         title: '¡Advertencia!',
         text: 'Selecciona una máquina y asigna una cantidad válida de combustible.',
@@ -124,7 +128,6 @@ export class FuelManagementComponent implements OnInit {
     }
   }  
    
-  
   private resetForm(): void {
     this.selectedMachineType = undefined; // Reiniciar tipo de máquina
     this.specificMachines = []; // Reiniciar máquinas específicas
