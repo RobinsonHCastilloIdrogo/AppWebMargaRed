@@ -4,7 +4,6 @@
     quantity: number; // Cantidad
     status: string; // Estado
     code?: string; // Si necesitas almacenar el código también
-    fuel?: number; // Cantidad de combustible, puede ser opcional
   }
   export interface MachineryData {
     id: string;

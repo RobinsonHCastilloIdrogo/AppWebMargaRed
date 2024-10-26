@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
-import { Firestore, doc, updateDoc, collection, getDocs, getDoc } from '@angular/fire/firestore';
+import { Firestore, doc, collection, getDocs, setDoc, Timestamp, arrayUnion } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Machine } from '/Users/Estefano Quito/Documents/GitHub/AppWebMargaRed/src/app/models/machine.model';
@@ -71,44 +71,30 @@ export class FuelManagementComponent implements OnInit {
   async assignFuel(): Promise<void> {
     if (this.selectedMachine && this.fuelAmount > 0) {
       try {
-        // Selecciona el documento de la máquina basada en el tipo seleccionado
-        const machineDocRef = doc(this.firestore, 'machines', this.selectedMachineType as string);
-        const machineDoc = await getDoc(machineDocRef);
+        const fuelDocRef = doc(this.firestore, `machines/${this.selectedMachineType}/fuelAssignments/${this.selectedMachine.id}`);
         
-        if (machineDoc.exists()) {
-          const machineData = machineDoc.data() as { machines: Machine[] };
-          
-          // Actualiza el campo de combustible solo para la máquina seleccionada
-          const updatedMachines = machineData.machines.map(machine => {
-            if (this.selectedMachine && machine.id === this.selectedMachine.id) {
-              return { ...machine, fuel: this.fuelAmount }; // Asigna combustible a la máquina
-            }
-            return machine;
-          });
+        // Agregar nueva entrada de combustible al historial
+        const newFuelEntry = {
+          Combustible: this.fuelAmount,
+          Fecha: Timestamp.now()
+        };
+        
+        await setDoc(
+          fuelDocRef,
+          { fuelHistory: arrayUnion(newFuelEntry) },
+          { merge: true }
+        );
   
-          // Guarda el array de máquinas actualizado
-          await updateDoc(machineDocRef, { machines: updatedMachines });
-          
-          // Muestra un mensaje de éxito con SweetAlert2
-          Swal.fire({
-            title: '¡Éxito!',
-            text: `Combustible asignado a ${this.selectedMachine.name}: ${this.fuelAmount} L`,
-            icon: 'success',
-            confirmButtonText: 'Aceptar',
-          });
-          
-          this.resetForm();
-        } else {
-          // Documento no encontrado
-          Swal.fire({
-            title: '¡Error!',
-            text: `Documento de ${this.selectedMachineType} no encontrado.`,
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-          });
-        }
+        // Muestra un mensaje de éxito con SweetAlert2
+        Swal.fire({
+          title: '¡Éxito!',
+          text: `Combustible asignado a ${this.selectedMachine.name}: ${this.fuelAmount} L`,
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+        });
+  
+        this.resetForm();
       } catch (error) {
-        // Error al asignar combustible
         Swal.fire({
           title: '¡Error!',
           text: 'Error al asignar combustible. Intente nuevamente.',
@@ -118,7 +104,6 @@ export class FuelManagementComponent implements OnInit {
         console.error('Error al asignar combustible:', error);
       }
     } else {
-      // Advertencia por selección inválida
       Swal.fire({
         title: '¡Advertencia!',
         text: 'Selecciona una máquina y asigna una cantidad válida de combustible.',
@@ -126,7 +111,7 @@ export class FuelManagementComponent implements OnInit {
         confirmButtonText: 'Aceptar'
       });
     }
-  }  
+  }
    
   private resetForm(): void {
     this.selectedMachineType = undefined; // Reiniciar tipo de máquina
