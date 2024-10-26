@@ -153,6 +153,7 @@ canvas {
   border-collapse: collapse;
   font-size: 15px;
   color: #333; /* Color de texto más neutral */
+  text-align: center; /* Cambia `left` por `center` para centrar el texto */
 }
 
 /* Encabezado fijo y estilizado */
@@ -241,7 +242,8 @@ canvas {
 /* Contenedor de los botones de acción */
 .action-buttons {
   display: flex;
-  align-items: center;
+  align-items: center; /* Centrar verticalmente */
+  justify-content: center; /* Centrar horizontalmente */
   gap: 15px; /* Espacio entre los íconos */
 }
 
@@ -317,6 +319,7 @@ canvas {
 .event-table {
   width: 100%;
   border-collapse: collapse;
+  text-align: center; /* Cambia `left` por `center` para centrar el texto */
 }
 
 .event-table th {
@@ -324,6 +327,7 @@ canvas {
   color: white;
   padding: 12px;
   text-align: left;
+  text-align: center; /* Cambia `left` por `center` para centrar el texto */
 }
 
 .event-table td {
@@ -334,6 +338,7 @@ canvas {
 .action-buttons svg {
   cursor: pointer;
   transition: transform 0.2s ease;
+  text-align: center; /* Cambia `left` por `center` para centrar el texto */
 }
 
 .action-buttons svg:hover {
