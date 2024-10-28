@@ -8,8 +8,7 @@ import {
   doc,
   getDoc,
 } from '@angular/fire/firestore';
-import { Machine, MachineryData } from '/Users/Estefano Quito/Documents/GitHub/AppWebMargaRed/src/app/models/machine.model'; // Verifica la ruta correcta
-
+import { Machine, MachineryData } from '../../../models/machine.model';
 @Component({
   selector: 'app-machinery-modal',
   templateUrl: './machinery-modal.component.html',
@@ -59,22 +58,28 @@ export class MachineryModalComponent implements OnInit {
           }
 
           // Actualizar el array de máquinas con la cantidad adecuada
-          const machines: Machine[] = Array.from({ length: existingData.quantity }, (_, index) => ({
-            id: this.generateMachineryCode(this.machinery.name, index + 1),
-            name: this.machinery.name,
-            quantity: 1,
-            status: 'Disponible',
-          }));
+          const machines: Machine[] = Array.from(
+            { length: existingData.quantity },
+            (_, index) => ({
+              id: this.generateMachineryCode(this.machinery.name, index + 1),
+              name: this.machinery.name,
+              quantity: 1,
+              status: 'Disponible',
+            })
+          );
 
           existingData.machines = machines; // Reemplazar el array de máquinas
         } else {
           // Si no existe, inicializarlo
-          const machines: Machine[] = Array.from({ length: this.machinery.quantity }, (_, index) => ({
-            id: this.generateMachineryCode(this.machinery.name, index + 1),
-            name: this.machinery.name,
-            quantity: 1,
-            status: 'Disponible',
-          }));
+          const machines: Machine[] = Array.from(
+            { length: this.machinery.quantity },
+            (_, index) => ({
+              id: this.generateMachineryCode(this.machinery.name, index + 1),
+              name: this.machinery.name,
+              quantity: 1,
+              status: 'Disponible',
+            })
+          );
 
           existingData = {
             id: this.machinery.name,
