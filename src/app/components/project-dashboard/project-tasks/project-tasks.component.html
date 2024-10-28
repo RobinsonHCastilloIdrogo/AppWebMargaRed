@@ -1,4 +1,3 @@
-<!-- project-tasks.component.html -->
 <div class="tasks-container">
   <h2>Tareas del Proyecto</h2>
 
@@ -37,7 +36,7 @@
           <label for="task-checkbox-{{ task.id }}"></label>
         </td>
         <td class="task-actions">
-          <button class="icon-button" (click)="editTask(task)">
+          <button class="icon-button edit" (click)="openEditModal(task)">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -78,4 +77,23 @@
   <p *ngIf="tasks.length === 0">
     No hay tareas agregadas aún. ¡Agrega una nueva tarea para empezar!
   </p>
+
+  <!-- Modal de edición -->
+  <div class="edit-modal" *ngIf="editingTask">
+    <div class="modal-overlay" (click)="closeEditModal()"></div>
+    <div class="modal-content">
+      <h3>Editar Tarea</h3>
+      <input
+        type="text"
+        [(ngModel)]="editingTask.name"
+        placeholder="Actualizar nombre de la tarea..."
+      />
+      <div class="modal-buttons">
+        <button class="save-button" (click)="saveEdit()">Guardar</button>
+        <button class="cancel-button" (click)="closeEditModal()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

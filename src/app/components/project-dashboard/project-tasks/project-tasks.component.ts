@@ -30,6 +30,9 @@ export class ProjectTasksComponent implements OnInit {
   newTask: string = '';
   projectId: string | null = null;
 
+  // Para el modal de edición
+  editingTask: Task | null = null;
+
   constructor(private firestore: Firestore, private route: ActivatedRoute) {}
 
   ngOnInit() {
@@ -78,16 +81,36 @@ export class ProjectTasksComponent implements OnInit {
     }
   }
 
-  // Editar tarea (abre un prompt para editar el nombre)
-  async editTask(task: Task) {
-    const updatedName = prompt('Editar tarea:', task.name);
-    if (updatedName && updatedName.trim() !== '' && this.projectId) {
-      const taskDocRef = doc(
-        this.firestore,
-        `projects/${this.projectId}/tasks/${task.id}`
+  // Abrir modal de edición de tarea
+  openEditModal(task: Task) {
+    this.editingTask = { ...task };
+  }
+
+  // Cerrar modal de edición
+  closeEditModal() {
+    this.editingTask = null;
+  }
+
+  // Guardar cambios de la tarea editada
+  async saveEdit() {
+    if (!this.projectId || !this.editingTask) return;
+
+    const taskDocRef = doc(
+      this.firestore,
+      `projects/${this.projectId}/tasks/${this.editingTask.id}`
+    );
+
+    try {
+      await updateDoc(taskDocRef, { name: this.editingTask.name });
+      const index = this.tasks.findIndex(
+        (task) => task.id === this.editingTask!.id
       );
-      await updateDoc(taskDocRef, { name: updatedName });
-      task.name = updatedName; // Actualizar la tarea en el frontend
+      if (index !== -1) {
+        this.tasks[index] = { ...this.editingTask };
+      }
+      this.closeEditModal(); // Cerrar el modal después de guardar
+    } catch (error) {
+      console.error('Error al actualizar tarea:', error);
     }
   }
 
@@ -115,6 +138,11 @@ export class ProjectTasksComponent implements OnInit {
       this.firestore,
       `projects/${this.projectId}/tasks/${task.id}`
     );
-    await updateDoc(taskDocRef, { completed: task.completed });
+
+    try {
+      await updateDoc(taskDocRef, { completed: task.completed });
+    } catch (error) {
+      console.error('Error al actualizar el estado de la tarea:', error);
+    }
   }
 }

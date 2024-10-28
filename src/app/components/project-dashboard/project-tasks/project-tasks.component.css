@@ -68,10 +68,6 @@ h2 {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.task-table thead {
-  background-color: #f7fafc;
-}
-
 .task-table th,
 .task-table td {
   padding: 16px;
@@ -83,7 +79,7 @@ h2 {
 .task-table th.centered,
 .task-table td.task-checkbox,
 .task-table td.task-actions {
-  text-align: center; /* Centrar las celdas específicas */
+  text-align: center;
 }
 
 .task-table th {
@@ -102,8 +98,10 @@ h2 {
   transition: background-color 0.3s ease;
 }
 
-.task-table td {
-  vertical-align: middle;
+.task-table .task-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 
 /* Estilo del checkbox */
@@ -145,32 +143,110 @@ h2 {
   stroke: #c53030;
 }
 
-/* Mensaje para cuando no hay tareas */
-.tasks-container p {
-  text-align: center;
-  color: #a0aec0;
-  font-size: 16px;
-  margin-top: 20px;
+/* Estilos del modal para la ventana emergente de edición de tareas */
+.edit-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
-/* Responsividad */
-@media (max-width: 768px) {
-  .add-task-form {
-    flex-direction: column;
-  }
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
 
-  .task-table th,
-  .task-table td {
-    padding: 12px;
-    font-size: 14px;
-  }
+.modal-content {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 30px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  z-index: 1010;
+  animation: fadeIn 0.3s ease-out;
+}
 
-  .task-table button {
-    padding: 6px 10px;
-    font-size: 14px;
-  }
+.modal-content h3 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #2d3748;
+  font-weight: bold;
+  text-align: center;
+}
 
-  .task-table .task-actions {
-    text-align: center;
+.modal-content input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.modal-content input:focus {
+  border-color: #3182ce;
+  outline: none;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.save-button,
+.cancel-button {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.save-button {
+  background-color: #38a169; /* Verde */
+  color: white;
+}
+
+.save-button:hover {
+  background-color: #2f855a;
+  transform: translateY(-2px);
+}
+
+.cancel-button {
+  background-color: #e53e3e; /* Rojo */
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #c53030;
+  transform: translateY(-2px);
+}
+
+/* Animación de aparición del modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
