@@ -1,14 +1,14 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import {
   Firestore,
   collection,
-  addDoc,
-  updateDoc,
+  setDoc,
   doc,
-  Timestamp,
+  getDoc,
 } from '@angular/fire/firestore';
+import { Machine, MachineryData } from '/Users/Estefano Quito/Documents/GitHub/AppWebMargaRed/src/app/models/machine.model'; // Verifica la ruta correcta
 
 @Component({
   selector: 'app-machinery-modal',
@@ -17,7 +17,7 @@ import {
   imports: [FormsModule, NgIf],
   styleUrls: ['./machinery-modal.component.css'],
 })
-export class MachineryModalComponent {
+export class MachineryModalComponent implements OnInit {
   @Input() machinery: any = {
     id: '',
     name: '',
@@ -29,43 +29,68 @@ export class MachineryModalComponent {
 
   constructor(private firestore: Firestore) {}
 
+  ngOnInit(): void {
+    if (!this.machinery) {
+      this.machinery = { id: '', name: '', quantity: 0, status: 'Disponible' };
+    }
+    console.log('Machinery input:', this.machinery); // Debugging
+  }
+
   // Guardar maquinaria (agregar o editar)
   async saveMachinery(): Promise<void> {
     if (this.isValidInput()) {
       try {
-        if (this.machinery.id) {
-          // Editar maquinaria existente
-          const machineryDocRef = doc(
-            this.firestore,
-            `machines/${this.machinery.id}`
-          );
-          await updateDoc(machineryDocRef, {
-            name: this.machinery.name,
-            quantity: this.machinery.quantity,
-          });
-          console.log(`✅ Maquinaria con ID ${this.machinery.id} actualizada.`);
-        } else {
-          // Agregar nueva maquinaria
-          const machineryCollection = collection(this.firestore, 'machines');
-          const creationTimestamp = Timestamp.now();
+        const machineryCollection = collection(this.firestore, 'machines');
+        const machineryDocRef = doc(machineryCollection, this.machinery.name); // Usa el nombre como ID
 
-          await addDoc(machineryCollection, {
+        const existingDataSnapshot = await getDoc(machineryDocRef);
+        let existingData: MachineryData;
+        let isEditMode = !!this.machinery.id; // Modo de edición si existe ID
+
+        if (existingDataSnapshot.exists()) {
+          existingData = existingDataSnapshot.data() as MachineryData;
+
+          if (isEditMode) {
+            // Editar: Actualiza la cantidad
+            existingData.quantity = this.machinery.quantity;
+          } else {
+            // Agregar: Sumar la cantidad existente con la nueva
+            existingData.quantity += this.machinery.quantity;
+          }
+
+          // Actualizar el array de máquinas con la cantidad adecuada
+          const machines: Machine[] = Array.from({ length: existingData.quantity }, (_, index) => ({
+            id: this.generateMachineryCode(this.machinery.name, index + 1),
+            name: this.machinery.name,
+            quantity: 1,
+            status: 'Disponible',
+          }));
+
+          existingData.machines = machines; // Reemplazar el array de máquinas
+        } else {
+          // Si no existe, inicializarlo
+          const machines: Machine[] = Array.from({ length: this.machinery.quantity }, (_, index) => ({
+            id: this.generateMachineryCode(this.machinery.name, index + 1),
+            name: this.machinery.name,
+            quantity: 1,
+            status: 'Disponible',
+          }));
+
+          existingData = {
+            id: this.machinery.name,
             name: this.machinery.name,
             quantity: this.machinery.quantity,
             status: 'Disponible',
-            createdAt: creationTimestamp,
-          });
-
-          console.log('✅ Nueva maquinaria agregada:', {
-            name: this.machinery.name,
-            quantity: this.machinery.quantity,
-            createdAt: creationTimestamp.toDate(),
-          });
+            machines: machines,
+          };
         }
 
+        await setDoc(machineryDocRef, existingData); // Guardar los datos
+
+        console.log('✅ Maquinaria guardada con éxito:', existingData);
         this.resetForm();
-        this.machineryAdded.emit(); // Notificar al padre
-        this.closeModal.emit(); // Cerrar el modal
+        this.machineryAdded.emit();
+        this.closeModal.emit();
       } catch (error) {
         console.error('❌ Error al guardar maquinaria:', error);
       }
@@ -76,6 +101,7 @@ export class MachineryModalComponent {
 
   // Validar que los campos no estén vacíos
   isValidInput(): boolean {
+    console.log('Validating input:', this.machinery); // Debugging
     return this.machinery.name.trim() !== '' && this.machinery.quantity > 0;
   }
 
@@ -88,5 +114,12 @@ export class MachineryModalComponent {
   // Limpiar el formulario
   private resetForm(): void {
     this.machinery = { id: '', name: '', quantity: 0, status: 'Disponible' };
+  }
+
+  // Función para generar un código único para la maquinaria
+  private generateMachineryCode(name: string, index: number): string {
+    const categoryCode = name.substring(0, 3).toUpperCase(); // Toma las primeras 3 letras del nombre como código de categoría
+    const numericId = index; // Usar el índice para el número secuencial
+    return `${categoryCode}-${String(numericId).padStart(4, '0')}`; // Retorna el código con la categoría
   }
 }

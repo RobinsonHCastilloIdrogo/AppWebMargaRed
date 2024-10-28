@@ -1,0 +1,44 @@
+<div class="dashboard-container">
+  <app-shared-dashboard></app-shared-dashboard>
+  <div class="dashboard-content">
+    <header>
+      <h2 class="h2-list">Asignación de Combustible</h2>
+    </header>
+    <br /><br />
+    <div class="fuel-management-container">
+      <h3>Asignar Combustible a Máquina</h3>
+      <!-- Selección de máquina -->
+      <label for="machine-type-select">Seleccione una máquina:</label>
+      <select id="machine-type-select" (change)="selectMachineType($event)">
+        <option value="" disabled [selected]="!selectedMachineType">-- Selecciona una máquina --</option>
+        <option *ngFor="let type of machineTypes" [value]="type">{{ type }}</option>
+      </select>
+      <!-- Selección de máquina específica -->
+      <label for="specific-machine-select">Seleccione máquina específica:</label>
+      <select id="specific-machine-select" (change)="selectSpecificMachine($event)" [disabled]="!selectedMachineType">
+        <option value="" disabled [selected]="!selectedMachine">-- Selecciona una máquina específica --</option>
+        <option *ngFor="let machine of specificMachines" [value]="machine.id">
+          {{ machine.id }}
+        </option>
+      </select>
+      <!-- Mensajes de confirmación -->
+      <div *ngIf="successMessage || errorMessage" class="confirmation-message" [ngClass]="{'success': successMessage, 'error': errorMessage}">
+        {{ successMessage || errorMessage }}
+      </div>
+      <!-- Sección para asignar combustible -->
+      <div *ngIf="selectedMachine" class="fuel-assignment-section">
+        <h3>Asignar Combustible a {{ selectedMachine.id }}</h3>
+        <label for="fuel-amount">Cantidad de Combustible (L):</label>
+        <input
+          type="number"
+          id="fuel-amount"
+          [(ngModel)]="fuelAmount"
+          placeholder="Ingrese la cantidad de combustible"
+          min="1"
+        />
+        <!-- Botón para asignar combustible -->
+        <button (click)="assignFuel()" [disabled]="fuelAmount <= 0">Asignar Combustible</button>
+      </div>
+    </div>
+  </div>
+</div>
