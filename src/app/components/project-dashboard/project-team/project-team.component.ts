@@ -2,6 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { FirebaseService } from '../../../services/firebase.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {
+  Firestore,
+  doc,
+  setDoc,
+  collection,
+  addDoc,
+  getDocs,
+} from '@angular/fire/firestore';
+import { ActivatedRoute } from '@angular/router';
 
 interface TeamMember {
   id: string;
@@ -25,13 +34,21 @@ export class ProjectTeamComponent implements OnInit {
   selectedEmployeeId: string = '';
   selectedMachineId: string = '';
   newMemberRole: string = '';
+  projectId: string | null = null;
 
-  constructor(private firebaseService: FirebaseService) {}
+  constructor(
+    private firebaseService: FirebaseService,
+    private firestore: Firestore,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
-    this.loadEmployees();
-    this.loadMachines();
-    this.loadTeamMembers();
+    this.projectId = this.route.snapshot.paramMap.get('id'); // Obtener el ID del proyecto
+    if (this.projectId) {
+      this.loadEmployees();
+      this.loadMachines();
+      this.loadTeamMembers();
+    }
   }
 
   // Cargar empleados desde Firebase
@@ -50,33 +67,43 @@ export class ProjectTeamComponent implements OnInit {
 
   // Cargar miembros del equipo desde Firebase
   loadTeamMembers() {
-    this.firebaseService.getData('teamMembers').subscribe((members) => {
-      this.teamMembers = members;
-    });
+    if (this.projectId) {
+      this.firebaseService
+        .getData(`projects/${this.projectId}/team`)
+        .subscribe((members) => {
+          this.teamMembers = members;
+        });
+    }
   }
 
   // Agregar un nuevo miembro al equipo
   async addMember() {
-    try {
-      const employeeName = await this.firebaseService.getEmployeeName(
-        this.selectedEmployeeId
-      );
-      const machineName = await this.firebaseService.getMachineName(
-        this.selectedMachineId
-      );
+    if (this.projectId) {
+      try {
+        const employeeName = await this.firebaseService.getEmployeeName(
+          this.selectedEmployeeId
+        );
+        const machineName = await this.firebaseService.getMachineName(
+          this.selectedMachineId
+        );
 
-      const newMember: TeamMember = {
-        id: '', // Será generado por Firebase
-        employeeName: employeeName || 'Desconocido',
-        role: this.newMemberRole,
-        machineName: machineName || 'No asignada',
-      };
+        const newMember: TeamMember = {
+          id: '', // Será generado por Firebase
+          employeeName: employeeName || 'Desconocido',
+          role: this.newMemberRole,
+          machineName: machineName || 'No asignada',
+        };
 
-      await this.firebaseService.addData('teamMembers', newMember);
-      this.loadTeamMembers(); // Recargar los miembros del equipo
-      this.resetForm();
-    } catch (error) {
-      console.error('Error al agregar miembro:', error);
+        const teamCollection = collection(
+          this.firestore,
+          `projects/${this.projectId}/team`
+        );
+        await addDoc(teamCollection, newMember);
+        this.loadTeamMembers(); // Recargar los miembros del equipo
+        this.resetForm();
+      } catch (error) {
+        console.error('Error al agregar miembro:', error);
+      }
     }
   }
 
@@ -88,20 +115,34 @@ export class ProjectTeamComponent implements OnInit {
   }
 
   // Editar un miembro del equipo
-  editMember(member: TeamMember) {
-    const updatedRole = prompt('Editar rol:', member.role);
+  async editMember(member: TeamMember) {
+    if (this.projectId) {
+      const updatedRole = prompt('Editar rol:', member.role);
 
-    if (updatedRole) {
-      this.firebaseService.updateData('teamMembers', member.id, {
-        role: updatedRole,
-      });
+      if (updatedRole) {
+        const teamMemberDoc = doc(
+          this.firestore,
+          `projects/${this.projectId}/team/${member.id}`
+        );
+        await setDoc(teamMemberDoc, { role: updatedRole }, { merge: true });
+        console.log('Miembro del equipo actualizado correctamente');
+        this.loadTeamMembers();
+      }
     }
   }
 
   // Eliminar un miembro del equipo
-  deleteMember(memberId: string) {
-    this.firebaseService.deleteData('teamMembers', memberId).then(() => {
-      this.loadTeamMembers(); // Recargar los miembros después de eliminar
-    });
+  async deleteMember(memberId: string) {
+    if (this.projectId) {
+      try {
+        await this.firebaseService.deleteData(
+          `projects/${this.projectId}/team`,
+          memberId
+        );
+        this.loadTeamMembers(); // Recargar los miembros después de eliminar
+      } catch (error) {
+        console.error('Error al eliminar miembro del equipo:', error);
+      }
+    }
   }
 }

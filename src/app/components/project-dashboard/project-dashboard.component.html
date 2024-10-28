@@ -108,7 +108,7 @@
 
   <!-- Contenido principal -->
   <div class="content">
-    <h1>Bienvenido al Proyecto: {{ project?.name }}</h1>
+    <h1>Bienvenido al {{ project?.name }}</h1>
     <p>{{ project?.description || "Descripción no disponible." }}</p>
     <router-outlet></router-outlet>
   </div>

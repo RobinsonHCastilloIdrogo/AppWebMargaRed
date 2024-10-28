@@ -1,32 +1,46 @@
-<div class="details-container">
+<div class="project-details-container">
   <h2>Detalles del Proyecto</h2>
 
-  <div class="project-info">
-    <div class="info-group">
-      <label>Nombre del Proyecto:</label>
-      <p>{{ project?.name || "No disponible" }}</p>
-    </div>
-
-    <div class="info-group">
-      <label>Descripción:</label>
-      <p>{{ project?.description || "No disponible" }}</p>
-    </div>
-
-    <div class="info-group">
-      <label>Fecha de Inicio:</label>
-      <p>{{ project?.startDate | date : "longDate" }}</p>
-    </div>
-
-    <div class="info-group">
-      <label>Fecha de Finalización:</label>
-      <p>{{ project?.endDate | date : "longDate" }}</p>
-    </div>
-
-    <div class="info-group">
-      <label>Estado:</label>
-      <p>{{ project?.status || "No disponible" }}</p>
-    </div>
+  <div class="form-group">
+    <label for="projectName">Nombre del Proyecto:</label>
+    <input
+      type="text"
+      id="projectName"
+      [(ngModel)]="projectName"
+      placeholder="Nombre del Proyecto"
+    />
   </div>
 
-  <button class="edit-button" (click)="editProject()">Editar Proyecto</button>
+  <div class="form-group">
+    <label for="projectDescription">Descripción:</label>
+    <textarea
+      id="projectDescription"
+      [(ngModel)]="projectDescription"
+      placeholder="Descripción del Proyecto"
+    ></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="startDate">Fecha de Inicio:</label>
+    <input type="date" id="startDate" [(ngModel)]="startDate" />
+  </div>
+
+  <div class="form-group">
+    <label for="endDate">Fecha de Finalización:</label>
+    <input type="date" id="endDate" [(ngModel)]="endDate" />
+  </div>
+
+  <div class="form-group">
+    <label for="status">Estado:</label>
+    <input
+      type="text"
+      id="status"
+      [(ngModel)]="status"
+      placeholder="Estado del Proyecto"
+    />
+  </div>
+
+  <button class="btn btn-primary" (click)="saveDetails()">
+    Guardar Cambios
+  </button>
 </div>

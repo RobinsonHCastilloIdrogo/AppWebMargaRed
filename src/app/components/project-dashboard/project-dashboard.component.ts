@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import {
+  Firestore,
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+} from '@angular/fire/firestore';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -13,6 +19,9 @@ import { CommonModule } from '@angular/common';
 export class ProjectDashboardComponent implements OnInit {
   project: any = null; // Almacena los datos del proyecto seleccionado
   projectId: string | null = null; // Almacena el ID del proyecto
+  tasks: any[] = []; // Almacena las tareas del proyecto
+  details: any[] = []; // Almacena los detalles del proyecto
+  team: any[] = []; // Almacena los miembros del equipo del proyecto
 
   constructor(
     private route: ActivatedRoute,
@@ -24,6 +33,7 @@ export class ProjectDashboardComponent implements OnInit {
     this.projectId = this.route.snapshot.paramMap.get('id'); // Obtener el ID del proyecto
     if (this.projectId) {
       await this.loadProject(this.projectId); // Cargar los datos del proyecto
+      await this.loadSubcollections(this.projectId); // Cargar las subcolecciones del proyecto
     }
   }
 
@@ -43,6 +53,49 @@ export class ProjectDashboardComponent implements OnInit {
     } catch (error) {
       console.error('Error al cargar el proyecto:', error);
       this.router.navigate(['/projects']); // Redirigir en caso de error
+    }
+  }
+
+  // Carga las subcolecciones del proyecto desde Firestore
+  async loadSubcollections(projectId: string) {
+    try {
+      // Cargar tareas
+      const tasksCollection = collection(
+        this.firestore,
+        `projects/${projectId}/tasks`
+      );
+      const tasksSnapshot = await getDocs(tasksCollection);
+      this.tasks = tasksSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      console.log('Tareas cargadas:', this.tasks);
+
+      // Cargar detalles
+      const detailsCollection = collection(
+        this.firestore,
+        `projects/${projectId}/details`
+      );
+      const detailsSnapshot = await getDocs(detailsCollection);
+      this.details = detailsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      console.log('Detalles cargados:', this.details);
+
+      // Cargar equipo
+      const teamCollection = collection(
+        this.firestore,
+        `projects/${projectId}/team`
+      );
+      const teamSnapshot = await getDocs(teamCollection);
+      this.team = teamSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      console.log('Equipo cargado:', this.team);
+    } catch (error) {
+      console.error('Error al cargar las subcolecciones:', error);
     }
   }
 

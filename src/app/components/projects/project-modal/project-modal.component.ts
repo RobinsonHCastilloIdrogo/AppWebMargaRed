@@ -5,6 +5,7 @@ import {
   collection,
   addDoc,
   Timestamp,
+  doc,
 } from '@angular/fire/firestore';
 
 @Component({
@@ -31,7 +32,7 @@ export class ProjectModalComponent {
         const creationTimestamp = Timestamp.now(); // Obtener la fecha y hora actual
 
         // Guardar el proyecto en Firebase
-        await addDoc(projectsCollection, {
+        const docRef = await addDoc(projectsCollection, {
           name: this.projectName,
           createdAt: creationTimestamp,
         });
@@ -41,6 +42,35 @@ export class ProjectModalComponent {
           createdAt: creationTimestamp.toDate(),
         });
 
+        // Crear subcolecciones (tasks, details, team) dentro del proyecto creado
+        const tasksCollection = collection(
+          this.firestore,
+          `projects/${docRef.id}/tasks`
+        );
+        const detailsCollection = collection(
+          this.firestore,
+          `projects/${docRef.id}/details`
+        );
+        const teamCollection = collection(
+          this.firestore,
+          `projects/${docRef.id}/team`
+        );
+
+        // Puedes agregar documentos vacíos o iniciales a estas colecciones si lo deseas
+        await addDoc(tasksCollection, {
+          description: 'Tarea inicial',
+          createdAt: creationTimestamp,
+        });
+        await addDoc(detailsCollection, {
+          info: 'Detalles iniciales',
+          createdAt: creationTimestamp,
+        });
+        await addDoc(teamCollection, {
+          member: 'Miembro inicial',
+          createdAt: creationTimestamp,
+        });
+
+        // Emitir eventos y limpiar el formulario
         this.resetForm(); // Limpiar el input
         this.projectAdded.emit(); // Emitir evento para notificar al padre
         this.closeModal.emit(); // Emitir evento para cerrar el modal
