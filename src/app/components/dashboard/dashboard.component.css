@@ -1,11 +1,7 @@
 /* Contenedor principal */
 .dashboard-container {
   display: flex;
-  justify-content: center; /* Centrar horizontalmente */
-  align-items: center; /* Centrar verticalmente si es necesario */
-  height: 100vh; /* Asegura que ocupe la altura completa de la ventana */
-  padding: 20px; /* Espacio para que el contenido no quede pegado al borde */
-  box-sizing: border-box;
+  height: 100vh;
 }
 
 /* Contenido principal */
@@ -15,7 +11,7 @@
   grid-template-rows: 1fr 1fr 1.2fr;
   grid-gap: 20px;
   width: 100%;
-  padding: 30px;
+  padding: 20px;
   margin-left: 250px; /* Espacio para la barra lateral */
 }
 
@@ -90,7 +86,7 @@ canvas {
   border-left: 5px solid #007bff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  height: 200px; /* Ajustar la altura aquí según tus preferencias */
+  height: 200px; /* Ajustar la altura según tus preferencias */
 }
 
 /* Cuadro resumen debajo de las dos tarjetas de proyectos */
@@ -131,7 +127,7 @@ canvas {
   color: #007bff;
 }
 
-.large-chart h2{
+.large-chart h2 {
   margin: 0 0 10px;
   font-size: 24px;
   color: #007bff;

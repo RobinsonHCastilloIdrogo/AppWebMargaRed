@@ -1,3 +1,4 @@
+<!-- project-tasks.component.html -->
 <div class="tasks-container">
   <h2>Tareas del Proyecto</h2>
 
@@ -12,22 +13,69 @@
     <button (click)="addTask()">Agregar</button>
   </div>
 
-  <!-- Listado de tareas -->
-  <ul class="task-list">
-    <li *ngFor="let task of tasks" [class.completed]="task.completed">
-      <div class="task-info">
-        <input
-          type="checkbox"
-          [(ngModel)]="task.completed"
-          (change)="toggleCompletion(task)"
-        />
-        <span>{{ task.name }}</span>
-      </div>
+  <!-- Tabla para mostrar tareas -->
+  <table class="task-table" *ngIf="tasks.length > 0">
+    <thead>
+      <tr>
+        <th class="centered">Tarea</th>
+        <th class="centered">Completada</th>
+        <th class="centered">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let task of tasks">
+        <td class="task-name">
+          <span class="task-name-text">{{ task.name }}</span>
+        </td>
+        <td class="task-checkbox">
+          <input
+            type="checkbox"
+            [(ngModel)]="task.completed"
+            (change)="toggleCompletion(task)"
+            id="task-checkbox-{{ task.id }}"
+          />
+          <label for="task-checkbox-{{ task.id }}"></label>
+        </td>
+        <td class="task-actions">
+          <button class="icon-button" (click)="editTask(task)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              width="24"
+              height="24"
+              stroke-width="2"
+            >
+              <path
+                d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"
+              ></path>
+              <path d="M13.5 6.5l4 4"></path>
+            </svg>
+          </button>
+          <button class="icon-button delete" (click)="deleteTask(task.id)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              width="24"
+              height="24"
+              stroke-width="2"
+            >
+              <path d="M4 7l16 0"></path>
+              <path d="M10 11l0 6"></path>
+              <path d="M14 11l0 6"></path>
+              <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+              <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+            </svg>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
-      <div class="task-actions">
-        <button (click)="editTask(task)">Editar</button>
-        <button (click)="deleteTask(task.id)">Eliminar</button>
-      </div>
-    </li>
-  </ul>
+  <p *ngIf="tasks.length === 0">
+    No hay tareas agregadas aún. ¡Agrega una nueva tarea para empezar!
+  </p>
 </div>

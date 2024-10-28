@@ -7,7 +7,6 @@ import {
   deleteDoc,
   doc,
   updateDoc,
-  setDoc,
   getDocs,
 } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
@@ -34,10 +33,14 @@ export class ProjectTasksComponent implements OnInit {
   constructor(private firestore: Firestore, private route: ActivatedRoute) {}
 
   ngOnInit() {
-    this.projectId = this.route.snapshot.paramMap.get('id'); // Obtener el ID del proyecto
-    if (this.projectId) {
-      this.loadTasks();
-    }
+    this.route.parent?.paramMap.subscribe((params) => {
+      this.projectId = params.get('id');
+      if (this.projectId) {
+        this.loadTasks();
+      } else {
+        console.error('No se encontró el ID del proyecto.');
+      }
+    });
   }
 
   // Cargar tareas desde la subcolección del proyecto en Firestore
@@ -113,19 +116,5 @@ export class ProjectTasksComponent implements OnInit {
       `projects/${this.projectId}/tasks/${task.id}`
     );
     await updateDoc(taskDocRef, { completed: task.completed });
-  }
-
-  // Método para actualizar los detalles de la tarea en Firestore
-  async updateTask(
-    projectId: string,
-    taskId: string,
-    data: any
-  ): Promise<void> {
-    const taskDoc = doc(
-      this.firestore,
-      `projects/${projectId}/tasks/${taskId}`
-    );
-    await setDoc(taskDoc, data, { merge: true });
-    console.log('Tarea actualizada correctamente');
   }
 }

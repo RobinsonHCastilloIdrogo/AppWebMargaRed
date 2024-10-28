@@ -5,7 +5,6 @@ import {
   collection,
   addDoc,
   Timestamp,
-  doc,
 } from '@angular/fire/firestore';
 
 @Component({
@@ -43,32 +42,7 @@ export class ProjectModalComponent {
         });
 
         // Crear subcolecciones (tasks, details, team) dentro del proyecto creado
-        const tasksCollection = collection(
-          this.firestore,
-          `projects/${docRef.id}/tasks`
-        );
-        const detailsCollection = collection(
-          this.firestore,
-          `projects/${docRef.id}/details`
-        );
-        const teamCollection = collection(
-          this.firestore,
-          `projects/${docRef.id}/team`
-        );
-
-        // Puedes agregar documentos vacíos o iniciales a estas colecciones si lo deseas
-        await addDoc(tasksCollection, {
-          description: 'Tarea inicial',
-          createdAt: creationTimestamp,
-        });
-        await addDoc(detailsCollection, {
-          info: 'Detalles iniciales',
-          createdAt: creationTimestamp,
-        });
-        await addDoc(teamCollection, {
-          member: 'Miembro inicial',
-          createdAt: creationTimestamp,
-        });
+        await this.createInitialSubcollections(docRef.id, creationTimestamp);
 
         // Emitir eventos y limpiar el formulario
         this.resetForm(); // Limpiar el input
@@ -77,6 +51,29 @@ export class ProjectModalComponent {
       } catch (error) {
         console.error('Error al agregar proyecto:', error);
       }
+    }
+  }
+
+  // Función para crear subcolecciones iniciales (tasks, details, team)
+  private async createInitialSubcollections(
+    projectId: string,
+    timestamp: Timestamp
+  ) {
+    const subcollections = ['tasks', 'details', 'team'];
+    try {
+      for (const subcollection of subcollections) {
+        const subcollectionRef = collection(
+          this.firestore,
+          `projects/${projectId}/${subcollection}`
+        );
+        await addDoc(subcollectionRef, {
+          message: `Elemento inicial de ${subcollection}`,
+          createdAt: timestamp,
+        });
+      }
+      console.log('Subcolecciones creadas exitosamente');
+    } catch (error) {
+      console.error('Error al crear subcolecciones:', error);
     }
   }
 

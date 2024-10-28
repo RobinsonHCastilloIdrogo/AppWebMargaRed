@@ -9,7 +9,7 @@ import { AssignResourcesComponent } from './components/assign-resources/assign-r
 import { ProjectComponent } from './components/projects/projects.component';
 import { CalendarComponent } from './components/calendar/calendar.component';
 import { FuelManagementComponent } from './components/fuel-management/fuel-management.component';
-import { ProjectDashboardComponent } from './components/project-dashboard/project-dashboard.component'; // Importamos el nuevo componente
+import { ProjectDashboardComponent } from './components/project-dashboard/project-dashboard.component';
 import { ProjectDetailsComponent } from './components/project-dashboard/project-details/project-details.component';
 import { ProjectTasksComponent } from './components/project-dashboard/project-tasks/project-tasks.component';
 import { ProjectTeamComponent } from './components/project-dashboard/project-team/project-team.component';
@@ -31,10 +31,23 @@ export const routes: Routes = [
     path: 'projects/:id',
     component: ProjectDashboardComponent,
     children: [
-      { path: 'details', component: ProjectDetailsComponent },
-      { path: 'tasks', component: ProjectTasksComponent },
-      { path: 'team', component: ProjectTeamComponent },
-      { path: '', redirectTo: 'details', pathMatch: 'full' }, // Redirige a 'details' por defecto
+      {
+        path: 'details',
+        component: ProjectDetailsComponent,
+      },
+      {
+        path: 'tasks',
+        component: ProjectTasksComponent,
+      },
+      {
+        path: 'team',
+        component: ProjectTeamComponent,
+      },
+      {
+        path: '', // Redirige a 'details' por defecto si se accede a /projects/:id
+        redirectTo: 'details',
+        pathMatch: 'full',
+      },
     ],
   },
 
