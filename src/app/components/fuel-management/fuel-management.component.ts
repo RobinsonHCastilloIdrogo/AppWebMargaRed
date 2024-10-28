@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
-import { Firestore, doc, collection, getDocs, setDoc, Timestamp, arrayUnion } from '@angular/fire/firestore';
+import { Firestore, doc, collection, getDocs, setDoc, Timestamp, arrayUnion, increment } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Machine } from '/Users/Estefano Quito/Documents/GitHub/AppWebMargaRed/src/app/models/machine.model';
@@ -84,7 +84,32 @@ export class FuelManagementComponent implements OnInit {
           { fuelHistory: arrayUnion(newFuelEntry) },
           { merge: true }
         );
-  
+
+        // Actualizar el total de combustible en la colección monthlyFuelTotals
+        const month = new Date().toLocaleString('default', { month: 'long' }); // Obtener el nombre del mes
+        const monthDocRef = doc(this.firestore, `monthlyFuelTotals/${month}`);
+
+        await setDoc(
+          monthDocRef,
+          { totalFuel: increment(this.fuelAmount) }, // Aumentar el total de combustible
+          { merge: true } // Permite fusionar campos en lugar de sobrescribir
+        );
+
+        // Actualizar el total de combustible para la máquina específica en la nueva colección
+        const machineTotalDocRef = doc(this.firestore, `machineFuelTotals/${this.selectedMachine.id}`);
+        
+        await setDoc(
+          machineTotalDocRef,
+          { 
+            totalFuelAssigned: increment(this.fuelAmount), 
+            machineType: this.selectedMachineType,
+            monthlyTotals: {
+              [month]: increment(this.fuelAmount) // Actualiza el total mensual
+            }
+          },
+          { merge: true } // Permite fusionar campos en lugar de sobrescribir
+        );
+
         // Muestra un mensaje de éxito con SweetAlert2
         Swal.fire({
           title: '¡Éxito!',

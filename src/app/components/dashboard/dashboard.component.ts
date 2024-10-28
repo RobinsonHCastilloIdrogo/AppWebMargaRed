@@ -37,6 +37,7 @@ export class DashboardComponent implements OnInit {
 
   resources: string[] = []; // Para almacenar los nombres de los proyectos
   selectedResource: string = ''; // Para el proyecto seleccionado
+  monthlyFuelData: number[] = new Array(12).fill(0); // Inicializa con 0 para 12 meses
 
   constructor(private firestore: Firestore) {}
 
@@ -44,6 +45,7 @@ export class DashboardComponent implements OnInit {
     await this.getCounts();
     await this.loadEvents();
     await this.loadProjects();
+    await this.loadMonthlyFuelTotals(); // Cargar datos de combustible mensual
     this.createChart();
     this.createLineChart();
   }
@@ -94,6 +96,46 @@ export class DashboardComponent implements OnInit {
     } catch (error) {
       console.error('Error al cargar proyectos:', error);
     }
+  }
+
+  async loadMonthlyFuelTotals() {
+    try {
+      const monthlyFuelCollection = collection(this.firestore, 'monthlyFuelTotals');
+      const monthlyFuelSnapshot = await getDocs(monthlyFuelCollection);
+      
+      monthlyFuelSnapshot.forEach((doc) => {
+        const month = doc.id; // Nombre del mes, ej: 'octubre'
+        const totalFuel = doc.data()['totalFuel'] ?? 0; // Obtén el total de combustible
+
+        // Mapeo de meses a índices de arreglo
+        const monthIndex = this.getMonthIndex(month);
+        if (monthIndex !== -1) {
+          this.monthlyFuelData[monthIndex] = totalFuel; // Asigna el total al índice correspondiente
+        }
+      });
+
+      console.log('Datos de combustible mensual:', this.monthlyFuelData);
+    } catch (error) {
+      console.error('Error al cargar los totales de combustible:', error);
+    }
+  }
+
+  getMonthIndex(month: string): number {
+    const monthMapping: { [key: string]: number } = {
+      enero: 0,
+      febrero: 1,
+      marzo: 2,
+      abril: 3,
+      mayo: 4,
+      junio: 5,
+      julio: 6,
+      agosto: 7,
+      septiembre: 8,
+      octubre: 9,
+      noviembre: 10,
+      diciembre: 11,
+    };
+    return monthMapping[month.toLowerCase()] ?? -1; // Retorna -1 si no se encuentra el mes
   }
 
   async deleteEvent(eventId: string) {
@@ -150,20 +192,9 @@ export class DashboardComponent implements OnInit {
   createLineChart() {
     const ctx = document.getElementById('myLineChart') as HTMLCanvasElement;
     const labels = [
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre',
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
-    const data = [300, 400, 250, 500, 450, 600, 700, 800, 650, 900, 750, 1000];
 
     this.lineChart = new Chart(ctx, {
       type: 'line',
@@ -172,7 +203,7 @@ export class DashboardComponent implements OnInit {
         datasets: [
           {
             label: 'Litros de Combustible',
-            data: data,
+            data: this.monthlyFuelData,
             backgroundColor: 'rgba(0, 123, 255, 0.2)',
             borderColor: 'rgba(0, 123, 255, 1)',
             borderWidth: 2,
@@ -197,6 +228,8 @@ export class DashboardComponent implements OnInit {
       },
     });
   }
+
+
   onResourceChange() {
     console.log('Proyecto seleccionado:', this.selectedResource);
     // Aquí puedes agregar la lógica que necesites al cambiar el proyecto seleccionado
