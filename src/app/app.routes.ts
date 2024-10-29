@@ -26,7 +26,7 @@ export const routes: Routes = [
   { path: 'fuel', component: FuelManagementComponent },
   { path: 'calendar', component: CalendarComponent },
 
-  // Nueva ruta para ProjectDashboard con subrutas
+  // Rutas anidadas para ProjectDashboard con manejo de parámetros
   {
     path: 'projects/:id',
     component: ProjectDashboardComponent,
@@ -44,12 +44,16 @@ export const routes: Routes = [
         component: ProjectTeamComponent,
       },
       {
-        path: '', // Redirige a 'details' por defecto si se accede a /projects/:id
+        path: '', // Redirección a 'details' por defecto si se accede a /projects/:id
         redirectTo: 'details',
         pathMatch: 'full',
       },
     ],
   },
 
-  { path: '', redirectTo: '/login', pathMatch: 'full' }, // Redirección a login por defecto
+  // Redirección a login por defecto si no hay una ruta válida
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+
+  // Ruta para manejar páginas no encontradas (opcional)
+  { path: '**', redirectTo: '/login', pathMatch: 'full' },
 ];

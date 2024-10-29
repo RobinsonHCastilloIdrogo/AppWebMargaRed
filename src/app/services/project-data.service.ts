@@ -2,15 +2,15 @@ import { Injectable } from '@angular/core';
 import {
   Firestore,
   doc,
-  setDoc,
   collection,
   addDoc,
+  setDoc, // Asegúrate de importar setDoc para la función addDetailToProject
   getDocs,
   deleteDoc,
-  query,
-  where,
   DocumentData,
   QuerySnapshot,
+  where,
+  query,
 } from '@angular/fire/firestore';
 
 @Injectable({
@@ -28,64 +28,61 @@ export class ProjectDataService {
     await setDoc(detailDocRef, detailData, { merge: true });
   }
 
-  // Añadir una tarea a un proyecto específico
-  async addTaskToProject(projectId: string, taskData: any): Promise<void> {
-    const tasksCollection = collection(
-      this.firestore,
-      `projects/${projectId}/tasks`
-    );
-    await addDoc(tasksCollection, taskData);
-  }
-
-  // Añadir un miembro del equipo a un proyecto específico
-  async addTeamMemberToProject(
-    projectId: string,
-    teamData: any
-  ): Promise<void> {
-    const teamCollection = collection(
-      this.firestore,
-      `projects/${projectId}/team`
-    );
-    await addDoc(teamCollection, teamData);
-  }
-
-  // Obtener todos los miembros del equipo de un proyecto específico
-  async getTeamMembers(
+  // Obtener empleados asignados a un proyecto
+  async getAssignedEmployees(
     projectId: string
   ): Promise<QuerySnapshot<DocumentData>> {
-    const teamCollection = collection(
+    const employeesCollection = collection(
       this.firestore,
-      `projects/${projectId}/team`
+      `projects/${projectId}/team/employees`
     );
-    return await getDocs(teamCollection);
+    return await getDocs(employeesCollection);
   }
 
-  // Eliminar un miembro del equipo por su ID de empleado
-  async deleteTeamMember(
+  // Obtener máquinas asignadas a un proyecto
+  async getAssignedMachines(
+    projectId: string
+  ): Promise<QuerySnapshot<DocumentData>> {
+    const machinesCollection = collection(
+      this.firestore,
+      `projects/${projectId}/team/machines`
+    );
+    return await getDocs(machinesCollection);
+  }
+
+  // Añadir un empleado a un proyecto
+  async addEmployeeToProject(
     projectId: string,
-    employeeId: string
-  ): Promise<boolean> {
-    try {
-      const teamCollection = collection(
-        this.firestore,
-        `projects/${projectId}/team`
-      );
-      const q = query(teamCollection, where('employeeId', '==', employeeId));
-      const querySnapshot = await getDocs(q);
+    employeeData: any
+  ): Promise<DocumentData> {
+    const employeesCollection = collection(
+      this.firestore,
+      `projects/${projectId}/team/employees`
+    );
+    const docRef = await addDoc(employeesCollection, employeeData);
+    return { ...employeeData, id: docRef.id };
+  }
 
-      for (const docSnapshot of querySnapshot.docs) {
-        await deleteDoc(docSnapshot.ref); // Eliminar el documento encontrado
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error al eliminar el miembro del equipo:', error);
-      return false;
-    }
+  // Añadir una máquina a un proyecto
+  async addMachineToProject(
+    projectId: string,
+    machineData: any
+  ): Promise<DocumentData> {
+    const machinesCollection = collection(
+      this.firestore,
+      `projects/${projectId}/team/machines`
+    );
+    const docRef = await addDoc(machinesCollection, machineData);
+    return { ...machineData, id: docRef.id };
   }
 
   // Obtener cualquier colección desde Firestore
   async getCollection(path: string): Promise<QuerySnapshot<DocumentData>> {
     return await getDocs(collection(this.firestore, path));
+  }
+
+  async addDocumentToCollection(path: string, data: any): Promise<void> {
+    const collectionRef = collection(this.firestore, path);
+    await addDoc(collectionRef, data);
   }
 }

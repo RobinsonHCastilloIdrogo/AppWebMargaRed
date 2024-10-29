@@ -7,6 +7,7 @@ import {
   Timestamp,
   doc,
   setDoc,
+  CollectionReference,
 } from '@angular/fire/firestore';
 
 @Component({
@@ -27,12 +28,12 @@ export class ProjectModalComponent {
   // Función para agregar un proyecto
   async addProject(): Promise<void> {
     if (this.projectName.trim()) {
-      const projectsCollection = collection(this.firestore, 'projects'); // Colección de Firebase
+      const projectsCollection = collection(this.firestore, 'projects'); // Colección de proyectos
 
       try {
-        const creationTimestamp = Timestamp.now(); // Obtener la fecha y hora actual
+        const creationTimestamp = Timestamp.now(); // Fecha y hora actuales
 
-        // Guardar el proyecto en Firebase
+        // Crear el proyecto en Firestore
         const docRef = await addDoc(projectsCollection, {
           name: this.projectName,
           createdAt: creationTimestamp,
@@ -43,28 +44,28 @@ export class ProjectModalComponent {
           createdAt: creationTimestamp.toDate(),
         });
 
-        // Crear subcolecciones (tasks, details, team) dentro del proyecto creado
+        // Crear las subcolecciones dentro del proyecto creado
         await this.createInitialSubcollections(docRef.id, creationTimestamp);
 
         // Emitir eventos y limpiar el formulario
-        this.resetForm(); // Limpiar el input
-        this.projectAdded.emit(); // Emitir evento para notificar al padre
-        this.closeModal.emit(); // Emitir evento para cerrar el modal
+        this.resetForm();
+        this.projectAdded.emit();
+        this.closeModal.emit();
       } catch (error) {
         console.error('Error al agregar proyecto:', error);
       }
     }
   }
 
-  // Función para crear subcolecciones iniciales (tasks, details, team)
+  // Función para crear las subcolecciones iniciales
   private async createInitialSubcollections(
     projectId: string,
     timestamp: Timestamp
   ) {
     try {
-      // Crear las subcolecciones básicas (tasks, details, team)
-      const subcollections = ['tasks', 'details', 'team'];
-      for (const subcollection of subcollections) {
+      // Crear las subcolecciones básicas (tasks, details)
+      const basicSubcollections = ['tasks', 'details'];
+      for (const subcollection of basicSubcollections) {
         const subcollectionRef = collection(
           this.firestore,
           `projects/${projectId}/${subcollection}`
@@ -75,51 +76,65 @@ export class ProjectModalComponent {
         });
       }
 
-      // Crear subcolecciones específicas para empleados y máquinas dentro de `team`
-      const teamDocRef = doc(
+      // Crear el documento intermedio 'members' dentro de 'team'
+      const membersDocRef = doc(
         this.firestore,
-        `projects/${projectId}/team/teamDoc`
+        `projects/${projectId}/team/members`
       );
-      await setDoc(teamDocRef, {
+      await setDoc(membersDocRef, {
         name: 'Información del equipo',
         createdAt: timestamp,
       });
 
-      const employeesCollectionRef = collection(
-        this.firestore,
-        `projects/${projectId}/team/teamDoc/employees`
-      );
-      const machinesCollectionRef = collection(
-        this.firestore,
-        `projects/${projectId}/team/teamDoc/machines`
-      );
+      // Crear las subcolecciones 'employees' y 'machines' dentro de 'members'
+      await this.createTeamSubcollections(projectId, timestamp);
 
-      // Añadir un elemento inicial en `employees` y `machines` subcolecciones
-      await addDoc(employeesCollectionRef, {
-        message: 'Empleado inicial asociado al proyecto',
-        createdAt: timestamp,
-      });
-
-      await addDoc(machinesCollectionRef, {
-        message: 'Máquina inicial asociada al proyecto',
-        createdAt: timestamp,
-      });
-
-      console.log(
-        'Subcolecciones team/employees y team/machines creadas exitosamente'
-      );
+      console.log('Subcolecciones creadas exitosamente.');
     } catch (error) {
       console.error('Error al crear subcolecciones:', error);
     }
   }
 
-  // Función para cerrar el modal y limpiar el input
+  // Crear las subcolecciones 'employees' y 'machines' dentro del documento 'members'
+  private async createTeamSubcollections(
+    projectId: string,
+    timestamp: Timestamp
+  ) {
+    try {
+      const employeesCollectionRef: CollectionReference = collection(
+        this.firestore,
+        `projects/${projectId}/team/members/employees`
+      );
+
+      const machinesCollectionRef: CollectionReference = collection(
+        this.firestore,
+        `projects/${projectId}/team/members/machines`
+      );
+
+      // Añadir documentos iniciales en las subcolecciones
+      await addDoc(employeesCollectionRef, {
+        name: 'Empleado inicial',
+        createdAt: timestamp,
+      });
+
+      await addDoc(machinesCollectionRef, {
+        name: 'Máquina inicial',
+        createdAt: timestamp,
+      });
+
+      console.log('Subcolecciones employees y machines creadas exitosamente.');
+    } catch (error) {
+      console.error('Error al crear subcolecciones de equipo:', error);
+    }
+  }
+
+  // Función para cerrar el modal y resetear el formulario
   close(): void {
     this.resetForm();
     this.closeModal.emit();
   }
 
-  // Función para limpiar el formulario
+  // Resetear el formulario
   private resetForm(): void {
     this.projectName = '';
   }

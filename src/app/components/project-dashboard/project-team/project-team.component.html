@@ -6,7 +6,7 @@
       <label for="employee">Empleado</label>
       <select id="employee" formControlName="employee">
         <option *ngFor="let employee of employees" [value]="employee.id">
-          {{ employee.name }}
+          {{ employee.name || "Sin nombre" }}
         </option>
       </select>
     </div>
@@ -15,54 +15,65 @@
       <label for="machine">Máquina</label>
       <select id="machine" formControlName="machine">
         <option *ngFor="let machine of machines" [value]="machine.id">
-          {{ machine.name }}
+          {{ machine.name || "Sin nombre" }}
         </option>
       </select>
     </div>
 
-    <button type="submit">Agregar Miembro</button>
+    <button type="submit" [disabled]="teamForm.invalid">Agregar Miembro</button>
   </form>
 
   <div class="columns">
-    <!-- Columna izquierda: Miembros del equipo -->
     <div class="column">
       <h3>Miembros del Equipo</h3>
 
-      <!-- Tabla de Empleados -->
       <h4>Empleados</h4>
-      <table class="assignment-table">
+      <table
+        class="assignment-table"
+        *ngIf="assignedEmployees.length > 0; else noEmployees"
+      >
         <thead>
           <tr>
             <th>Empleado</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let member of teamMembers">
-            <td>{{ member.employeeName }}</td>
+          <tr *ngFor="let employee of assignedEmployees">
+            <td>{{ employee.name || "Desconocido" }}</td>
           </tr>
         </tbody>
       </table>
+      <ng-template #noEmployees>
+        <p>No hay empleados asignados</p>
+      </ng-template>
 
-      <!-- Tabla de Máquinas -->
       <h4 style="margin-top: 20px">Máquinas</h4>
-      <table class="assignment-table">
+      <table
+        class="assignment-table"
+        *ngIf="assignedMachines.length > 0; else noMachines"
+      >
         <thead>
           <tr>
             <th>Máquina</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let member of teamMembers">
-            <td>{{ member.machineName }}</td>
+          <tr *ngFor="let machine of assignedMachines">
+            <td>{{ machine.name || "Desconocida" }}</td>
           </tr>
         </tbody>
       </table>
+      <ng-template #noMachines>
+        <p>No hay máquinas asignadas</p>
+      </ng-template>
     </div>
 
-    <!-- Columna derecha: Lista de miembros generales -->
     <div class="column">
       <h3>Asignaciones de Máquinas</h3>
-      <table class="assignment-table">
+      <table
+        class="assignment-table"
+        *ngIf="assignedEmployees.length > 0; else noAssignments"
+      >
         <thead>
           <tr>
             <th>Empleado</th>
@@ -70,12 +81,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let member of teamMembers">
-            <td>{{ member.employeeName }}</td>
-            <td>{{ member.machineName }}</td>
+          <tr *ngFor="let employee of assignedEmployees">
+            <td>{{ employee.name }}</td>
+            <td>{{ getAssignedMachineName(employee.employeeId) }}</td>
           </tr>
         </tbody>
       </table>
+      <ng-template #noAssignments>
+        <p>No hay asignaciones disponibles</p>
+      </ng-template>
     </div>
   </div>
 </div>
