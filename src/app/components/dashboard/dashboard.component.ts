@@ -24,6 +24,7 @@ export class DashboardComponent implements OnInit {
   employeesCount: number = 0;
   machinesCount: number = 0;
   projectsCount: number = 0;
+  resources: { id: string; name: string }[] = [];
   events: {
     id: string;
     name: string;
@@ -35,8 +36,8 @@ export class DashboardComponent implements OnInit {
   lineChart: any;
   showLogoutModal: boolean = false;
 
-  resources: string[] = []; // Para almacenar los nombres de los proyectos
   selectedResource: string = ''; // Para el proyecto seleccionado
+  assignedMachines: any[] = []; // Máquinas asignadas al proyecto seleccionado
   monthlyFuelData: number[] = new Array(12).fill(0); // Inicializa con 0 para 12 meses
 
   constructor(private firestore: Firestore) {}
@@ -44,7 +45,9 @@ export class DashboardComponent implements OnInit {
   async ngOnInit() {
     await this.getCounts();
     await this.loadEvents();
+
     await this.loadProjects();
+
     await this.loadMonthlyFuelTotals(); // Cargar datos de combustible mensual
     this.createChart();
     this.createLineChart();
@@ -90,10 +93,17 @@ export class DashboardComponent implements OnInit {
   async loadProjects() {
     try {
       const projectsCollection = collection(this.firestore, '/projects');
-      const projectsSnapshot = await getDocs(projectsCollection);
-      this.resources = projectsSnapshot.docs.map(
-        (doc) => doc.data()['name'] ?? 'Proyecto sin nombre'
-      );
+      const snapshot = await getDocs(projectsCollection);
+
+      if (!snapshot.empty) {
+        this.resources = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data()['name'] || 'Proyecto sin nombre',
+        }));
+      } else {
+        console.warn('No se encontraron proyectos.');
+      }
+
       console.log('Proyectos cargados:', this.resources);
     } catch (error) {
       console.error('Error al cargar proyectos:', error);
@@ -170,17 +180,48 @@ export class DashboardComponent implements OnInit {
     console.log('Cierre de sesión exitoso');
   }
 
+  async loadAssignedMachines() {
+    if (!this.selectedResource) return;
+
+    try {
+      const machinesCollection = collection(
+        this.firestore,
+        `projects/${this.selectedResource}/team/members/machines`
+      );
+      const snapshot = await getDocs(machinesCollection);
+
+      this.assignedMachines = snapshot.docs.map((doc) => ({
+        name: doc.data()['name'],
+        quantity: 1, // Ajusta según sea necesario si existe una cantidad real
+      }));
+
+      this.updatePieChart();
+    } catch (error) {
+      console.error('Error al cargar máquinas asignadas:', error);
+    }
+  }
+
+  // Actualizar los datos del gráfico de pie
+  updatePieChart() {
+    const labels = this.assignedMachines.map((machine) => machine.name);
+    const data = this.assignedMachines.map((machine) => machine.quantity);
+
+    this.chart.data.labels = labels;
+    this.chart.data.datasets[0].data = data;
+    this.chart.update();
+  }
+
   createChart() {
     const ctx = document.getElementById('myPieChart') as HTMLCanvasElement;
     this.chart = new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: ['Empleados', 'Máquinas'],
+        labels: [],
         datasets: [
           {
-            label: 'Cantidad',
-            data: [this.employeesCount, this.machinesCount],
-            backgroundColor: ['rgba(0, 123, 255, 0.8)', 'rgba(255, 0, 0, 0.8)'],
+            label: 'Máquinas Asignadas',
+            data: [],
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
           },
         ],
       },
@@ -188,7 +229,7 @@ export class DashboardComponent implements OnInit {
         responsive: true,
         plugins: {
           legend: { position: 'top' },
-          title: { display: true, text: 'Cantidad de Empleados y Máquinas' },
+          title: { display: true, text: 'Máquinas Asignadas por Proyecto' },
         },
       },
     });
@@ -244,8 +285,8 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // Manejar el cambio del recurso seleccionado
   onResourceChange() {
-    console.log('Proyecto seleccionado:', this.selectedResource);
-    // Aquí puedes agregar la lógica que necesites al cambiar el proyecto seleccionado
+    this.loadAssignedMachines(); // Cargar las máquinas asignadas al proyecto seleccionado
   }
 }

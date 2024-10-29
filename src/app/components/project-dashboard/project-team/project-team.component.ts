@@ -8,7 +8,14 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { ProjectDataService } from '../../../services/project-data.service';
 import { NgFor, NgIf } from '@angular/common';
-import { Firestore, collection, addDoc } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+} from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-project-team',
@@ -51,7 +58,7 @@ export class ProjectTeamComponent implements OnInit {
     this.loadMachines();
   }
 
-  // Cargar empleados desde Firestore sin duplicados
+  // Cargar empleados desde Firestore
   async loadEmployees() {
     try {
       const querySnapshot = await this.projectDataService.getCollection(
@@ -61,15 +68,12 @@ export class ProjectTeamComponent implements OnInit {
         id: doc.id,
         ...doc.data(),
       }));
-      this.employees = [
-        ...new Map(this.employees.map((item) => [item.id, item])).values(),
-      ];
     } catch (error) {
       console.error('Error al cargar empleados:', error);
     }
   }
 
-  // Cargar máquinas desde Firestore sin duplicados
+  // Cargar máquinas desde Firestore
   async loadMachines() {
     try {
       const querySnapshot = await this.projectDataService.getCollection(
@@ -79,15 +83,12 @@ export class ProjectTeamComponent implements OnInit {
         id: doc.id,
         ...doc.data(),
       }));
-      this.machines = [
-        ...new Map(this.machines.map((item) => [item.id, item])).values(),
-      ];
     } catch (error) {
       console.error('Error al cargar máquinas:', error);
     }
   }
 
-  // Cargar los miembros asignados al proyecto sin duplicados
+  // Cargar los miembros asignados al proyecto
   async loadAssignedMembers() {
     if (!this.projectId) return;
 
@@ -114,7 +115,21 @@ export class ProjectTeamComponent implements OnInit {
     return machine ? machine.name : 'No asignada';
   }
 
-  // Asignar un miembro al proyecto sin duplicados
+  // Verificar si un documento ya existe en la colección
+  async documentExists(
+    collectionPath: string,
+    field: string,
+    value: string
+  ): Promise<boolean> {
+    const q = query(
+      collection(this.firestore, collectionPath),
+      where(field, '==', value)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  }
+
+  // Asignar un miembro al proyecto
   async assignTeamMember() {
     if (!this.projectId) return;
 
@@ -124,11 +139,16 @@ export class ProjectTeamComponent implements OnInit {
 
     if (employeeName && machineName) {
       try {
-        const employeeExists = this.assignedEmployees.some(
-          (e) => e.employeeId === employee
+        const employeeExists = await this.documentExists(
+          `projects/${this.projectId}/team/members/employees`,
+          'employeeId',
+          employee
         );
-        const machineExists = this.assignedMachines.some(
-          (m) => m.machineId === machine
+
+        const machineExists = await this.documentExists(
+          `projects/${this.projectId}/team/members/machines`,
+          'machineId',
+          machine
         );
 
         if (!employeeExists) {
