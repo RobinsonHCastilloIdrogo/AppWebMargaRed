@@ -1,9 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProjectDataService } from '../../../services/project-data.service';
+import { DashboardService } from '../../../services/dashboard.service'; // Importa el servicio
 
 @Component({
   selector: 'app-project-details',
@@ -13,52 +14,66 @@ import { ProjectDataService } from '../../../services/project-data.service';
   standalone: true,
 })
 export class ProjectDetailsComponent implements OnInit {
-  @Input() project: any; // Recibe los datos del proyecto desde el componente padre
-  projectId: string | null = null;
+  @Input() project: any;
+  @Output() statusChanged = new EventEmitter<void>(); // Emisor del evento
 
-  // Variables para almacenar los detalles del proyecto
+  projectId: string | null = null;
+  detailId: string = '5QViexI3IOwLj9GiZZzK';
+
   projectDescription: string = '';
   startDate: string = '';
   endDate: string = '';
   status: string = '';
-  employeesArray: string[] = []; // Lista de empleados
-  machinesArray: string[] = []; // Lista de máquinas
-  resourcePairs: { employee: string; machine: string }[] = []; // Lista de pares (empleado, máquina)
+  employeesArray: string[] = [];
+  machinesArray: string[] = [];
+  resourcePairs: { employee: string; machine: string }[] = [];
   isEditing: boolean = false;
 
   constructor(
     private firestore: Firestore,
     private route: ActivatedRoute,
-    private projectDataService: ProjectDataService
+    private dashboardService: DashboardService // Inyecta el servicio aquí
   ) {}
 
   ngOnInit(): void {
     this.route.parent?.paramMap.subscribe((params) => {
       this.projectId = params.get('id');
-      if (!this.projectId) {
-        console.error('No se encontró el ID del proyecto.');
-      } else {
+      if (this.projectId) {
         this.loadProjectDetails();
+      } else {
+        console.error('No se encontró el ID del proyecto.');
       }
     });
   }
 
-  loadProjectDetails(): void {
-    if (this.project) {
-      // Asignar los valores iniciales a las variables del formulario
-      this.projectDescription = this.project.description || '';
-      this.startDate = this.project.startDate || '';
-      this.endDate = this.project.endDate || '';
-      this.status = this.project.status || '';
-      this.employeesArray = this.project.employees || [];
-      this.machinesArray = this.project.machines || [];
+  async loadProjectDetails(): Promise<void> {
+    if (!this.projectId) return;
 
-      // Emparejar empleados y máquinas
-      this.generateResourcePairs();
+    try {
+      const detailDocRef = doc(
+        this.firestore,
+        `projects/${this.projectId}/details/${this.detailId}`
+      );
+      const detailSnapshot = await getDoc(detailDocRef);
+
+      if (detailSnapshot.exists()) {
+        const projectData = detailSnapshot.data();
+        this.projectDescription = projectData['description'] || '';
+        this.startDate = projectData['startDate'] || '';
+        this.endDate = projectData['endDate'] || '';
+        this.status = projectData['status'] || '';
+        this.employeesArray = projectData['employees'] || [];
+        this.machinesArray = projectData['machines'] || [];
+
+        this.generateResourcePairs();
+      } else {
+        console.error('No se encontraron detalles del proyecto.');
+      }
+    } catch (error) {
+      console.error('Error al cargar los detalles del proyecto:', error);
     }
   }
 
-  // Método para emparejar empleados y máquinas
   generateResourcePairs(): void {
     const maxLength = Math.max(
       this.employeesArray.length,
@@ -73,12 +88,10 @@ export class ProjectDetailsComponent implements OnInit {
     }
   }
 
-  // Método para habilitar la edición de los detalles del proyecto
   enableEditing(): void {
     this.isEditing = true;
   }
 
-  // Método para actualizar o crear los detalles del proyecto en Firestore
   async saveDetails(): Promise<void> {
     if (!this.projectId) {
       console.error('No se encontró el ID del proyecto.');
@@ -86,7 +99,12 @@ export class ProjectDetailsComponent implements OnInit {
     }
 
     try {
-      await this.projectDataService.addDetailToProject(this.projectId, {
+      const detailDocRef = doc(
+        this.firestore,
+        `projects/${this.projectId}/details/${this.detailId}`
+      );
+
+      await setDoc(detailDocRef, {
         description: this.projectDescription,
         startDate: this.startDate,
         endDate: this.endDate,
@@ -95,11 +113,15 @@ export class ProjectDetailsComponent implements OnInit {
         machines: this.machinesArray,
       });
 
-      console.log('Detalles del proyecto actualizados correctamente');
+      console.log('Detalles del proyecto guardados correctamente');
       alert('Detalles del proyecto actualizados exitosamente.');
+
       this.isEditing = false;
+
+      // Notificar al dashboard que los proyectos han cambiado
+      this.dashboardService.loadProjectStatusCounts();
     } catch (error) {
-      console.error('Error al actualizar el proyecto:', error);
+      console.error('Error al guardar los detalles del proyecto:', error);
     }
   }
 }

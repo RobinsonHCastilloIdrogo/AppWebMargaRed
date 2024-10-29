@@ -111,17 +111,6 @@ export class ProjectModalComponent {
         `projects/${projectId}/team/members/machines`
       );
 
-      // Añadir documentos iniciales en las subcolecciones
-      await addDoc(employeesCollectionRef, {
-        name: 'Empleado inicial',
-        createdAt: timestamp,
-      });
-
-      await addDoc(machinesCollectionRef, {
-        name: 'Máquina inicial',
-        createdAt: timestamp,
-      });
-
       console.log('Subcolecciones employees y machines creadas exitosamente.');
     } catch (error) {
       console.error('Error al crear subcolecciones de equipo:', error);

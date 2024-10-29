@@ -28,23 +28,29 @@
       <h3>Miembros del Equipo</h3>
 
       <h4>Empleados</h4>
-      <ul>
+      <ul *ngIf="assignedEmployees.length > 0; else noEmployees">
         <li *ngFor="let employee of assignedEmployees">
           {{ employee.name }}
         </li>
       </ul>
+      <ng-template #noEmployees>
+        <p>No hay empleados asignados.</p>
+      </ng-template>
 
       <h4>Máquinas</h4>
-      <ul>
+      <ul *ngIf="assignedMachines.length > 0; else noMachines">
         <li *ngFor="let machine of assignedMachines">
           {{ machine.name }}
         </li>
       </ul>
+      <ng-template #noMachines>
+        <p>No hay máquinas asignadas.</p>
+      </ng-template>
     </div>
 
     <div class="column">
       <h3>Asignaciones de Máquinas</h3>
-      <table>
+      <table *ngIf="assignedEmployees.length > 0; else noAssignments">
         <thead>
           <tr>
             <th>Empleado</th>
@@ -58,6 +64,9 @@
           </tr>
         </tbody>
       </table>
+      <ng-template #noAssignments>
+        <p>No hay asignaciones de máquinas.</p>
+      </ng-template>
     </div>
   </div>
 </div>

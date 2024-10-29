@@ -93,6 +93,9 @@ export class ProjectTeamComponent implements OnInit {
     if (!this.projectId) return;
 
     try {
+      this.assignedEmployees = []; // Limpiar lista antes de cargar
+      this.assignedMachines = []; // Limpiar lista antes de cargar
+
       const employeeSnapshot = await this.projectDataService.getCollection(
         `projects/${this.projectId}/team/members/employees`
       );
@@ -102,6 +105,12 @@ export class ProjectTeamComponent implements OnInit {
         `projects/${this.projectId}/team/members/machines`
       );
       this.assignedMachines = machineSnapshot.docs.map((doc) => doc.data());
+
+      console.log(
+        'Miembros asignados cargados:',
+        this.assignedEmployees,
+        this.assignedMachines
+      );
     } catch (error) {
       console.error('Error al cargar miembros asignados:', error);
     }
@@ -170,7 +179,7 @@ export class ProjectTeamComponent implements OnInit {
           await addDoc(machineRef, {
             name: machineName,
             machineId: machine,
-            employeeId: employee, // Relacionar máquina con el empleado
+            employeeId: employee,
           });
         }
 

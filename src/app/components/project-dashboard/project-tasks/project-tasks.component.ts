@@ -46,25 +46,40 @@ export class ProjectTasksComponent implements OnInit {
     });
   }
 
-  // Cargar tareas desde la subcolección del proyecto en Firestore
+  // Cargar tareas desde Firestore y asegurarse de que el tipo sea correcto
   async loadTasks() {
-    if (!this.projectId) return;
+    try {
+      if (!this.projectId)
+        throw new Error('No se encontró el ID del proyecto.');
 
-    const tasksCollection = collection(
-      this.firestore,
-      `projects/${this.projectId}/tasks`
-    );
-    const snapshot = await getDocs(tasksCollection);
+      const tasksCollection = collection(
+        this.firestore,
+        `projects/${this.projectId}/tasks`
+      );
+      const snapshot = await getDocs(tasksCollection);
 
-    this.tasks = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Task[];
+      this.tasks = snapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          name: doc.data()['name'] || '', // Asegurar que siempre haya una cadena
+          completed: !!doc.data()['completed'], // Convertir a booleano
+        }))
+        .filter((task) => task.name.trim() !== ''); // Filtrar tareas vacías
+
+      if (this.tasks.length === 0) {
+        console.warn('No se encontraron tareas para este proyecto.');
+      }
+    } catch (error) {
+      console.error('Error al cargar tareas:', error);
+    }
   }
 
   // Agregar una nueva tarea al proyecto
   async addTask() {
-    if (this.newTask.trim() === '' || !this.projectId) return;
+    if (this.newTask.trim() === '' || !this.projectId) {
+      alert('Ingrese un nombre válido para la tarea.');
+      return;
+    }
 
     const newTask: Partial<Task> = { name: this.newTask, completed: false };
     const tasksCollection = collection(
@@ -74,8 +89,8 @@ export class ProjectTasksComponent implements OnInit {
 
     try {
       const docRef = await addDoc(tasksCollection, newTask);
-      this.tasks.push({ id: docRef.id, ...newTask } as Task);
       this.newTask = ''; // Limpiar el input
+      await this.loadTasks(); // Recargar tareas para mostrar la nueva tarea
     } catch (error) {
       console.error('Error al agregar tarea:', error);
     }
@@ -102,12 +117,7 @@ export class ProjectTasksComponent implements OnInit {
 
     try {
       await updateDoc(taskDocRef, { name: this.editingTask.name });
-      const index = this.tasks.findIndex(
-        (task) => task.id === this.editingTask!.id
-      );
-      if (index !== -1) {
-        this.tasks[index] = { ...this.editingTask };
-      }
+      await this.loadTasks(); // Recargar tareas para reflejar cambios
       this.closeEditModal(); // Cerrar el modal después de guardar
     } catch (error) {
       console.error('Error al actualizar tarea:', error);
@@ -124,7 +134,7 @@ export class ProjectTasksComponent implements OnInit {
         `projects/${this.projectId}/tasks/${taskId}`
       );
       await deleteDoc(taskDocRef);
-      this.tasks = this.tasks.filter((task) => task.id !== taskId); // Eliminar del frontend
+      await this.loadTasks(); // Recargar tareas después de eliminar
     } catch (error) {
       console.error('Error al eliminar tarea:', error);
     }

@@ -15,7 +15,6 @@
           </option>
         </select>
       </div>
-
       <div class="chart-container">
         <canvas id="myPieChart" width="100" height="100"></canvas>
       </div>
@@ -23,7 +22,7 @@
 
     <!-- Proyectos en Curso -->
     <div class="card project-card">
-      <h3>Proyectos en Curso</h3>
+      <h3>Proyectos en Total</h3>
       <div class="project-info">
         <img
           src="assets/project-icon.png"
@@ -44,7 +43,7 @@
           alt="Project Icon"
           class="project-icon"
         />
-        <p class="project-count">{{ projectsCount }}</p>
+        <p class="project-count">{{ projectsCompleted }}</p>
       </div>
       <p class="project-description">
         Cantidad total de proyectos finalizados.
@@ -59,7 +58,7 @@
           alt="Project Icon"
           class="project-icon"
         />
-        <p class="project-count">{{ projectsCount }}</p>
+        <p class="project-count">{{ projectsInProgress }}</p>
       </div>
       <p class="project-description">Cantidad total de proyectos en Curso.</p>
     </div>

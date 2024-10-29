@@ -22,6 +22,9 @@
       </tr>
     </thead>
     <tbody>
+      <tr *ngIf="tasks.length === 0">
+        <td colspan="3" class="no-tasks">No hay tareas agregadas aún.</td>
+      </tr>
       <tr *ngFor="let task of tasks">
         <td class="task-name">
           <span class="task-name-text">{{ task.name }}</span>
