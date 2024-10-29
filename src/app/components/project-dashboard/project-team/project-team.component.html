@@ -1,40 +1,81 @@
 <div class="team-container">
-  <h2>Equipo del Proyecto</h2>
+  <h2>Asignar Miembro al Equipo</h2>
 
-  <div class="add-member-form">
-    <select [(ngModel)]="selectedEmployeeId">
-      <option *ngFor="let employee of employees" [value]="employee.id">
-        {{ employee.name }}
-      </option>
-    </select>
+  <form [formGroup]="teamForm" (ngSubmit)="assignTeamMember()">
+    <div class="form-group">
+      <label for="employee">Empleado</label>
+      <select id="employee" formControlName="employee">
+        <option *ngFor="let employee of employees" [value]="employee.id">
+          {{ employee.name }}
+        </option>
+      </select>
+    </div>
 
-    <input
-      type="text"
-      [(ngModel)]="newMemberRole"
-      placeholder="Rol en el proyecto..."
-    />
+    <div class="form-group">
+      <label for="machine">Máquina</label>
+      <select id="machine" formControlName="machine">
+        <option *ngFor="let machine of machines" [value]="machine.id">
+          {{ machine.name }}
+        </option>
+      </select>
+    </div>
 
-    <select [(ngModel)]="selectedMachineId">
-      <option *ngFor="let machine of machines" [value]="machine.id">
-        {{ machine.name }}
-      </option>
-    </select>
+    <button type="submit">Agregar Miembro</button>
+  </form>
 
-    <button (click)="addMember()">Agregar Miembro</button>
+  <div class="columns">
+    <!-- Columna izquierda: Miembros del equipo -->
+    <div class="column">
+      <h3>Miembros del Equipo</h3>
+
+      <!-- Tabla de Empleados -->
+      <h4>Empleados</h4>
+      <table class="assignment-table">
+        <thead>
+          <tr>
+            <th>Empleado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let member of teamMembers">
+            <td>{{ member.employeeName }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Tabla de Máquinas -->
+      <h4 style="margin-top: 20px">Máquinas</h4>
+      <table class="assignment-table">
+        <thead>
+          <tr>
+            <th>Máquina</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let member of teamMembers">
+            <td>{{ member.machineName }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Columna derecha: Lista de miembros generales -->
+    <div class="column">
+      <h3>Asignaciones de Máquinas</h3>
+      <table class="assignment-table">
+        <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Máquina</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let member of teamMembers">
+            <td>{{ member.employeeName }}</td>
+            <td>{{ member.machineName }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-
-  <ul class="team-list">
-    <li *ngFor="let member of teamMembers">
-      <div class="member-info">
-        <p>
-          <strong>{{ member.employeeName }}</strong> - {{ member.role }} <br />
-          <em>Máquina asignada: {{ member.machineName || "No asignada" }}</em>
-        </p>
-      </div>
-      <div class="member-actions">
-        <button (click)="editMember(member)">Editar</button>
-        <button (click)="deleteMember(member.id)">Eliminar</button>
-      </div>
-    </li>
-  </ul>
 </div>

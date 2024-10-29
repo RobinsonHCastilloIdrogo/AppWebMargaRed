@@ -5,6 +5,8 @@ import {
   collection,
   addDoc,
   Timestamp,
+  doc,
+  setDoc,
 } from '@angular/fire/firestore';
 
 @Component({
@@ -59,8 +61,9 @@ export class ProjectModalComponent {
     projectId: string,
     timestamp: Timestamp
   ) {
-    const subcollections = ['tasks', 'details', 'team'];
     try {
+      // Crear las subcolecciones básicas (tasks, details, team)
+      const subcollections = ['tasks', 'details', 'team'];
       for (const subcollection of subcollections) {
         const subcollectionRef = collection(
           this.firestore,
@@ -71,7 +74,40 @@ export class ProjectModalComponent {
           createdAt: timestamp,
         });
       }
-      console.log('Subcolecciones creadas exitosamente');
+
+      // Crear subcolecciones específicas para empleados y máquinas dentro de `team`
+      const teamDocRef = doc(
+        this.firestore,
+        `projects/${projectId}/team/teamDoc`
+      );
+      await setDoc(teamDocRef, {
+        name: 'Información del equipo',
+        createdAt: timestamp,
+      });
+
+      const employeesCollectionRef = collection(
+        this.firestore,
+        `projects/${projectId}/team/teamDoc/employees`
+      );
+      const machinesCollectionRef = collection(
+        this.firestore,
+        `projects/${projectId}/team/teamDoc/machines`
+      );
+
+      // Añadir un elemento inicial en `employees` y `machines` subcolecciones
+      await addDoc(employeesCollectionRef, {
+        message: 'Empleado inicial asociado al proyecto',
+        createdAt: timestamp,
+      });
+
+      await addDoc(machinesCollectionRef, {
+        message: 'Máquina inicial asociada al proyecto',
+        createdAt: timestamp,
+      });
+
+      console.log(
+        'Subcolecciones team/employees y team/machines creadas exitosamente'
+      );
     } catch (error) {
       console.error('Error al crear subcolecciones:', error);
     }
