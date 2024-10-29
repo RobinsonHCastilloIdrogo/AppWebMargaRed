@@ -103,7 +103,9 @@ export class FuelManagementComponent implements OnInit {
         );
 
         // Actualizar el total de combustible en la colección monthlyFuelTotals
-        const month = new Date().toLocaleString('default', { month: 'long' }); // Obtener el nombre del mes
+        const month = new Date()
+          .toLocaleString('default', { month: 'long' })
+          .toLowerCase(); // Obtener el nombre del mes en minúsculas
         const monthDocRef = doc(this.firestore, `monthlyFuelTotals/${month}`);
 
         await setDoc(
