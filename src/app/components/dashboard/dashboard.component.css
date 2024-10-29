@@ -7,10 +7,10 @@
 /* Contenido principal */
 .dashboard-content {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr; /* Ajuste: añadir una columna adicional para la tercera tarjeta */
-  grid-template-rows: 1fr 1fr 1.2fr;
+  grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr; /* 3 columnas: 1 grande y 2 pequeñas */
+  grid-template-rows: 1fr 1fr 1.2fr; /* Ajuste: aumentar la altura de la última fila */
   grid-gap: 20px;
-  width: 100%;
+  width: 90%;
   padding: 20px;
   margin-left: 250px; /* Espacio para la barra lateral */
 }
@@ -86,30 +86,30 @@ canvas {
   border-left: 5px solid #007bff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  height: 200px; /* Ajustar la altura según tus preferencias */
+  height: 200px; /* Ajustar la altura aquí según tus preferencias */
 }
 
 /* Cuadro resumen debajo de las dos tarjetas de proyectos */
 .summary-card {
-  grid-column: 2 / 5; /* Ajuste: Se expande desde la segunda hasta la cuarta columna */
+  grid-column: 2 / 5;
   grid-row: 2 / 3;
   background-color: white;
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-left: 5px solid #007bff;
-  height: 320px;
-  margin-top: -60px;
+  height: 320px; /* Ajusta la altura según sea necesario */
+  margin-top: -60px; /* Ajusta el valor del margen negativo para elevarlo */
 }
 
 /* Cuadro de ancho completo al final */
 .full-width-card {
-  grid-column: 1 / 5; /* Ajuste: ocupa toda la fila */
+  grid-column: 1 / 5; /* Ocupa todo el ancho */
   grid-row: 3 / 4;
   background-color: white;
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-left: 5px solid #007bff;
-  height: 100%;
+  height: 100%; /* Altura flexible para que ocupe más espacio */
 }
 
 /* Estilos comunes para las tarjetas */
@@ -170,38 +170,37 @@ canvas {
 }
 
 /* Estilo de la tabla */
-.report-table {
+.modern-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 15px;
   color: #333; /* Color de texto más neutral */
-  text-align: center; /* Cambia `left` por `center` para centrar el texto */
 }
 
 /* Encabezado fijo y estilizado */
-.report-table thead {
+.modern-table thead {
   background-color: #007bff;
   color: white;
-  text-align: center;
+  text-align: left;
   font-weight: bold;
   position: sticky; /* Encabezado fijo */
   top: 0;
   z-index: 2;
 }
 
-.report-table th,
-.report-table td {
+.modern-table th,
+.modern-table td {
   padding: 15px; /* Espacio más amplio */
   border-bottom: 1px solid #e0e0e0;
   text-align: center; /* Centrado del texto */
 }
 
 /* Alternar color de filas */
-.report-table tbody tr:nth-child(even) {
+.modern-table tbody tr:nth-child(even) {
   background-color: #f2f6fc;
 }
 
-.report-table tbody tr:hover {
+.modern-table tbody tr:hover {
   background-color: #eaf2fb; /* Cambio de color al pasar el cursor */
 }
 
@@ -264,8 +263,7 @@ canvas {
 /* Contenedor de los botones de acción */
 .action-buttons {
   display: flex;
-  align-items: center; /* Centrar verticalmente */
-  justify-content: center; /* Centrar horizontalmente */
+  align-items: center;
   gap: 15px; /* Espacio entre los íconos */
 }
 
@@ -304,111 +302,5 @@ canvas {
 
 .btn-delete:hover {
   background-color: rgba(220, 53, 69, 0.1);
-  transform: scale(1.1);
-}
-
-.header-dropdown {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.header-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.dropdown-select {
-  padding: 8px 12px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  transition: border-color 0.3s ease;
-}
-
-.dropdown-select:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-/* Contenedor del dropdown y del título alineados */
-/* Contenedor de dropdown y título alineados */
-.dropdown-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-/* Select del dropdown */
-#viewSelector {
-  padding: 5px;
-  font-size: 20px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: #f8f9fa;
-}
-
-/* Título y dropdown alineados en la misma fila */
-.summary-card h3 {
-  margin: 0;
-  display: inline-block;
-}
-
-/* Contenedor general de la tarjeta del reporte */
-.card.summary-card {
-  position: relative;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-/* Tabla del reporte */
-.table-container {
-  margin-top: 10px;
-}
-
-.event-table th {
-  background-color: #007bff;
-  color: white;
-}
-
-.event-table td,
-.event-table th {
-  padding: 10px;
-  text-align: center;
-}
-
-.table-container {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.event-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: center;
-}
-
-.event-table th {
-  background-color: #007bff;
-  color: white;
-  padding: 12px;
-  text-align: center;
-}
-
-.event-table td {
-  padding: 12px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.action-buttons svg {
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  text-align: center;
-}
-
-.action-buttons svg:hover {
   transform: scale(1.1);
 }
