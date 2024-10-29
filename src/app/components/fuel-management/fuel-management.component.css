@@ -1,80 +1,152 @@
-.fuel-management-container {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 1rem;
-    border-radius: 8px;
-  }
-
-  /* Contenido principal */
-.dashboard-content {
-  flex-grow: 1;
-  margin-left: 250px; /* Asegura que el contenido no se superponga al sidebar */
-  padding: 20px;
-  overflow-y: auto;
-  height: 100vh;
-  box-sizing: border-box; /* Incluye el padding en el tamaño total */
-  width: calc(100% - 250px); /* Ajusta el ancho según el sidebar */
-}
-
-/* Contenedor principal */
+/* Contenedor Principal */
 .dashboard-container {
   display: flex;
   height: 100vh;
   overflow: hidden;
+  background-color: #f4f6f8; /* Fondo gris claro */
 }
-  
-  label {
-    display: block;
-    margin-top: 1rem;
-    font-weight: bold;
-  }
-  
-  h2{
-    font-size: 36px; /* Aumentar el tamaño de fuente */
-    color: #1a202c; /* Asegúrate de usar un color adecuado */
-    font-weight: bold;
-    margin-top: 10px;
+
+/* Contenido Principal */
+.dashboard-content {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Contenedor del Formulario */
+.fuel-management-container {
+  max-width: 900px; /* Ancho suficiente para mejor presentación */
+  margin: 3rem auto; /* Centramos con mayor separación */
+  padding: 3rem 2.5rem; /* Más espacio para resaltar el contenedor */
+  border-radius: 16px; /* Bordes redondeados grandes */
+  background-color: #ffffff; /* Fondo blanco */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada y difusa */
+}
+
+/* Título Principal */
+h2 {
+  font-size: 2.5rem; /* Aumentar el tamaño de fuente */
+  color: #2a4365; /* Azul oscuro profesional */
+  font-weight: 700; /* Más peso en la tipografía */
+  text-align: center; /* Alinear al centro */
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.5px; /* Espaciado para mayor legibilidad */
+}
+
+/* Títulos Secundarios */
+h3 {
+  font-size: 1.75rem; /* Tamaño prominente para encabezados */
+  color: #2d3748; /* Consistente con colores del tema */
+  font-weight: 600; /* Fuente mediana */
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Etiquetas */
+label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: #2d3748; /* Azul oscuro para buen contraste */
+  font-size: 1rem;
+  margin-bottom: 0.5rem; /* Separación más consistente */
+}
+
+/* Campos de Selección y Entrada */
+input[type="number"],
+select {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e0; /* Color de borde gris claro */
+  background-color: #f9fafb; /* Fondo claro para destacar el contenido */
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: #3182ce; /* Azul brillante */
+  box-shadow: 0 0 8px rgba(49, 130, 206, 0.6); /* Sombra suave */
+}
+
+/* Botón Principal */
+button {
+  margin-top: 2rem;
+  padding: 1rem 1.5rem;
+  background-color: #2b6cb0; /* Azul vibrante */
+  color: #ffffff;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  font-weight: 700;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); /* Sombra inicial */
+}
+
+button:hover {
+  background-color: #2c5282; /* Un poco más oscuro al pasar el cursor */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+}
+
+button:disabled {
+  background-color: #a0aec0; /* Gris claro para botones deshabilitados */
+  cursor: not-allowed;
+}
+
+/* Sección de Asignación de Combustible */
+.fuel-assignment-section {
+  margin-top: 2rem;
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background-color: #f7fafc; /* Fondo claro */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Mensajes de Confirmación */
+.confirmation-message {
+  margin-top: 1rem;
+  font-size: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.success-message {
+  color: #38a169; /* Verde éxito */
+  background-color: #e6fffa;
+  border: 1px solid #38a169;
+}
+
+.error-message {
+  color: #e53e3e; /* Rojo error */
+  background-color: #ffe6e6;
+  border: 1px solid #e53e3e;
+}
+
+/* Estilos Responsivos */
+@media (max-width: 768px) {
+  .fuel-management-container {
+    padding: 1.5rem;
+    margin: 1rem;
   }
 
-  input[type='number'],
-  select {
-    width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.5rem;
-    font-size: 1rem;
+  h2 {
+    font-size: 2rem; /* Ajustar el tamaño del título */
   }
-  
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
   button {
-    margin-top: 1rem;
-    padding: 0.5rem;
-    width: 100%;
-    background-color: #4caf50;
-    color: #fff;
     font-size: 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
   }
-  
-  button:hover {
-    background-color: #45a049;
-  }
-  
-  .fuel-assignment-section {
-    margin-top: 20px; /* Espacio entre la selección de máquina y la sección de combustible */
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-  }
-  
-  .success-message {
-    color: green;
-    margin-top: 10px;
-  }
-  
-  .error-message {
-    color: red;
-    margin-top: 10px;
-  }
-  
+}

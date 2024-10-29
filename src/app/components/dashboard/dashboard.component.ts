@@ -12,7 +12,6 @@ import { NgIf, NgFor, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // Import FormsModule
 import { query, where } from 'firebase/firestore';
 import { ProjectDetailsComponent } from '../project-dashboard/project-details/project-details.component';
-import { DashboardService } from '../../services/dashboard.service';
 
 Chart.register(...registerables);
 
@@ -52,28 +51,17 @@ export class DashboardComponent implements OnInit {
   assignedMachines: any[] = []; // Máquinas asignadas al proyecto seleccionado
   monthlyFuelData: number[] = new Array(12).fill(0); // Inicializa con 0 para 12 meses
 
-  constructor(
-    private firestore: Firestore,
-    private dashboardService: DashboardService // Inyectar el servicio
-  ) {}
+  constructor(private firestore: Firestore) {}
 
   async ngOnInit() {
     await this.getCounts();
     await this.loadEvents();
+
     await this.loadProjects();
-    await this.dashboardService.loadProjectStatusCounts(); // Cargar conteo inicial
-    await this.loadMonthlyFuelTotals();
+
+    await this.loadMonthlyFuelTotals(); // Cargar datos de combustible mensual
     this.createChart();
     this.createLineChart();
-
-    // Suscripción a los cambios del servicio
-    this.dashboardService.projectsInProgress$.subscribe(
-      (count) => (this.projectsInProgress = count)
-    );
-
-    this.dashboardService.projectsCompleted$.subscribe(
-      (count) => (this.projectsCompleted = count)
-    );
   }
 
   async loadProjectStatusCounts(): Promise<void> {
@@ -89,14 +77,11 @@ export class DashboardComponent implements OnInit {
         where('status', '==', 'Finalizado')
       );
 
-      const [inProgressSnapshot, completedSnapshot] = await Promise.all([
-        getDocs(inProgressQuery),
-        getDocs(completedQuery),
-      ]);
+      const inProgressSnapshot = await getDocs(inProgressQuery);
+      const completedSnapshot = await getDocs(completedQuery);
 
       this.projectsInProgress = inProgressSnapshot.size;
       this.projectsCompleted = completedSnapshot.size;
-      this.projectsCount = this.projectsInProgress + this.projectsCompleted;
     } catch (error) {
       console.error('Error al cargar el conteo de proyectos:', error);
     }

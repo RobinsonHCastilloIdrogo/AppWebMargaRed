@@ -170,7 +170,7 @@ canvas {
 }
 
 /* Estilo de la tabla */
-.modern-table {
+.report-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 15px;
@@ -179,29 +179,29 @@ canvas {
 }
 
 /* Encabezado fijo y estilizado */
-.modern-table thead {
+.report-table thead {
   background-color: #007bff;
   color: white;
-  text-align: left;
+  text-align: center;
   font-weight: bold;
   position: sticky; /* Encabezado fijo */
   top: 0;
   z-index: 2;
 }
 
-.modern-table th,
-.modern-table td {
+.report-table th,
+.report-table td {
   padding: 15px; /* Espacio más amplio */
   border-bottom: 1px solid #e0e0e0;
   text-align: center; /* Centrado del texto */
 }
 
 /* Alternar color de filas */
-.modern-table tbody tr:nth-child(even) {
+.report-table tbody tr:nth-child(even) {
   background-color: #f2f6fc;
 }
 
-.modern-table tbody tr:hover {
+.report-table tbody tr:hover {
   background-color: #eaf2fb; /* Cambio de color al pasar el cursor */
 }
 
@@ -333,6 +333,53 @@ canvas {
   border-color: #007bff;
 }
 
+/* Contenedor del dropdown y del título alineados */
+/* Contenedor de dropdown y título alineados */
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* Select del dropdown */
+#viewSelector {
+  padding: 5px;
+  font-size: 20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #f8f9fa;
+}
+
+/* Título y dropdown alineados en la misma fila */
+.summary-card h3 {
+  margin: 0;
+  display: inline-block;
+}
+
+/* Contenedor general de la tarjeta del reporte */
+.card.summary-card {
+  position: relative;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Tabla del reporte */
+.table-container {
+  margin-top: 10px;
+}
+
+.event-table th {
+  background-color: #007bff;
+  color: white;
+}
+
+.event-table td,
+.event-table th {
+  padding: 10px;
+  text-align: center;
+}
+
 .table-container {
   max-height: 300px;
   overflow-y: auto;
@@ -341,15 +388,14 @@ canvas {
 .event-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: center; /* Cambia `left` por `center` para centrar el texto */
+  text-align: center;
 }
 
 .event-table th {
   background-color: #007bff;
   color: white;
   padding: 12px;
-  text-align: left;
-  text-align: center; /* Cambia `left` por `center` para centrar el texto */
+  text-align: center;
 }
 
 .event-table td {
@@ -360,7 +406,7 @@ canvas {
 .action-buttons svg {
   cursor: pointer;
   transition: transform 0.2s ease;
-  text-align: center; /* Cambia `left` por `center` para centrar el texto */
+  text-align: center;
 }
 
 .action-buttons svg:hover {
