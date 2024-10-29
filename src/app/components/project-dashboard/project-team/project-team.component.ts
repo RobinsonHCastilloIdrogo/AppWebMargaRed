@@ -8,6 +8,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { ProjectDataService } from '../../../services/project-data.service';
 import { NgFor, NgIf } from '@angular/common';
+import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-project-team',
@@ -27,7 +28,8 @@ export class ProjectTeamComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private projectDataService: ProjectDataService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private firestore: Firestore
   ) {
     this.teamForm = this.fb.group({
       employee: ['', Validators.required],
@@ -49,47 +51,62 @@ export class ProjectTeamComponent implements OnInit {
     this.loadMachines();
   }
 
-  // Cargar empleados disponibles
+  // Cargar empleados desde Firestore sin duplicados
   async loadEmployees() {
-    if (!this.projectId) return;
-
-    const querySnapshot = await this.projectDataService.getCollection(
-      `projects/${this.projectId}/team/members/employees`
-    );
-    this.employees = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    try {
+      const querySnapshot = await this.projectDataService.getCollection(
+        'employees'
+      );
+      this.employees = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      this.employees = [
+        ...new Map(this.employees.map((item) => [item.id, item])).values(),
+      ];
+    } catch (error) {
+      console.error('Error al cargar empleados:', error);
+    }
   }
 
-  // Cargar máquinas disponibles
+  // Cargar máquinas desde Firestore sin duplicados
   async loadMachines() {
-    if (!this.projectId) return;
-
-    const querySnapshot = await this.projectDataService.getCollection(
-      `projects/${this.projectId}/team/members/machines`
-    );
-    this.machines = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    try {
+      const querySnapshot = await this.projectDataService.getCollection(
+        'machines'
+      );
+      this.machines = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      this.machines = [
+        ...new Map(this.machines.map((item) => [item.id, item])).values(),
+      ];
+    } catch (error) {
+      console.error('Error al cargar máquinas:', error);
+    }
   }
 
-  // Cargar miembros asignados al proyecto
+  // Cargar los miembros asignados al proyecto sin duplicados
   async loadAssignedMembers() {
     if (!this.projectId) return;
 
-    const employeeSnapshot = await this.projectDataService.getCollection(
-      `projects/${this.projectId}/team/members/employees`
-    );
-    this.assignedEmployees = employeeSnapshot.docs.map((doc) => doc.data());
+    try {
+      const employeeSnapshot = await this.projectDataService.getCollection(
+        `projects/${this.projectId}/team/members/employees`
+      );
+      this.assignedEmployees = employeeSnapshot.docs.map((doc) => doc.data());
 
-    const machineSnapshot = await this.projectDataService.getCollection(
-      `projects/${this.projectId}/team/members/machines`
-    );
-    this.assignedMachines = machineSnapshot.docs.map((doc) => doc.data());
+      const machineSnapshot = await this.projectDataService.getCollection(
+        `projects/${this.projectId}/team/members/machines`
+      );
+      this.assignedMachines = machineSnapshot.docs.map((doc) => doc.data());
+    } catch (error) {
+      console.error('Error al cargar miembros asignados:', error);
+    }
   }
 
+  // Obtener el nombre de la máquina asignada a un empleado
   getAssignedMachineName(employeeId: string): string {
     const machine = this.assignedMachines.find(
       (machine) => machine.employeeId === employeeId
@@ -97,7 +114,7 @@ export class ProjectTeamComponent implements OnInit {
     return machine ? machine.name : 'No asignada';
   }
 
-  // Asignar un miembro al proyecto
+  // Asignar un miembro al proyecto sin duplicados
   async assignTeamMember() {
     if (!this.projectId) return;
 
@@ -107,23 +124,37 @@ export class ProjectTeamComponent implements OnInit {
 
     if (employeeName && machineName) {
       try {
-        await this.projectDataService.addDocumentToCollection(
-          `projects/${this.projectId}/team/members/employees`,
-          {
+        const employeeExists = this.assignedEmployees.some(
+          (e) => e.employeeId === employee
+        );
+        const machineExists = this.assignedMachines.some(
+          (m) => m.machineId === machine
+        );
+
+        if (!employeeExists) {
+          const employeeRef = collection(
+            this.firestore,
+            `projects/${this.projectId}/team/members/employees`
+          );
+          await addDoc(employeeRef, {
             name: employeeName,
             employeeId: employee,
-          }
-        );
+          });
+        }
 
-        await this.projectDataService.addDocumentToCollection(
-          `projects/${this.projectId}/team/members/machines`,
-          {
+        if (!machineExists) {
+          const machineRef = collection(
+            this.firestore,
+            `projects/${this.projectId}/team/members/machines`
+          );
+          await addDoc(machineRef, {
             name: machineName,
             machineId: machine,
-          }
-        );
+            employeeId: employee, // Relacionar máquina con el empleado
+          });
+        }
 
-        this.loadAssignedMembers(); // Recargar los miembros asignados
+        await this.loadAssignedMembers();
         this.teamForm.reset();
         alert('Miembro del equipo asignado exitosamente.');
       } catch (error) {

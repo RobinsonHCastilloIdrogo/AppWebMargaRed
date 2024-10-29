@@ -81,8 +81,9 @@ export class ProjectDataService {
     return await getDocs(collection(this.firestore, path));
   }
 
-  async addDocumentToCollection(path: string, data: any): Promise<void> {
-    const collectionRef = collection(this.firestore, path);
-    await addDoc(collectionRef, data);
+  // Servicio para añadir un documento a una colección
+  async addDocumentToCollection(path: string, data: any) {
+    const docRef = doc(this.firestore, path); // Crear referencia de documento
+    await setDoc(docRef, data); // Añadir el documento con los datos
   }
 }
