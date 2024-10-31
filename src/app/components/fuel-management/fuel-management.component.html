@@ -8,33 +8,29 @@
     <div class="fuel-management-container">
       <h3>Asignar Combustible a Máquina</h3>
 
-      <!-- Selección de máquina -->
-      <label for="machine-type-select">Seleccione una máquina:</label>
-      <select id="machine-type-select" (change)="selectMachineType($event)">
-        <option value="" disabled [selected]="!selectedMachineType">
-          -- Selecciona una máquina --
-        </option>
-        <option *ngFor="let type of machineTypes" [value]="type">
-          {{ type }}
-        </option>
-      </select>
-
-      <!-- Selección de máquina específica -->
-      <label for="specific-machine-select" *ngIf="selectedMachineType"
-        >Seleccione máquina específica:</label
-      >
-      <select
-        id="specific-machine-select"
-        (change)="selectSpecificMachine($event)"
-        [disabled]="!selectedMachineType"
-      >
-        <option value="" disabled [selected]="!selectedMachine">
-          -- Selecciona una máquina específica --
-        </option>
-        <option *ngFor="let machine of specificMachines" [value]="machine.id">
-          {{ machine.id }}
-        </option>
-      </select>
+      <!-- Search field -->
+      <label for="machine-search-input">Buscar máquina:</label>
+      <input
+        id="machine-search-input"
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="filterMachines($event)"
+        placeholder="Buscar máquina..."
+        autocomplete="off"
+      />
+    
+      <!-- Dropdown list -->
+      <div *ngIf="filteredMachines.length > 0" class="dropdown-list">
+        <ul>
+          <li
+            *ngFor="let machine of filteredMachines"
+            (click)="selectMachine(machine)"
+            class="dropdown-item"
+          >
+            {{ machine.name }} - {{ machine.id }}
+          </li>
+        </ul>
+      </div>
 
       <!-- Mensajes de confirmación -->
       <div *ngIf="successMessage" class="confirmation-message success-message">
