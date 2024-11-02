@@ -19,6 +19,16 @@ interface Machine {
   name: string;
 }
 
+interface ProjectAssignment {
+  employeeId: string | null;
+  employeeName: string | null;
+  machineId: string | null;
+  machineName?: string | null;
+  role: string;
+  startHour: string | null;
+  endHour: string | null;
+}
+
 @Component({
   selector: 'app-calendar-modal',
   standalone: true,
@@ -29,7 +39,7 @@ interface Machine {
 export class CalendarModalComponent implements OnInit {
   @Input() selectedDate!: string;
 
-  isEventSelected: boolean = true;
+  isEventSelected: boolean | null = null;
 
   // Variables para el Evento
   nombreEvento: string = '';
@@ -41,9 +51,11 @@ export class CalendarModalComponent implements OnInit {
 
   // Variables para el Proyecto
   selectedProject: string = '';
-  horaInicioProyecto: string = '';
-  horaFinProyecto: string = '';
   descripcionProyecto: string = '';
+  projectAssignments: ProjectAssignment[] = [];
+  employeeCount: number = 0; // Cantidad de empleados a asignar
+  selectedAssignmentIndex: number | null = null; // Índice del empleado seleccionado
+  selectedAssignment: ProjectAssignment | null = null;
 
   employees: Employee[] = [];
   projects: Project[] = [];
@@ -81,43 +93,78 @@ export class CalendarModalComponent implements OnInit {
     });
   }
 
-  guardarAsignacion(): void {
-    if (this.isEventSelected) {
-      this.guardarEvento();
-    } else {
-      this.guardarProyecto();
+  onAssignmentTypeChange(): void {
+    // Lógica adicional al cambiar el tipo de asignación
+    this.clearProjectAssignments();
+  }
+
+  // Método para generar las asignaciones de empleados en función de la cantidad especificada
+  generateEmployeeAssignments(): void {
+    this.projectAssignments = [];
+    for (let i = 0; i < this.employeeCount; i++) {
+      this.projectAssignments.push({
+        employeeId: null,
+        employeeName: null,
+        machineId: null,
+        role: 'Obrero',
+        startHour: null,
+        endHour: null,
+      });
+    }
+    this.selectedAssignmentIndex = null;
+    this.selectedAssignment = null;
+  }
+
+  // Método para seleccionar un empleado para edición
+  selectEmployeeAssignment(): void {
+    if (this.selectedAssignmentIndex !== null) {
+      this.selectedAssignment =
+        this.projectAssignments[this.selectedAssignmentIndex];
     }
   }
 
-  private guardarEvento(): void {
-    const evento = {
-      date: this.selectedDate,
-      empleado: this.selectedEmployee,
-      maquina: this.selectedMachine,
-      horaInicio: this.horaInicio,
-      horaFin: this.horaFin,
-      nombreEvento: this.nombreEvento?.trim(),
-      descripcion: this.descripcion,
-    };
+  // Método para eliminar un empleado de la asignación del proyecto
+  removeProjectAssignment(index: number): void {
+    this.projectAssignments.splice(index, 1);
+    if (this.selectedAssignmentIndex === index) {
+      this.selectedAssignmentIndex = null;
+      this.selectedAssignment = null;
+    }
+  }
 
-    this.firebaseService.addAssignment(evento).then(() => {
-      const newEvent = {
-        title: evento.nombreEvento || 'Evento sin nombre',
-        start: evento.date,
-        extendedProps: { ...evento },
-      };
-      this.firebaseService.emitirEvento(newEvent);
-      this.modalRef.hide();
-    });
+  // Método para obtener el nombre del empleado basado en su ID
+  getEmployeeName(employeeId: string): string {
+    const employee = this.employees.find((emp) => emp.id === employeeId);
+    return employee ? employee.name : '';
+  }
+
+  // Método para obtener el nombre de la máquina basado en su ID
+  getMachineName(machineId: string): string {
+    const machine = this.machines.find((mac) => mac.id === machineId);
+    return machine ? machine.name : '';
+  }
+
+  // Método para guardar la asignación del proyecto con todos los empleados
+  guardarAsignacion(): void {
+    if (this.isEventSelected === false) {
+      this.guardarProyecto();
+    } else {
+      alert('Seleccione una asignación válida antes de guardar.');
+    }
   }
 
   private guardarProyecto(): void {
+    if (!this.selectedProject) {
+      alert('Por favor, selecciona un proyecto.');
+      return;
+    }
+
     const proyectoSeleccionado = this.projects.find(
       (proj) => proj.id === this.selectedProject
     );
 
     if (!proyectoSeleccionado) {
-      alert('Por favor, selecciona un proyecto válido.');
+      alert('El proyecto seleccionado no es válido.');
       return;
     }
 
@@ -125,9 +172,20 @@ export class CalendarModalComponent implements OnInit {
       id: this.selectedProject,
       date: this.selectedDate,
       nombreProyecto: proyectoSeleccionado.name,
-      horaInicio: this.horaInicioProyecto,
-      horaFin: this.horaFinProyecto,
       descripcion: this.descripcionProyecto,
+      assignments: this.projectAssignments.map((assignment) => ({
+        employeeId: assignment.employeeId,
+        employeeName: assignment.employeeName
+          ? this.getEmployeeName(assignment.employeeId!)
+          : '',
+        machineId: assignment.machineId || null,
+        machineName: assignment.machineId
+          ? this.getMachineName(assignment.machineId)
+          : null,
+        role: assignment.role,
+        startHour: assignment.startHour,
+        endHour: assignment.endHour,
+      })),
     };
 
     this.firebaseService.addAssignment(proyecto).then(() => {
@@ -139,5 +197,22 @@ export class CalendarModalComponent implements OnInit {
       this.firebaseService.emitirEvento(newEvent);
       this.modalRef.hide();
     });
+  }
+
+  // Método para actualizar la información de un empleado y su máquina
+  updateAssignmentRole(index: number, role: string): void {
+    const assignment = this.projectAssignments[index];
+    assignment.role = role;
+    if (role === 'Obrero') {
+      assignment.machineId = null;
+      assignment.machineName = null;
+    }
+  }
+
+  // Método para limpiar las asignaciones del proyecto
+  clearProjectAssignments(): void {
+    this.projectAssignments = [];
+    this.selectedAssignmentIndex = null;
+    this.selectedAssignment = null;
   }
 }

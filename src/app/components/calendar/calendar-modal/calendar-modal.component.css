@@ -1,8 +1,13 @@
+/* Ajuste de ancho para el contenedor principal del modal */
+.modal-container {
+  max-width: 800px;
+  margin: auto;
+}
+
 /* Estilo para la cabecera del modal */
 .modal-header {
   background-color: #007bff;
   color: white;
-  border-bottom: 1px solid #dee2e6;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -24,46 +29,46 @@
   color: #ff4b5c;
 }
 
-/* Estilo para el cuerpo del modal en dos columnas */
-.modal-body {
-  padding: 25px;
-  background-color: #f9f9f9;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+/* Contenedor de las dos columnas */
+.parent {
+  display: grid;
 }
 
-.modal-body .row {
+.parent.two-columns {
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Mejora de alineación en cada columna */
+.div1,
+.div2 {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 15px;
 }
 
-.modal-body .col-6 {
-  flex: 0 0 48%; /* Cada columna ocupa aproximadamente la mitad del espacio */
+/* Ajuste de los campos del formulario */
+.form-group {
+  display: flex;
+  flex-direction: column;
 }
 
-.form-group {
-  margin-bottom: 20px;
+.form-group label {
+  font-weight: bold;
+  color: #495057;
 }
 
 .form-control {
-  padding: 12px;
+  padding: 10px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  width: 100%;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-control:focus {
   border-color: #007bff;
   box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
-}
-
-/* Etiquetas */
-label {
-  font-weight: bold;
-  margin-bottom: 8px;
-  display: block;
-  color: #495057;
 }
 
 /* Estilo para los botones del modal */
@@ -80,7 +85,6 @@ label {
 .btn-primary {
   background-color: #007bff;
   color: white;
-  border: none;
   padding: 10px 20px;
   font-size: 16px;
   border-radius: 5px;
@@ -95,7 +99,6 @@ label {
 .btn-secondary {
   background-color: #6c757d;
   color: white;
-  border: none;
   padding: 10px 20px;
   font-size: 16px;
   border-radius: 5px;
@@ -106,4 +109,25 @@ label {
 
 .btn-secondary:hover {
   background-color: #5a6268;
+}
+
+/* Alineación para los campos de "Hora Inicio" y "Hora Fin" */
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.row .col-6 {
+  flex: 1;
+}
+
+/* Alineación adicional para las columnas */
+.parent.two-columns .form-group {
+  align-items: flex-start;
+  width: 100%;
+}
+
+.parent.two-columns .div1,
+.parent.two-columns .div2 {
+  align-items: stretch;
 }
