@@ -1,72 +1,15 @@
-<div class="team-container">
-  <h2>Asignar Miembro al Equipo</h2>
-
-  <form [formGroup]="teamForm" (ngSubmit)="assignTeamMember()">
-    <div class="form-group">
-      <label for="employee">Empleado</label>
-      <select id="employee" formControlName="employee">
-        <option *ngFor="let employee of employees" [value]="employee.id">
-          {{ employee.name }}
-        </option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="machine">Máquina</label>
-      <select id="machine" formControlName="machine">
-        <option *ngFor="let machine of machines" [value]="machine.id">
-          {{ machine.name }}
-        </option>
-      </select>
-    </div>
-
-    <button type="submit" [disabled]="teamForm.invalid">Agregar Miembro</button>
-  </form>
-
-  <div class="columns">
-    <div class="column">
-      <h3>Miembros del Equipo</h3>
-
-      <h4>Empleados</h4>
-      <ul *ngIf="assignedEmployees.length > 0; else noEmployees">
-        <li *ngFor="let employee of assignedEmployees">
-          {{ employee.name }}
-        </li>
-      </ul>
-      <ng-template #noEmployees>
-        <p>No hay empleados asignados.</p>
-      </ng-template>
-
-      <h4>Máquinas</h4>
-      <ul *ngIf="assignedMachines.length > 0; else noMachines">
-        <li *ngFor="let machine of assignedMachines">
-          {{ machine.name }}
-        </li>
-      </ul>
-      <ng-template #noMachines>
-        <p>No hay máquinas asignadas.</p>
-      </ng-template>
-    </div>
-
-    <div class="column">
-      <h3>Asignaciones de Máquinas</h3>
-      <table *ngIf="assignedEmployees.length > 0; else noAssignments">
-        <thead>
-          <tr>
-            <th>Empleado</th>
-            <th>Máquina</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let employee of assignedEmployees">
-            <td>{{ employee.name }}</td>
-            <td>{{ getAssignedMachineName(employee.employeeId) }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #noAssignments>
-        <p>No hay asignaciones de máquinas.</p>
-      </ng-template>
-    </div>
-  </div>
+<div *ngIf="teamMembers.length > 0; else noTeam">
+  <h3>Miembros del Equipo</h3>
+  <ul>
+    <li *ngFor="let member of teamMembers">
+      <strong>Nombre:</strong> {{ member.nombre }} <br />
+      <strong>Rol:</strong> {{ member.rol }} <br />
+      <strong>Hora de Inicio:</strong> {{ member.horaInicio }} <br />
+      <strong>Hora de Fin:</strong> {{ member.horaFin }} <br />
+    </li>
+  </ul>
 </div>
+
+<ng-template #noTeam>
+  <p>No hay miembros del equipo asignados para este proyecto.</p>
+</ng-template>

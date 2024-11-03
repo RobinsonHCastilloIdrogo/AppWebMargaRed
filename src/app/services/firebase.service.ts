@@ -8,8 +8,8 @@ import {
   updateDoc,
   deleteDoc,
   docData,
+  setDoc,
 } from '@angular/fire/firestore';
-import { setDoc } from 'firebase/firestore';
 import { Observable, from, Subject, firstValueFrom } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -60,6 +60,7 @@ export class FirebaseService {
   }
 
   // Agregar un proyecto en la subcolección dinámica
+  // Actualiza el método para almacenar directamente en 'team' sin la subcolección 'members'.
   addProyecto(proyecto: any): Promise<void> {
     const documentName = this.obtenerNombreDocumento(); // Documento del mes actual
     const proyectoData = {
@@ -76,15 +77,39 @@ export class FirebaseService {
       })),
     };
 
-    // Usar el ID del proyecto como ID del documento en Firestore
-    const projectDocRef = doc(
-      this.firestore,
-      `assignments/${documentName}/projects/${proyecto.proyectoId}`
-    );
+    // Primero, guarda el proyecto en la colección 'assignments'
+    return addDoc(
+      collection(this.firestore, `assignments/${documentName}/projects`),
+      proyectoData
+    )
+      .then((docRef) => {
+        this.emitirEvento({ id: docRef.id, ...proyectoData });
 
-    return setDoc(projectDocRef, proyectoData).then(() => {
-      this.emitirEvento({ id: proyecto.proyectoId, ...proyectoData });
-    });
+        // Después de agregar el proyecto, guarda los miembros del equipo en la subcolección 'team'
+        const teamCollection = collection(
+          this.firestore,
+          `projects/${proyecto.proyectoId}/team`
+        );
+
+        const teamPromises = proyecto.empleados.map((emp: any) => {
+          const teamMemberData = {
+            nombre: emp.nombre,
+            rol: emp.rol,
+            horaInicio: emp.horaInicio,
+            horaFin: emp.horaFin,
+          };
+          return addDoc(teamCollection, teamMemberData);
+        });
+
+        return Promise.all(teamPromises).then(() => {});
+      })
+      .catch((error) => {
+        console.error(
+          'Error al agregar proyecto y miembros del equipo:',
+          error
+        );
+        throw error;
+      });
   }
 
   // Observable para nuevos eventos del calendario
@@ -140,7 +165,6 @@ export class FirebaseService {
   }
 
   // Obtener todas las asignaciones de eventos y proyectos por mes
-  // Obtener todas las asignaciones de eventos y proyectos por mes
   getAssignments(documentName: string): Observable<any[]> {
     console.log('Cargando asignaciones desde el documento:', documentName);
 
@@ -182,18 +206,5 @@ export class FirebaseService {
         return [];
       })
     );
-  }
-
-  // Generar el nombre del documento para el mes y año actuales
-  private getAssignmentDocumentName(): string | null {
-    try {
-      const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = (currentDate.getMonth() + 1).toString().padStart(2, '0'); // Asegura que el mes tenga 2 dígitos
-      return `${year}-${month}`; // Formato YYYY-MM
-    } catch (error) {
-      console.error('Error al generar el nombre del documento:', error);
-      return null;
-    }
   }
 }
