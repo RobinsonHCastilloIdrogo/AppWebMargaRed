@@ -70,6 +70,14 @@ export class CalendarModalComponent implements OnInit {
     this.loadMachines();
   }
 
+  // Obtener el nombre dinámico de la colección en base al mes y año actuales
+  getAsignacionCollectionName(): string {
+    const fecha = new Date();
+    const mes = fecha.toLocaleString('default', { month: 'long' });
+    const año = fecha.getFullYear();
+    return `asignacion${mes}${año}`;
+  }
+
   loadEmployees(): void {
     this.firebaseService.getEmployees().subscribe({
       next: (employees) => (this.employees = employees),
@@ -101,14 +109,12 @@ export class CalendarModalComponent implements OnInit {
     }
   }
 
-  // Método para limpiar las asignaciones del proyecto
   clearProjectAssignments(): void {
     this.projectAssignments = [];
     this.selectedAssignmentIndex = null;
     this.selectedAssignment = null;
   }
 
-  // Método para limpiar los campos específicos del evento
   clearEventFields(): void {
     this.eventName = '';
     this.eventDescription = '';
@@ -116,7 +122,6 @@ export class CalendarModalComponent implements OnInit {
     this.eventEndTime = '';
   }
 
-  // Método para limpiar los campos específicos del proyecto
   clearProjectFields(): void {
     this.selectedProject = '';
     this.descripcionProyecto = '';
@@ -126,7 +131,6 @@ export class CalendarModalComponent implements OnInit {
     this.selectedAssignment = null;
   }
 
-  // Método para generar las asignaciones de empleados en función de la cantidad especificada
   generateEmployeeAssignments(): void {
     if (this.isEventSelected && this.employeeCount > 2) {
       this.employeeCount = 2; // Limitar a 2 empleados si es un evento
@@ -150,7 +154,6 @@ export class CalendarModalComponent implements OnInit {
     this.selectedAssignment = null;
   }
 
-  // Método para seleccionar un empleado para edición
   selectEmployeeAssignment(): void {
     if (this.selectedAssignmentIndex !== null) {
       this.selectedAssignment =
@@ -158,21 +161,18 @@ export class CalendarModalComponent implements OnInit {
     }
   }
 
-  // Método para obtener el nombre del empleado basado en su ID
   getEmployeeName(employeeId: string | null): string {
     if (!employeeId) return '';
     const employee = this.employees.find((emp) => emp.id === employeeId);
     return employee ? employee.name : '';
   }
 
-  // Método para obtener el nombre de la máquina basado en su ID
   getMachineName(machineId: string | null): string {
     if (!machineId) return '';
     const machine = this.machines.find((mac) => mac.id === machineId);
     return machine ? machine.name : '';
   }
 
-  // Método para guardar la asignación del evento o proyecto
   guardarAsignacion(): void {
     if (this.isEventSelected === true) {
       this.guardarEvento();
@@ -183,10 +183,10 @@ export class CalendarModalComponent implements OnInit {
     }
   }
 
-  // Guardar un evento en la subcolección `eventos` dentro de `asignaciones`
   private guardarEvento(): void {
-    if (!this.eventName) {
-      alert('Por favor, ingrese el nombre del evento.');
+    // Validar los campos
+    if (!this.eventName || !this.selectedDate) {
+      alert('Por favor, ingrese el nombre del evento y la fecha.');
       return;
     }
 
@@ -202,32 +202,28 @@ export class CalendarModalComponent implements OnInit {
       })),
     };
 
-    console.log('Evento guardado:', evento); // Verificar si el evento se guarda correctamente
-
-    this.firebaseService.addEvento(evento).then(() => {
-      this.modalRef.hide();
-    });
+    this.firebaseService
+      .addEvento(evento)
+      .then(() => {
+        this.modalRef.hide();
+      })
+      .catch((error) => {
+        console.error('Error al guardar el evento:', error);
+      });
   }
 
-  // Guardar un proyecto en la subcolección `proyectos` dentro de `asignaciones`
   private guardarProyecto(): void {
-    if (!this.selectedProject) {
-      alert('Por favor, selecciona un proyecto.');
-      return;
-    }
-
-    const proyectoSeleccionado = this.projects.find(
-      (proj) => proj.id === this.selectedProject
-    );
-
-    if (!proyectoSeleccionado) {
-      alert('El proyecto seleccionado no es válido.');
+    // Validar los campos
+    if (!this.selectedProject || !this.selectedDate) {
+      alert('Por favor, selecciona un proyecto y una fecha.');
       return;
     }
 
     const proyecto = {
       proyectoId: this.selectedProject,
-      nombreProyecto: proyectoSeleccionado.name,
+      nombreProyecto: this.projects.find(
+        (proj) => proj.id === this.selectedProject
+      )?.name,
       descripcion: this.descripcionProyecto,
       fecha: this.selectedDate,
       empleados: this.projectAssignments.map((assignment) => ({
@@ -238,14 +234,16 @@ export class CalendarModalComponent implements OnInit {
       })),
     };
 
-    console.log('Proyecto guardado:', proyecto); // Verificar si el proyecto se guarda correctamente
-
-    this.firebaseService.addProyecto(proyecto).then(() => {
-      this.modalRef.hide();
-    });
+    this.firebaseService
+      .addProyecto(proyecto)
+      .then(() => {
+        this.modalRef.hide();
+      })
+      .catch((error) => {
+        console.error('Error al guardar el proyecto:', error);
+      });
   }
 
-  // Método para actualizar la información de un empleado y su máquina
   updateAssignmentRole(index: number, role: string): void {
     const assignment = this.projectAssignments[index];
     assignment.role = role;

@@ -9,7 +9,7 @@ import {
   deleteDoc,
   docData,
 } from '@angular/fire/firestore';
-import { Observable, from, Subject } from 'rxjs';
+import { Observable, from, Subject, firstValueFrom } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
@@ -20,38 +20,23 @@ export class FirebaseService {
 
   constructor(private firestore: Firestore) {}
 
-  // Obtener datos de una colección en tiempo real
-  getData(collectionName: string): Observable<any[]> {
-    const collectionRef = collection(this.firestore, collectionName);
-    return collectionData(collectionRef, { idField: 'id' });
+  // Obtener el nombre dinámico del documento según el mes y año actuales (YYYY-MM)
+  private obtenerNombreDocumento(): string {
+    const fechaActual = new Date();
+    const mes = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Asegura que siempre sea 2 dígitos
+    const año = fechaActual.getFullYear();
+    return `${año}-${mes}`; // Formato: YYYY-MM
   }
 
-  // Obtener un documento específico por su ID con validación de ID
-  getDocument(collectionName: string, docId: string): Observable<any> {
-    if (!docId) {
-      throw new Error(
-        `El ID del documento no puede ser nulo para la colección ${collectionName}`
-      );
-    }
-    const docRef = doc(this.firestore, `${collectionName}/${docId}`);
-    return docData(docRef, { idField: 'id' });
-  }
-
-  // Obtener un documento por su ID utilizando Promesas
+  // Obtener un documento específico por su ID utilizando Promesas (versión RxJS 6)
   getDocumentAsPromise(collectionName: string, docId: string): Promise<any> {
-    if (!docId) {
-      return Promise.reject(
-        new Error(
-          `El ID del documento no puede ser nulo para la colección ${collectionName}`
-        )
-      );
-    }
     const docRef = doc(this.firestore, `${collectionName}/${docId}`);
     return docData(docRef, { idField: 'id' }).toPromise();
   }
 
-  // Agregar un evento en la subcolección `eventos` dentro de `asignaciones`
+  // Agregar un evento en la subcolección dinámica
   addEvento(evento: any): Promise<void> {
+    const documentName = this.obtenerNombreDocumento(); // Documento del mes actual
     const eventoData = {
       nombre: evento.nombre,
       descripcion: evento.descripcion,
@@ -64,16 +49,18 @@ export class FirebaseService {
         horaFin: emp.horaFin,
       })),
     };
+
     return addDoc(
-      collection(this.firestore, 'asignaciones/eventos/items'),
+      collection(this.firestore, `assignments/${documentName}/events`),
       eventoData
     ).then((docRef) => {
       this.emitirEvento({ id: docRef.id, ...eventoData });
     });
   }
 
-  // Agregar un proyecto en la subcolección `proyectos` dentro de `asignaciones`
+  // Agregar un proyecto en la subcolección dinámica
   addProyecto(proyecto: any): Promise<void> {
+    const documentName = this.obtenerNombreDocumento(); // Documento del mes actual
     const proyectoData = {
       proyectoId: proyecto.proyectoId,
       nombreProyecto: proyecto.nombreProyecto,
@@ -87,8 +74,9 @@ export class FirebaseService {
         horaFin: emp.horaFin,
       })),
     };
+
     return addDoc(
-      collection(this.firestore, 'asignaciones/proyectos/items'),
+      collection(this.firestore, `assignments/${documentName}/projects`),
       proyectoData
     ).then((docRef) => {
       this.emitirEvento({ id: docRef.id, ...proyectoData });
@@ -119,13 +107,13 @@ export class FirebaseService {
 
   getEmployeeName(id: string): Promise<string> {
     return this.getDocumentAsPromise('employees', id).then(
-      (data) => data?.name || 'Empleado desconocido'
+      (data) => data?.name || 'Unknown employee'
     );
   }
 
   getMachineName(id: string): Promise<string> {
     return this.getDocumentAsPromise('machines', id).then(
-      (data) => data?.name || 'Maquinaria desconocida'
+      (data) => data?.name || 'Unknown machine'
     );
   }
 
@@ -137,46 +125,48 @@ export class FirebaseService {
       map((projects: any[]) =>
         projects.map((project) => ({
           id: project.id,
-          name: project.name || 'Sin Nombre', // Manejo seguro del campo 'name'
+          name: project.name || 'No Name', // Manejo seguro del campo 'name'
         }))
       ),
       catchError((error) => {
-        console.error('Error al cargar proyectos:', error);
+        console.error('Error loading projects:', error);
         return []; // Retornar un array vacío en caso de error
       })
     );
   }
 
-  // Obtener todas las asignaciones de eventos y proyectos
-  getAssignments(): Observable<any[]> {
-    const eventosCollection = collection(
-      this.firestore,
-      'asignaciones/eventos/items'
-    );
-    const proyectosCollection = collection(
-      this.firestore,
-      'asignaciones/proyectos/items'
-    );
+  // Obtener todas las asignaciones de eventos y proyectos por mes
+  // Obtener todas las asignaciones de eventos y proyectos por mes
+  getAssignments(documentName: string): Observable<any[]> {
+    console.log('Cargando asignaciones desde el documento:', documentName);
 
-    const eventos$ = collectionData(eventosCollection, { idField: 'id' });
-    const proyectos$ = collectionData(proyectosCollection, { idField: 'id' });
+    const docRef = doc(this.firestore, `assignments/${documentName}`);
 
-    // Combinar las asignaciones de eventos y proyectos
+    const eventsCollection = collection(docRef, 'events');
+    const projectsCollection = collection(docRef, 'projects');
+
+    const events$ = collectionData(eventsCollection, { idField: 'id' });
+    const projects$ = collectionData(projectsCollection, { idField: 'id' });
+
+    // Usamos firstValueFrom y tipamos el retorno como un array de objetos (any[])
     return from(
-      Promise.all([eventos$.toPromise(), proyectos$.toPromise()])
+      Promise.all([
+        firstValueFrom(events$ as Observable<any[]>), // Tipamos los eventos
+        firstValueFrom(projects$ as Observable<any[]>), // Tipamos los proyectos
+      ])
     ).pipe(
-      map(([eventos, proyectos]) => [
-        ...eventos.map((evento: any) => ({
-          id: evento.id,
-          title: evento.nombre || evento.descripcion, // Mostrar el nombre del evento
-          start: evento.fecha,
-          tipo: 'evento',
+      map(([events, projects]) => [
+        ...events.map((event: any) => ({
+          id: event.id,
+          title: event.name || event.description,
+          start: event.date,
+          type: 'event',
         })),
-        ...proyectos.map((proyecto: any) => ({
-          id: proyecto.id,
-          title: proyecto.nombreProyecto, // Mostrar el nombre del proyecto
-          start: proyecto.fecha,
-          tipo: 'proyecto',
+        ...projects.map((project: any) => ({
+          id: project.id,
+          title: project.projectName,
+          start: project.date,
+          type: 'project',
         })),
       ]),
       catchError((error) => {
@@ -184,5 +174,18 @@ export class FirebaseService {
         return [];
       })
     );
+  }
+
+  // Generar el nombre del documento para el mes y año actuales
+  private getAssignmentDocumentName(): string | null {
+    try {
+      const currentDate = new Date();
+      const year = currentDate.getFullYear();
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, '0'); // Asegura que el mes tenga 2 dígitos
+      return `${year}-${month}`; // Formato YYYY-MM
+    } catch (error) {
+      console.error('Error al generar el nombre del documento:', error);
+      return null;
+    }
   }
 }

@@ -38,7 +38,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeCalendarOptions();
     this.loadEmployeesAndMachines();
-    this.loadAssignments();
+    this.loadAssignments(); // Cargar las asignaciones para el mes actual
 
     this.eventSubscription = this.firebaseService.nuevoEvento$.subscribe(
       (evento) => {
@@ -52,6 +52,19 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.eventSubscription?.unsubscribe();
   }
 
+  // Función para obtener el nombre del documento en base al mes y año actual
+  getAssignmentDocumentName(): string | null {
+    try {
+      const fecha = new Date();
+      const year = fecha.getFullYear();
+      const month = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Asegura que el mes sea de 2 dígitos
+      return `${year}-${month}`; // Formato YYYY-MM
+    } catch (error) {
+      console.error('Error al generar el nombre del documento:', error);
+      return null;
+    }
+  }
+
   loadEmployeesAndMachines(): void {
     this.firebaseService.getEmployees().subscribe((employees) => {
       this.employees = employees;
@@ -63,20 +76,34 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   loadAssignments(): void {
-    this.assignments = [];
-    this.firebaseService.getAssignments().subscribe((assignments) => {
-      console.log('Asignaciones cargadas:', assignments);
+    const documentName = this.getAssignmentDocumentName(); // Obtener nombre del documento basado en YYYY-MM
 
-      // Mapeamos las asignaciones para que contengan los títulos correctos (nombreProyecto o nombre del evento)
-      this.assignments = assignments.map((assignment: any) => ({
-        ...assignment,
-        title: assignment.nombre || assignment.nombreProyecto || 'Sin nombre', // Mostrar nombre del evento o proyecto
-        start: assignment.fecha, // Asumiendo que la fecha está almacenada en el campo `fecha`
-        extendedProps: assignment, // Pasar todas las propiedades adicionales como props extendidas
-      }));
+    if (!documentName) {
+      console.error('El nombre del documento no es válido:', documentName);
+      return;
+    }
 
-      this.updateCalendarEvents();
-    });
+    this.firebaseService.getAssignments(documentName).subscribe(
+      (assignments) => {
+        console.log('Asignaciones cargadas desde Firestore:', assignments);
+
+        if (assignments && assignments.length > 0) {
+          this.assignments = assignments.map((assignment: any) => ({
+            id: assignment.id, // Asegúrate de tener un campo ID
+            title: assignment.nombreProyecto || 'Sin nombre',
+            start: assignment.fecha, // Asegúrate de que `fecha` esté correctamente asignada
+            extendedProps: assignment,
+          }));
+
+          this.updateCalendarEvents();
+        } else {
+          console.warn('No se encontraron asignaciones para el mes actual');
+        }
+      },
+      (error) => {
+        console.error('Error al cargar asignaciones:', error);
+      }
+    );
   }
 
   updateCalendarEvents(): void {
@@ -97,6 +124,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
         extendedProps: event, // Pasar las propiedades extendidas
       });
       this.updateCalendarEvents();
+    } else {
+      console.log('El evento ya existe en el calendario:', existingEvent);
     }
   }
 
@@ -155,7 +184,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     if (this.bsModalRef?.content) {
       this.bsModalRef.content.closeBtnName = 'Cerrar';
-      console.log('Modal de creación de evento abierto correctamente.');
+
+      // Suscribirse al evento del modal
+      this.bsModalRef.content.assignmentSaved.subscribe(() => {
+        this.loadAssignments(); // Cargar nuevamente las asignaciones después de guardar
+      });
     } else {
       console.error('No se pudo abrir el modal de creación de evento.');
     }
