@@ -66,35 +66,20 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.assignments = [];
     this.firebaseService.getAssignments().subscribe((assignments) => {
       console.log('Asignaciones cargadas:', assignments);
-      this.assignments = assignments.map((assignment) => {
-        // Verificación de la fecha
-        const assignmentDate = assignment.fecha || assignment.start;
-        if (!assignmentDate) {
-          console.warn('La asignación no tiene fecha:', assignment);
-        }
 
-        return {
-          id: assignment.id,
-          title:
-            assignment.tipo === 'evento'
-              ? 'Evento: ' + (assignment.nombre || 'Sin nombre')
-              : 'Proyecto: ' + (assignment.nombreProyecto || 'Sin nombre'),
-          start: assignmentDate, // Asegúrate de que la fecha esté correcta
-          extendedProps: { ...assignment }, // Pasar todos los props adicionales
-        };
-      });
-      console.log('Eventos para el calendario:', this.assignments);
+      // Mapeamos las asignaciones para que contengan los títulos correctos (nombreProyecto o nombre del evento)
+      this.assignments = assignments.map((assignment: any) => ({
+        ...assignment,
+        title: assignment.nombre || assignment.nombreProyecto || 'Sin nombre', // Mostrar nombre del evento o proyecto
+        start: assignment.fecha, // Asumiendo que la fecha está almacenada en el campo `fecha`
+        extendedProps: assignment, // Pasar todas las propiedades adicionales como props extendidas
+      }));
+
       this.updateCalendarEvents();
     });
   }
 
   updateCalendarEvents(): void {
-    if (this.assignments && this.assignments.length > 0) {
-      console.log('Actualizando eventos en el calendario:', this.assignments);
-    } else {
-      console.warn('No hay eventos asignados para mostrar.');
-    }
-
     this.calendarOptions = {
       ...this.calendarOptions,
       events: [...this.assignments],
@@ -105,13 +90,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
     const existingEvent = this.assignments.find((e) => e.id === event.id);
 
     if (!existingEvent) {
-      const eventType = event.tipo === 'evento' ? 'Evento: ' : 'Proyecto: '; // Diferenciar entre eventos y proyectos
-
       this.assignments.push({
         ...event,
-        title:
-          eventType + (event.nombre || event.nombreProyecto || 'Sin nombre'), // Usar tipo y nombre correcto
-        start: event.start || event.fecha, // Usar la fecha correcta
+        title: event.nombre || event.nombreProyecto || 'Sin nombre',
+        start: event.fecha, // Asegurarse de que la fecha esté correctamente asignada
+        extendedProps: event, // Pasar las propiedades extendidas
       });
       this.updateCalendarEvents();
     }
@@ -123,7 +106,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       plugins: [dayGridPlugin, interactionPlugin],
       selectable: true,
       dateClick: this.handleDateClick.bind(this),
-      events: this.assignments, // Cargar eventos desde las asignaciones
+      events: this.assignments,
       eventClick: this.handleEventClick.bind(this),
     };
   }

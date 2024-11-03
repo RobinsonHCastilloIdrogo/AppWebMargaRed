@@ -5,7 +5,13 @@
   <!-- Contenido principal -->
   <div class="dashboard-content">
     <h2>Calendario</h2>
+
     <!-- Componente FullCalendar -->
     <full-calendar [options]="calendarOptions"></full-calendar>
+
+    <!-- Mensajes de error o información -->
+    <div *ngIf="assignments.length === 0" class="alert alert-info mt-3">
+      No hay eventos o proyectos asignados para mostrar en el calendario.
+    </div>
   </div>
 </div>

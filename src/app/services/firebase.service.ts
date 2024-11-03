@@ -55,6 +55,7 @@ export class FirebaseService {
     const eventoData = {
       nombre: evento.nombre,
       descripcion: evento.descripcion,
+      fecha: evento.fecha,
       cantidadEmpleados: evento.empleados.length,
       empleados: evento.empleados.map((emp: any) => ({
         nombre: emp.nombre,
@@ -77,6 +78,7 @@ export class FirebaseService {
       proyectoId: proyecto.proyectoId,
       nombreProyecto: proyecto.nombreProyecto,
       descripcion: proyecto.descripcion,
+      fecha: proyecto.fecha,
       cantidadEmpleados: proyecto.empleados.length,
       empleados: proyecto.empleados.map((emp: any) => ({
         nombre: emp.nombre,
@@ -159,20 +161,21 @@ export class FirebaseService {
     const eventos$ = collectionData(eventosCollection, { idField: 'id' });
     const proyectos$ = collectionData(proyectosCollection, { idField: 'id' });
 
+    // Combinar las asignaciones de eventos y proyectos
     return from(
       Promise.all([eventos$.toPromise(), proyectos$.toPromise()])
     ).pipe(
       map(([eventos, proyectos]) => [
         ...eventos.map((evento: any) => ({
           id: evento.id,
-          title: evento.nombre, // Cambia a 'title' para que FullCalendar lo entienda
-          start: evento.fecha, // Cambia a 'start' para que FullCalendar lo entienda
+          title: evento.nombre || evento.descripcion, // Mostrar el nombre del evento
+          start: evento.fecha,
           tipo: 'evento',
         })),
         ...proyectos.map((proyecto: any) => ({
           id: proyecto.id,
-          title: proyecto.nombreProyecto, // Cambia a 'title' para que FullCalendar lo entienda
-          start: proyecto.fecha, // Cambia a 'start' para que FullCalendar lo entienda
+          title: proyecto.nombreProyecto, // Mostrar el nombre del proyecto
+          start: proyecto.fecha,
           tipo: 'proyecto',
         })),
       ]),

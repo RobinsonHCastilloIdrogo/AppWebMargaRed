@@ -202,6 +202,8 @@ export class CalendarModalComponent implements OnInit {
       })),
     };
 
+    console.log('Evento guardado:', evento); // Verificar si el evento se guarda correctamente
+
     this.firebaseService.addEvento(evento).then(() => {
       this.modalRef.hide();
     });
@@ -235,6 +237,8 @@ export class CalendarModalComponent implements OnInit {
         horaFin: assignment.endHour,
       })),
     };
+
+    console.log('Proyecto guardado:', proyecto); // Verificar si el proyecto se guarda correctamente
 
     this.firebaseService.addProyecto(proyecto).then(() => {
       this.modalRef.hide();
