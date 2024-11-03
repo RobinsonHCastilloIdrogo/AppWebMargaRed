@@ -10,8 +10,13 @@
           [(ngModel)]="selectedResource"
           (change)="onResourceChange()"
         >
+<<<<<<< Updated upstream
           <option *ngFor="let resource of resources" [value]="resource.id">
             {{ resource.name }}
+=======
+          <option *ngFor="let resource of resources" [value]="resource">
+            {{ resource }}
+>>>>>>> Stashed changes
           </option>
         </select>
       </div>
@@ -20,7 +25,10 @@
       </div>
     </div>
 
+<<<<<<< Updated upstream
     <!-- Proyectos en Curso -->
+=======
+>>>>>>> Stashed changes
     <div class="card project-card">
       <h3>Proyectos en Total</h3>
       <div class="project-info">

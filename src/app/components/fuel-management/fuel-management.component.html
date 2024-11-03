@@ -20,7 +20,11 @@
       </select>
 
       <!-- Selección de máquina específica -->
+<<<<<<< Updated upstream
       <label for="specific-machine-select" *ngIf="selectedMachineType"
+=======
+      <label for="specific-machine-select"
+>>>>>>> Stashed changes
         >Seleccione máquina específica:</label
       >
       <select
@@ -37,8 +41,17 @@
       </select>
 
       <!-- Mensajes de confirmación -->
+<<<<<<< Updated upstream
       <div *ngIf="successMessage" class="confirmation-message success-message">
         {{ successMessage }}
+=======
+      <div
+        *ngIf="successMessage || errorMessage"
+        class="confirmation-message"
+        [ngClass]="{ success: successMessage, error: errorMessage }"
+      >
+        {{ successMessage || errorMessage }}
+>>>>>>> Stashed changes
       </div>
       <div *ngIf="errorMessage" class="confirmation-message error-message">
         {{ errorMessage }}

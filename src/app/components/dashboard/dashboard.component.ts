@@ -127,6 +127,7 @@ export class DashboardComponent implements OnInit {
   async loadProjects() {
     try {
       const projectsCollection = collection(this.firestore, '/projects');
+<<<<<<< Updated upstream
       const snapshot = await getDocs(projectsCollection);
 
       if (!snapshot.empty) {
@@ -138,6 +139,12 @@ export class DashboardComponent implements OnInit {
         console.warn('No se encontraron proyectos.');
       }
 
+=======
+      const projectsSnapshot = await getDocs(projectsCollection);
+      this.resources = projectsSnapshot.docs.map(
+        (doc) => doc.data()['name'] ?? 'Proyecto sin nombre'
+      );
+>>>>>>> Stashed changes
       console.log('Proyectos cargados:', this.resources);
     } catch (error) {
       console.error('Error al cargar proyectos:', error);
@@ -319,7 +326,10 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+<<<<<<< Updated upstream
   // Manejar el cambio del recurso seleccionado
+=======
+>>>>>>> Stashed changes
   onResourceChange() {
     this.loadAssignedMachines(); // Cargar las máquinas asignadas al proyecto seleccionado
   }
