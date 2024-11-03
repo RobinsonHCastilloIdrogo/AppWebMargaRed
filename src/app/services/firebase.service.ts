@@ -9,6 +9,7 @@ import {
   deleteDoc,
   docData,
 } from '@angular/fire/firestore';
+import { setDoc } from 'firebase/firestore';
 import { Observable, from, Subject, firstValueFrom } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -75,11 +76,14 @@ export class FirebaseService {
       })),
     };
 
-    return addDoc(
-      collection(this.firestore, `assignments/${documentName}/projects`),
-      proyectoData
-    ).then((docRef) => {
-      this.emitirEvento({ id: docRef.id, ...proyectoData });
+    // Usar el ID del proyecto como ID del documento en Firestore
+    const projectDocRef = doc(
+      this.firestore,
+      `assignments/${documentName}/projects/${proyecto.proyectoId}`
+    );
+
+    return setDoc(projectDocRef, proyectoData).then(() => {
+      this.emitirEvento({ id: proyecto.proyectoId, ...proyectoData });
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { FirebaseService } from '../../../services/firebase.service';
@@ -38,6 +38,7 @@ interface ProjectAssignment {
 })
 export class CalendarModalComponent implements OnInit {
   @Input() selectedDate!: string;
+  @Output() assignmentSaved = new EventEmitter<void>(); // Emisor del evento cuando se guarda la asignación
 
   isEventSelected: boolean | null = null;
 
