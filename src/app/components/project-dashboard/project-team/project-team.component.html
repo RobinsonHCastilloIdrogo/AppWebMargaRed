@@ -1,13 +1,66 @@
 <div *ngIf="teamMembers.length > 0; else noTeam">
   <h3>Miembros del Equipo</h3>
-  <ul>
-    <li *ngFor="let member of teamMembers">
-      <strong>Nombre:</strong> {{ member.nombre }} <br />
-      <strong>Rol:</strong> {{ member.rol }} <br />
-      <strong>Hora de Inicio:</strong> {{ member.horaInicio }} <br />
-      <strong>Hora de Fin:</strong> {{ member.horaFin }} <br />
-    </li>
-  </ul>
+  <div class="table-container">
+    <table class="team-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Rol</th>
+          <th>Hora de Inicio</th>
+          <th>Hora de Fin</th>
+          <th>Máquina Asignada</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let member of teamMembers">
+          <td>{{ member.nombre }}</td>
+          <td>{{ member.rol }}</td>
+          <td>{{ member.horaInicio }}</td>
+          <td>{{ member.horaFin }}</td>
+          <td>{{ member.maquina?.nombre || "N/A" }}</td>
+          <td>
+            <!-- Botón Editar -->
+            <button class="action-button" (click)="openEditMemberModal(member)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                width="24"
+                height="24"
+                stroke-width="2"
+              >
+                <path
+                  d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"
+                ></path>
+                <path d="M13.5 6.5l4 4"></path>
+              </svg>
+            </button>
+
+            <!-- Botón Eliminar -->
+            <button class="action-button" (click)="deleteMember(member)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                width="24"
+                height="24"
+                stroke-width="2"
+              >
+                <path d="M4 7l16 0"></path>
+                <path d="M10 11l0 6"></path>
+                <path d="M14 11l0 6"></path>
+                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+              </svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <ng-template #noTeam>

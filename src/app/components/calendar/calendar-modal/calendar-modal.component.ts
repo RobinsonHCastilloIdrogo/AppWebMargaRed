@@ -232,6 +232,13 @@ export class CalendarModalComponent implements OnInit {
         rol: assignment.role,
         horaInicio: assignment.startHour,
         horaFin: assignment.endHour,
+        // Añadir la información de la máquina asignada
+        maquina: assignment.machineId
+          ? {
+              id: assignment.machineId,
+              nombre: this.getMachineName(assignment.machineId),
+            }
+          : null,
       })),
     };
 
@@ -239,6 +246,7 @@ export class CalendarModalComponent implements OnInit {
       .addProyecto(proyecto)
       .then(() => {
         this.modalRef.hide();
+        this.assignmentSaved.emit(); // Emitir evento cuando se guarda una asignación
       })
       .catch((error) => {
         console.error('Error al guardar el proyecto:', error);

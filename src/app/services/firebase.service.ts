@@ -59,7 +59,6 @@ export class FirebaseService {
     });
   }
 
-  // Agregar un proyecto en la subcolección dinámica
   // Actualiza el método para almacenar directamente en 'team' sin la subcolección 'members'.
   addProyecto(proyecto: any): Promise<void> {
     const documentName = this.obtenerNombreDocumento(); // Documento del mes actual
@@ -74,6 +73,9 @@ export class FirebaseService {
         rol: emp.rol,
         horaInicio: emp.horaInicio,
         horaFin: emp.horaFin,
+        maquina: emp.maquina
+          ? { id: emp.maquina.id, nombre: emp.maquina.nombre }
+          : null, // Añadir info de la máquina
       })),
     };
 
@@ -86,7 +88,7 @@ export class FirebaseService {
         this.emitirEvento({ id: docRef.id, ...proyectoData });
 
         // Después de agregar el proyecto, guarda los miembros del equipo en la subcolección 'team'
-        const teamCollection = collection(
+        const teamCollectionRef = collection(
           this.firestore,
           `projects/${proyecto.proyectoId}/team`
         );
@@ -97,8 +99,11 @@ export class FirebaseService {
             rol: emp.rol,
             horaInicio: emp.horaInicio,
             horaFin: emp.horaFin,
+            maquina: emp.maquina
+              ? { id: emp.maquina.id, nombre: emp.maquina.nombre }
+              : null, // Añadir info de la máquina
           };
-          return addDoc(teamCollection, teamMemberData);
+          return addDoc(teamCollectionRef, teamMemberData);
         });
 
         return Promise.all(teamPromises).then(() => {});
