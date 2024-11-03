@@ -22,6 +22,8 @@ import { FormsModule } from '@angular/forms';
 export class ProjectTeamComponent implements OnInit {
   projectId: string | null = null;
   teamMembers: any[] = []; // Almacena los datos de los miembros del equipo
+  employees: any[] = []; // Almacena los datos de los empleados
+  machines: any[] = []; // Almacena los datos de las máquinas
   isMemberModalOpen: boolean = false;
   isEditMode: boolean = false;
   currentMember: any = {};
@@ -31,6 +33,8 @@ export class ProjectTeamComponent implements OnInit {
   ngOnInit(): void {
     this.projectId = this.route.parent?.snapshot.paramMap.get('id') || null; // Solución al error de tipo
     if (this.projectId) {
+      this.loadEmployees(); // Cargar empleados disponibles
+      this.loadMachines(); // Cargar máquinas disponibles
       this.loadTeamMembers();
     }
   }
@@ -64,6 +68,32 @@ export class ProjectTeamComponent implements OnInit {
     }
   }
 
+  async loadEmployees(): Promise<void> {
+    try {
+      const employeesCollectionRef = collection(this.firestore, 'employees');
+      const employeesSnapshot = await getDocs(employeesCollectionRef);
+      this.employees = employeesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+    } catch (error) {
+      console.error('Error al cargar los empleados:', error);
+    }
+  }
+
+  async loadMachines(): Promise<void> {
+    try {
+      const machinesCollectionRef = collection(this.firestore, 'machines');
+      const machinesSnapshot = await getDocs(machinesCollectionRef);
+      this.machines = machinesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+    } catch (error) {
+      console.error('Error al cargar las máquinas:', error);
+    }
+  }
+
   openAddMemberModal(): void {
     this.isMemberModalOpen = true;
     this.isEditMode = false;
@@ -79,7 +109,25 @@ export class ProjectTeamComponent implements OnInit {
   openEditMemberModal(member: any): void {
     this.isMemberModalOpen = true;
     this.isEditMode = true;
+
+    // Copiar todos los valores del miembro seleccionado
     this.currentMember = { ...member };
+
+    // Obtener el nombre del empleado correspondiente si está en la lista de empleados
+    const employee = this.employees.find((emp) => emp.id === member.nombre);
+    if (employee) {
+      this.currentMember.nombre = employee.id; // Almacena el ID del empleado en lugar del nombre
+    }
+
+    // Obtener el nombre de la máquina correspondiente si está en la lista de máquinas
+    if (member.maquina && member.maquina.nombre !== 'N/A') {
+      const machine = this.machines.find(
+        (mac) => mac.nombre === member.maquina.nombre
+      );
+      if (machine) {
+        this.currentMember.maquina = machine;
+      }
+    }
   }
 
   closeMemberModal(): void {
@@ -141,6 +189,13 @@ export class ProjectTeamComponent implements OnInit {
       this.loadTeamMembers(); // Recargar los miembros del equipo
     } catch (error) {
       console.error('Error al eliminar el miembro:', error);
+    }
+  }
+
+  onRoleChange(): void {
+    // Si el rol no es "Operador", limpiar la máquina asignada
+    if (this.currentMember.rol !== 'Operador') {
+      this.currentMember.maquina = { nombre: 'N/A' };
     }
   }
 }

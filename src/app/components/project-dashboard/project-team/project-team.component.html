@@ -1,5 +1,12 @@
+<div class="header-container">
+  <h3 class="team-header">Miembros del Equipo</h3>
+  <!-- Botón para agregar un nuevo empleado -->
+  <button class="btn btn-primary add-button" (click)="openAddMemberModal()">
+    Agregar Empleado
+  </button>
+</div>
+
 <div *ngIf="teamMembers.length > 0; else noTeam">
-  <h3>Miembros del Equipo</h3>
   <div class="table-container">
     <table class="team-table">
       <thead>
@@ -66,3 +73,85 @@
 <ng-template #noTeam>
   <p>No hay miembros del equipo asignados para este proyecto.</p>
 </ng-template>
+
+<!-- Modal para agregar o editar un miembro del equipo -->
+<div *ngIf="isMemberModalOpen" class="modal-container">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">
+        {{ isEditMode ? "Editar Miembro" : "Agregar Empleado" }}
+      </h5>
+      <button type="button" class="close" (click)="closeMemberModal()">
+        <span>&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Empleado</label>
+        <select [(ngModel)]="currentMember.employeeId" class="form-control">
+          <option value="">Selecciona un empleado</option>
+          <option *ngFor="let emp of employees" [value]="emp.id">
+            {{ emp.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Rol</label>
+        <select
+          [(ngModel)]="currentMember.rol"
+          (change)="onRoleChange()"
+          class="form-control"
+        >
+          <option value="Operador">Operador (con máquina)</option>
+          <option value="Obrero">Obrero (sin máquina)</option>
+        </select>
+      </div>
+
+      <!-- Seleccionar Maquinaria si es Operador -->
+      <div *ngIf="currentMember.rol === 'Operador'" class="form-group">
+        <label>Máquina Asignada</label>
+        <select [(ngModel)]="currentMember.machineId" class="form-control">
+          <option value="">Selecciona una maquinaria</option>
+          <option *ngFor="let maq of machines" [value]="maq.id">
+            {{ maq.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Hora de Inicio</label>
+        <input
+          type="time"
+          [(ngModel)]="currentMember.horaInicio"
+          class="form-control"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Hora de Fin</label>
+        <input
+          type="time"
+          [(ngModel)]="currentMember.horaFin"
+          class="form-control"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="closeMemberModal()"
+      >
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" (click)="saveMember()">
+        {{ isEditMode ? "Guardar Cambios" : "Agregar" }}
+      </button>
+    </div>
+  </div>
+</div>

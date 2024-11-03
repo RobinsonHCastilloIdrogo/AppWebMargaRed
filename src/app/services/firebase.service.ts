@@ -4,11 +4,11 @@ import {
   collectionData,
   collection,
   addDoc,
+  setDoc,
   doc,
   updateDoc,
   deleteDoc,
   docData,
-  setDoc,
 } from '@angular/fire/firestore';
 import { Observable, from, Subject, firstValueFrom } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
@@ -59,8 +59,8 @@ export class FirebaseService {
     });
   }
 
-  // Actualiza el método para almacenar directamente en 'team' sin la subcolección 'members'.
-  addProyecto(proyecto: any): Promise<void> {
+  // Nuevo método: Agregar un proyecto usando un ID específico
+  addProyectoConId(proyecto: any, proyectoId: string): Promise<void> {
     const documentName = this.obtenerNombreDocumento(); // Documento del mes actual
     const proyectoData = {
       proyectoId: proyecto.proyectoId,
@@ -79,18 +79,20 @@ export class FirebaseService {
       })),
     };
 
-    // Primero, guarda el proyecto en la colección 'assignments'
-    return addDoc(
-      collection(this.firestore, `assignments/${documentName}/projects`),
-      proyectoData
-    )
-      .then((docRef) => {
-        this.emitirEvento({ id: docRef.id, ...proyectoData });
+    // Utiliza `setDoc` para agregar el proyecto con un ID específico
+    const proyectoDocRef = doc(
+      this.firestore,
+      `assignments/${documentName}/projects/${proyectoId}`
+    );
+
+    return setDoc(proyectoDocRef, proyectoData)
+      .then(() => {
+        this.emitirEvento({ id: proyectoId, ...proyectoData });
 
         // Después de agregar el proyecto, guarda los miembros del equipo en la subcolección 'team'
         const teamCollectionRef = collection(
           this.firestore,
-          `projects/${proyecto.proyectoId}/team`
+          `projects/${proyectoId}/team`
         );
 
         const teamPromises = proyecto.empleados.map((emp: any) => {

@@ -161,7 +161,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     return machine ? machine.name : 'Maquinaria desconocida';
   }
   handleEventClick(arg: any): void {
-    const { type, empleado, maquina } = arg.event.extendedProps;
+    const { type, empleado, maquina, proyectoId } = arg.event.extendedProps;
 
     // Verificar si el tipo de asignación está definido
     if (!type) {
@@ -193,7 +193,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       }
     } else if (type === 'project') {
       // Lógica para los proyectos: redirigir al project-dashboard
-      const projectId = arg.event.id;
+      const projectId = proyectoId || arg.event.id;
 
       // Verificar si el ID del proyecto está definido
       if (!projectId) {
