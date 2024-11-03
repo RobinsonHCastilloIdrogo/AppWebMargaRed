@@ -148,27 +148,31 @@ export class FirebaseService {
     const events$ = collectionData(eventsCollection, { idField: 'id' });
     const projects$ = collectionData(projectsCollection, { idField: 'id' });
 
-    // Usamos firstValueFrom y tipamos el retorno como un array de objetos (any[])
     return from(
       Promise.all([
-        firstValueFrom(events$ as Observable<any[]>), // Tipamos los eventos
-        firstValueFrom(projects$ as Observable<any[]>), // Tipamos los proyectos
+        firstValueFrom(events$ as Observable<any[]>),
+        firstValueFrom(projects$ as Observable<any[]>),
       ])
     ).pipe(
-      map(([events, projects]) => [
-        ...events.map((event: any) => ({
-          id: event.id,
-          title: event.name || event.description,
-          start: event.date,
-          type: 'event',
-        })),
-        ...projects.map((project: any) => ({
-          id: project.id,
-          title: project.projectName,
-          start: project.date,
-          type: 'project',
-        })),
-      ]),
+      map(([events, projects]) => {
+        console.log('Eventos:', events);
+        console.log('Proyectos:', projects);
+        return [
+          ...events.map((event: any) => ({
+            id: event.id,
+            title: event.nombre || event.descripcion || 'Sin título',
+            start: event.fecha,
+            type: 'event',
+          })),
+          ...projects.map((project: any) => ({
+            id: project.id,
+            title:
+              project.nombreProyecto || project.descripcion || 'Sin título',
+            start: project.fecha,
+            type: 'project',
+          })),
+        ];
+      }),
       catchError((error) => {
         console.error('Error al cargar asignaciones:', error);
         return [];

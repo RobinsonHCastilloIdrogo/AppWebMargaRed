@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { FirebaseService } from '../../services/firebase.service';
 import { CalendarModalComponent } from './calendar-modal/calendar-modal.component';
@@ -32,7 +32,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   constructor(
     private modalService: BsModalService,
-    private firebaseService: FirebaseService
+    private firebaseService: FirebaseService,
+    private cd: ChangeDetectorRef // Agregar ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -76,7 +77,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   loadAssignments(): void {
-    const documentName = this.getAssignmentDocumentName(); // Obtener nombre del documento basado en YYYY-MM
+    const documentName = this.getAssignmentDocumentName();
 
     if (!documentName) {
       console.error('El nombre del documento no es válido:', documentName);
@@ -89,9 +90,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
         if (assignments && assignments.length > 0) {
           this.assignments = assignments.map((assignment: any) => ({
-            id: assignment.id, // Asegúrate de tener un campo ID
-            title: assignment.nombreProyecto || 'Sin nombre',
-            start: assignment.fecha, // Asegúrate de que `fecha` esté correctamente asignada
+            id: assignment.id,
+            title: assignment.title,
+            start: assignment.start,
             extendedProps: assignment,
           }));
 
@@ -111,6 +112,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       ...this.calendarOptions,
       events: [...this.assignments],
     };
+    this.cd.detectChanges(); // Forzar detección de cambios
   }
 
   addEventToCalendar(event: any): void {
@@ -120,7 +122,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.assignments.push({
         ...event,
         title: event.nombre || event.nombreProyecto || 'Sin nombre',
-        start: event.fecha, // Asegurarse de que la fecha esté correctamente asignada
+        start: event.fecha, // Asegúrate de que sea una fecha válida
         extendedProps: event, // Pasar las propiedades extendidas
       });
       this.updateCalendarEvents();
