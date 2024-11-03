@@ -35,13 +35,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
     private firebaseService: FirebaseService
   ) {}
 
-  // Inicialización del componente
   ngOnInit(): void {
     this.initializeCalendarOptions();
-    this.loadEmployeesAndMachines(); // Cargar empleados y máquinas
-    this.loadAssignments(); // Cargar eventos desde Firebase
+    this.loadEmployeesAndMachines();
+    this.loadAssignments();
 
-    // Suscripción a nuevos eventos dinámicos
     this.eventSubscription = this.firebaseService.nuevoEvento$.subscribe(
       (evento) => {
         console.log('Evento recibido:', evento);
@@ -54,7 +52,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.eventSubscription?.unsubscribe();
   }
 
-  // Cargar empleados y máquinas desde Firebase
   loadEmployeesAndMachines(): void {
     this.firebaseService.getEmployees().subscribe((employees) => {
       this.employees = employees;
@@ -65,59 +62,82 @@ export class CalendarComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Cargar asignaciones desde Firebase
   loadAssignments(): void {
     this.assignments = [];
     this.firebaseService.getAssignments().subscribe((assignments) => {
       console.log('Asignaciones cargadas:', assignments);
-      this.assignments = [...assignments];
+      this.assignments = assignments.map((assignment) => {
+        // Verificación de la fecha
+        const assignmentDate = assignment.fecha || assignment.start;
+        if (!assignmentDate) {
+          console.warn('La asignación no tiene fecha:', assignment);
+        }
+
+        return {
+          id: assignment.id,
+          title:
+            assignment.tipo === 'evento'
+              ? 'Evento: ' + (assignment.nombre || 'Sin nombre')
+              : 'Proyecto: ' + (assignment.nombreProyecto || 'Sin nombre'),
+          start: assignmentDate, // Asegúrate de que la fecha esté correcta
+          extendedProps: { ...assignment }, // Pasar todos los props adicionales
+        };
+      });
+      console.log('Eventos para el calendario:', this.assignments);
       this.updateCalendarEvents();
     });
   }
 
-  // Actualizar los eventos del calendario
   updateCalendarEvents(): void {
+    if (this.assignments && this.assignments.length > 0) {
+      console.log('Actualizando eventos en el calendario:', this.assignments);
+    } else {
+      console.warn('No hay eventos asignados para mostrar.');
+    }
+
     this.calendarOptions = {
       ...this.calendarOptions,
       events: [...this.assignments],
     };
   }
 
-  // Agregar un evento al calendario evitando duplicados
   addEventToCalendar(event: any): void {
     const existingEvent = this.assignments.find((e) => e.id === event.id);
 
     if (!existingEvent) {
-      this.assignments.push(event);
+      const eventType = event.tipo === 'evento' ? 'Evento: ' : 'Proyecto: '; // Diferenciar entre eventos y proyectos
+
+      this.assignments.push({
+        ...event,
+        title:
+          eventType + (event.nombre || event.nombreProyecto || 'Sin nombre'), // Usar tipo y nombre correcto
+        start: event.start || event.fecha, // Usar la fecha correcta
+      });
       this.updateCalendarEvents();
     }
   }
 
-  // Inicializar las opciones del calendario
   initializeCalendarOptions(): void {
     this.calendarOptions = {
       initialView: 'dayGridMonth',
       plugins: [dayGridPlugin, interactionPlugin],
       selectable: true,
       dateClick: this.handleDateClick.bind(this),
-      events: this.assignments,
+      events: this.assignments, // Cargar eventos desde las asignaciones
       eventClick: this.handleEventClick.bind(this),
     };
   }
 
-  // Obtener nombre del empleado por su ID
   getEmployeeName(employeeId: string): string {
     const employee = this.employees.find((emp) => emp.id === employeeId);
     return employee ? employee.name : 'Empleado desconocido';
   }
 
-  // Obtener nombre de la máquina por su ID
   getMachineName(machineId: string): string {
     const machine = this.machines.find((mac) => mac.id === machineId);
     return machine ? machine.name : 'Maquinaria desconocida';
   }
 
-  // Abrir modal para detalles del evento con nombres en lugar de IDs
   handleEventClick(arg: any): void {
     const { empleado, maquina } = arg.event.extendedProps;
 
@@ -127,8 +147,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     const initialState = {
       eventDetails: {
         ...arg.event.extendedProps,
-        empleado: nombreEmpleado, // Asignar nombre del empleado
-        maquina: nombreMaquina, // Asignar nombre de la máquina
+        empleado: nombreEmpleado,
+        maquina: nombreMaquina,
       },
     };
 
@@ -143,7 +163,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Abrir modal para crear un nuevo evento
   handleDateClick(arg: any): void {
     const initialState = { selectedDate: arg.dateStr };
 

@@ -42,12 +42,10 @@ export class CalendarModalComponent implements OnInit {
   isEventSelected: boolean | null = null;
 
   // Variables para el Evento
-  nombreEvento: string = '';
-  selectedEmployee: string = '';
-  selectedMachine: string = '';
-  horaInicio: string = '';
-  horaFin: string = '';
-  descripcion: string = '';
+  eventName: string = '';
+  eventDescription: string = '';
+  eventStartTime: string = '';
+  eventEndTime: string = '';
 
   // Variables para el Proyecto
   selectedProject: string = '';
@@ -94,12 +92,49 @@ export class CalendarModalComponent implements OnInit {
   }
 
   onAssignmentTypeChange(): void {
-    // Lógica adicional al cambiar el tipo de asignación
     this.clearProjectAssignments();
+    if (this.isEventSelected) {
+      this.clearProjectFields();
+      this.employeeCount = Math.min(this.employeeCount, 2); // Limitar a 2 empleados para eventos
+    } else {
+      this.clearEventFields();
+    }
+  }
+
+  // Método para limpiar las asignaciones del proyecto
+  clearProjectAssignments(): void {
+    this.projectAssignments = [];
+    this.selectedAssignmentIndex = null;
+    this.selectedAssignment = null;
+  }
+
+  // Método para limpiar los campos específicos del evento
+  clearEventFields(): void {
+    this.eventName = '';
+    this.eventDescription = '';
+    this.eventStartTime = '';
+    this.eventEndTime = '';
+  }
+
+  // Método para limpiar los campos específicos del proyecto
+  clearProjectFields(): void {
+    this.selectedProject = '';
+    this.descripcionProyecto = '';
+    this.projectAssignments = [];
+    this.employeeCount = 0;
+    this.selectedAssignmentIndex = null;
+    this.selectedAssignment = null;
   }
 
   // Método para generar las asignaciones de empleados en función de la cantidad especificada
   generateEmployeeAssignments(): void {
+    if (this.isEventSelected && this.employeeCount > 2) {
+      this.employeeCount = 2; // Limitar a 2 empleados si es un evento
+    }
+    if (this.employeeCount < 1) {
+      this.employeeCount = 1; // Evitar números negativos o cero
+    }
+
     this.projectAssignments = [];
     for (let i = 0; i < this.employeeCount; i++) {
       this.projectAssignments.push({
@@ -123,36 +158,56 @@ export class CalendarModalComponent implements OnInit {
     }
   }
 
-  // Método para eliminar un empleado de la asignación del proyecto
-  removeProjectAssignment(index: number): void {
-    this.projectAssignments.splice(index, 1);
-    if (this.selectedAssignmentIndex === index) {
-      this.selectedAssignmentIndex = null;
-      this.selectedAssignment = null;
-    }
-  }
-
   // Método para obtener el nombre del empleado basado en su ID
-  getEmployeeName(employeeId: string): string {
+  getEmployeeName(employeeId: string | null): string {
+    if (!employeeId) return '';
     const employee = this.employees.find((emp) => emp.id === employeeId);
     return employee ? employee.name : '';
   }
 
   // Método para obtener el nombre de la máquina basado en su ID
-  getMachineName(machineId: string): string {
+  getMachineName(machineId: string | null): string {
+    if (!machineId) return '';
     const machine = this.machines.find((mac) => mac.id === machineId);
     return machine ? machine.name : '';
   }
 
-  // Método para guardar la asignación del proyecto con todos los empleados
+  // Método para guardar la asignación del evento o proyecto
   guardarAsignacion(): void {
-    if (this.isEventSelected === false) {
+    if (this.isEventSelected === true) {
+      this.guardarEvento();
+    } else if (this.isEventSelected === false) {
       this.guardarProyecto();
     } else {
       alert('Seleccione una asignación válida antes de guardar.');
     }
   }
 
+  // Guardar un evento en la subcolección `eventos` dentro de `asignaciones`
+  private guardarEvento(): void {
+    if (!this.eventName) {
+      alert('Por favor, ingrese el nombre del evento.');
+      return;
+    }
+
+    const evento = {
+      nombre: this.eventName,
+      descripcion: this.eventDescription,
+      fecha: this.selectedDate,
+      empleados: this.projectAssignments.map((assignment) => ({
+        nombre: this.getEmployeeName(assignment.employeeId),
+        rol: assignment.role,
+        horaInicio: assignment.startHour,
+        horaFin: assignment.endHour,
+      })),
+    };
+
+    this.firebaseService.addEvento(evento).then(() => {
+      this.modalRef.hide();
+    });
+  }
+
+  // Guardar un proyecto en la subcolección `proyectos` dentro de `asignaciones`
   private guardarProyecto(): void {
     if (!this.selectedProject) {
       alert('Por favor, selecciona un proyecto.');
@@ -169,32 +224,19 @@ export class CalendarModalComponent implements OnInit {
     }
 
     const proyecto = {
-      id: this.selectedProject,
-      date: this.selectedDate,
+      proyectoId: this.selectedProject,
       nombreProyecto: proyectoSeleccionado.name,
       descripcion: this.descripcionProyecto,
-      assignments: this.projectAssignments.map((assignment) => ({
-        employeeId: assignment.employeeId,
-        employeeName: assignment.employeeName
-          ? this.getEmployeeName(assignment.employeeId!)
-          : '',
-        machineId: assignment.machineId || null,
-        machineName: assignment.machineId
-          ? this.getMachineName(assignment.machineId)
-          : null,
-        role: assignment.role,
-        startHour: assignment.startHour,
-        endHour: assignment.endHour,
+      fecha: this.selectedDate,
+      empleados: this.projectAssignments.map((assignment) => ({
+        nombre: this.getEmployeeName(assignment.employeeId),
+        rol: assignment.role,
+        horaInicio: assignment.startHour,
+        horaFin: assignment.endHour,
       })),
     };
 
-    this.firebaseService.addAssignment(proyecto).then(() => {
-      const newEvent = {
-        title: proyecto.nombreProyecto,
-        start: proyecto.date,
-        extendedProps: { ...proyecto },
-      };
-      this.firebaseService.emitirEvento(newEvent);
+    this.firebaseService.addProyecto(proyecto).then(() => {
       this.modalRef.hide();
     });
   }
@@ -207,12 +249,5 @@ export class CalendarModalComponent implements OnInit {
       assignment.machineId = null;
       assignment.machineName = null;
     }
-  }
-
-  // Método para limpiar las asignaciones del proyecto
-  clearProjectAssignments(): void {
-    this.projectAssignments = [];
-    this.selectedAssignmentIndex = null;
-    this.selectedAssignment = null;
   }
 }

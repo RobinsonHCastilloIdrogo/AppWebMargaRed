@@ -50,32 +50,57 @@ export class FirebaseService {
     return docData(docRef, { idField: 'id' }).toPromise();
   }
 
-  // Agregar un nuevo documento a una colección
-  addData(collectionName: string, data: any) {
-    const collectionRef = collection(this.firestore, collectionName);
-    return addDoc(collectionRef, data);
+  // Agregar un evento en la subcolección `eventos` dentro de `asignaciones`
+  addEvento(evento: any): Promise<void> {
+    const eventoData = {
+      nombre: evento.nombre,
+      descripcion: evento.descripcion,
+      cantidadEmpleados: evento.empleados.length,
+      empleados: evento.empleados.map((emp: any) => ({
+        nombre: emp.nombre,
+        rol: emp.rol,
+        horaInicio: emp.horaInicio,
+        horaFin: emp.horaFin,
+      })),
+    };
+    return addDoc(
+      collection(this.firestore, 'asignaciones/eventos/items'),
+      eventoData
+    ).then((docRef) => {
+      this.emitirEvento({ id: docRef.id, ...eventoData });
+    });
   }
 
-  // Actualizar un documento existente
-  updateData(collectionName: string, docId: string, data: any) {
-    if (!docId) {
-      throw new Error(
-        `El ID del documento no puede ser nulo para actualizar en ${collectionName}`
-      );
-    }
-    const docRef = doc(this.firestore, `${collectionName}/${docId}`);
-    return updateDoc(docRef, data);
+  // Agregar un proyecto en la subcolección `proyectos` dentro de `asignaciones`
+  addProyecto(proyecto: any): Promise<void> {
+    const proyectoData = {
+      proyectoId: proyecto.proyectoId,
+      nombreProyecto: proyecto.nombreProyecto,
+      descripcion: proyecto.descripcion,
+      cantidadEmpleados: proyecto.empleados.length,
+      empleados: proyecto.empleados.map((emp: any) => ({
+        nombre: emp.nombre,
+        rol: emp.rol,
+        horaInicio: emp.horaInicio,
+        horaFin: emp.horaFin,
+      })),
+    };
+    return addDoc(
+      collection(this.firestore, 'asignaciones/proyectos/items'),
+      proyectoData
+    ).then((docRef) => {
+      this.emitirEvento({ id: docRef.id, ...proyectoData });
+    });
   }
 
-  // Eliminar un documento
-  deleteData(collectionName: string, docId: string) {
-    if (!docId) {
-      throw new Error(
-        `El ID del documento no puede ser nulo para eliminar en ${collectionName}`
-      );
-    }
-    const docRef = doc(this.firestore, `${collectionName}/${docId}`);
-    return deleteDoc(docRef);
+  // Observable para nuevos eventos del calendario
+  get nuevoEvento$(): Observable<any> {
+    return this.nuevoEventoSubject.asObservable();
+  }
+
+  // Emitir un nuevo evento
+  emitirEvento(event: any) {
+    this.nuevoEventoSubject.next(event);
   }
 
   // Obtener empleados desde la colección 'employees'
@@ -102,76 +127,6 @@ export class FirebaseService {
     );
   }
 
-  // Agregar un empleado
-  addEmployee(employee: any) {
-    const employeesCollection = collection(this.firestore, 'employees');
-    return addDoc(employeesCollection, employee);
-  }
-
-  // Guardar una nueva asignación en Firebase
-  addAssignment(assignment: any) {
-    const assignmentsCollection = collection(this.firestore, 'assignments');
-    return addDoc(assignmentsCollection, assignment).then((docRef) => {
-      const event = {
-        id: docRef.id, // Capturar el ID generado por Firebase
-        title:
-          assignment.nombreProyecto || assignment.nombreEvento || 'Sin nombre', // Verificar el nombre correcto
-        start: assignment.date,
-        extendedProps: { ...assignment },
-      };
-      console.log('Evento emitido:', event); // Verificación en consola
-      this.emitirEvento(event); // Emitir el evento
-    });
-  }
-
-  // Obtener todas las asignaciones
-  // Obtener todas las asignaciones utilizando collectionData
-  getAssignments(): Observable<any[]> {
-    const assignmentsCollection = collection(this.firestore, 'assignments');
-
-    return collectionData(assignmentsCollection, { idField: 'id' }).pipe(
-      map((assignments: any[]) =>
-        assignments.map((assignment) => {
-          const title =
-            assignment.nombreProyecto ||
-            assignment.nombreEvento ||
-            'Sin nombre';
-          console.log(`Título asignado: ${title}`); // Depuración
-
-          return {
-            id: assignment.id,
-            title: title, // Asignar el nombre correcto aquí
-            start: assignment.date,
-            extendedProps: { ...assignment },
-          };
-        })
-      ),
-      catchError((error) => {
-        console.error('Error al cargar asignaciones:', error);
-        return []; // Retornar un array vacío en caso de error
-      })
-    );
-  }
-
-  // Obtener múltiples documentos por sus IDs
-  getMultipleDocuments(
-    collectionName: string,
-    ids: string[]
-  ): Observable<any[]> {
-    const observables = ids.map((id) => this.getDocument(collectionName, id));
-    return from(Promise.all(observables));
-  }
-
-  // Observable para nuevos eventos del calendario
-  get nuevoEvento$(): Observable<any> {
-    return this.nuevoEventoSubject.asObservable();
-  }
-
-  // Emitir un nuevo evento
-  emitirEvento(event: any) {
-    this.nuevoEventoSubject.next(event);
-  }
-
   // Obtener proyectos desde la colección 'projects'
   getProjects(): Observable<{ id: string; name: string }[]> {
     const projectsCollection = collection(this.firestore, 'projects');
@@ -186,6 +141,44 @@ export class FirebaseService {
       catchError((error) => {
         console.error('Error al cargar proyectos:', error);
         return []; // Retornar un array vacío en caso de error
+      })
+    );
+  }
+
+  // Obtener todas las asignaciones de eventos y proyectos
+  getAssignments(): Observable<any[]> {
+    const eventosCollection = collection(
+      this.firestore,
+      'asignaciones/eventos/items'
+    );
+    const proyectosCollection = collection(
+      this.firestore,
+      'asignaciones/proyectos/items'
+    );
+
+    const eventos$ = collectionData(eventosCollection, { idField: 'id' });
+    const proyectos$ = collectionData(proyectosCollection, { idField: 'id' });
+
+    return from(
+      Promise.all([eventos$.toPromise(), proyectos$.toPromise()])
+    ).pipe(
+      map(([eventos, proyectos]) => [
+        ...eventos.map((evento: any) => ({
+          id: evento.id,
+          title: evento.nombre, // Cambia a 'title' para que FullCalendar lo entienda
+          start: evento.fecha, // Cambia a 'start' para que FullCalendar lo entienda
+          tipo: 'evento',
+        })),
+        ...proyectos.map((proyecto: any) => ({
+          id: proyecto.id,
+          title: proyecto.nombreProyecto, // Cambia a 'title' para que FullCalendar lo entienda
+          start: proyecto.fecha, // Cambia a 'start' para que FullCalendar lo entienda
+          tipo: 'proyecto',
+        })),
+      ]),
+      catchError((error) => {
+        console.error('Error al cargar asignaciones:', error);
+        return [];
       })
     );
   }
