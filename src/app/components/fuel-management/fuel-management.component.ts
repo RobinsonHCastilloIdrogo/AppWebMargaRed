@@ -24,11 +24,12 @@ import Swal from 'sweetalert2';
 })
 export class FuelManagementComponent implements OnInit {
   @Input() machines: Machine[] = [];
-  machineTypes: string[] = []; // Para almacenar tipos de máquina únicos
-  specificMachines: Machine[] = []; // Para almacenar máquinas específicas según el tipo seleccionado
-  selectedMachineType?: string; // Para almacenar el tipo de máquina seleccionado
-  selectedMachine?: Machine; // Para almacenar la máquina específica seleccionada
+  machineTypes: string[] = [];
+  specificMachines: Machine[] = [];
+  filteredMachines: Machine[] = []; // Lista para las máquinas filtradas en el campo de búsqueda
+  selectedMachine?: Machine;
   fuelAmount: number = 0;
+  searchQuery: string = ''; // Variable para el cuadro de búsqueda
   successMessage: string = '';
   errorMessage: string = '';
 
@@ -42,7 +43,6 @@ export class FuelManagementComponent implements OnInit {
     const machinesCollection = collection(this.firestore, 'machines');
     const machineSnapshot = await getDocs(machinesCollection);
 
-    // Agrupar máquinas por tipo
     const machinesMap = new Map<string, Machine[]>();
     machineSnapshot.docs.forEach((doc) => {
       const data = doc.data() as { machines: Machine[] };
@@ -51,7 +51,7 @@ export class FuelManagementComponent implements OnInit {
           const { id, name, quantity, status } = machine;
           if (!machinesMap.has(name)) {
             machinesMap.set(name, []);
-            this.machineTypes.push(name); // Agregar tipo de máquina a la lista
+            this.machineTypes.push(name);
           }
           machinesMap
             .get(name)
@@ -60,26 +60,25 @@ export class FuelManagementComponent implements OnInit {
       }
     });
 
-    this.machines = Array.from(machinesMap.values()).flat(); // Aplanar el array de máquinas
+    this.machines = Array.from(machinesMap.values()).flat();
     console.log('Máquinas cargadas:', this.machines);
   }
 
-  selectMachineType(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    this.selectedMachineType = selectElement.value;
-    this.specificMachines = this.machines.filter(
-      (machine) => machine.name === this.selectedMachineType
-    ); // Filtrar máquinas específicas
-    this.selectedMachine = undefined; // Reiniciar máquina seleccionada
-    this.fuelAmount = 0; // Reiniciar cantidad de combustible
+  filterMachines(event: Event): void {
+    const query = (event.target as HTMLInputElement).value.toLowerCase().trim();
+    this.filteredMachines = query
+      ? this.machines.filter(
+          (machine) =>
+            machine.name.toLowerCase().includes(query) ||
+            machine.id.toString().includes(query)
+        )
+      : [];
   }
 
-  selectSpecificMachine(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    const selectedIndex = selectElement.selectedIndex;
-    this.selectedMachine =
-      selectedIndex > 0 ? this.specificMachines[selectedIndex - 1] : undefined;
-    this.fuelAmount = 0; // Reiniciar cantidad de combustible
+  selectMachine(machine: Machine): void {
+    this.selectedMachine = machine;
+    this.fuelAmount = 0;
+    this.filteredMachines = []; // Oculta la lista desplegable después de seleccionar
   }
 
   async assignFuel(): Promise<void> {
@@ -87,10 +86,9 @@ export class FuelManagementComponent implements OnInit {
       try {
         const fuelDocRef = doc(
           this.firestore,
-          `machines/${this.selectedMachineType}/fuelAssignments/${this.selectedMachine.id}`
+          `machines/${this.selectedMachine.name}/fuelAssignments/${this.selectedMachine.id}`
         );
 
-        // Agregar nueva entrada de combustible al historial
         const newFuelEntry = {
           Combustible: this.fuelAmount,
           Fecha: Timestamp.now(),
@@ -102,19 +100,15 @@ export class FuelManagementComponent implements OnInit {
           { merge: true }
         );
 
-        // Actualizar el total de combustible en la colección monthlyFuelTotals
-        const month = new Date()
-          .toLocaleString('default', { month: 'long' })
-          .toLowerCase(); // Obtener el nombre del mes en minúsculas
+        const month = new Date().toLocaleString('default', { month: 'long' });
         const monthDocRef = doc(this.firestore, `monthlyFuelTotals/${month}`);
 
         await setDoc(
           monthDocRef,
-          { totalFuel: increment(this.fuelAmount) }, // Aumentar el total de combustible
-          { merge: true } // Permite fusionar campos en lugar de sobrescribir
+          { totalFuel: increment(this.fuelAmount) },
+          { merge: true }
         );
 
-        // Actualizar el total de combustible para la máquina específica en la nueva colección
         const machineTotalDocRef = doc(
           this.firestore,
           `machineFuelTotals/${this.selectedMachine.id}`
@@ -124,15 +118,14 @@ export class FuelManagementComponent implements OnInit {
           machineTotalDocRef,
           {
             totalFuelAssigned: increment(this.fuelAmount),
-            machineType: this.selectedMachineType,
+            machineType: this.selectedMachine.name,
             monthlyTotals: {
-              [month]: increment(this.fuelAmount), // Actualiza el total mensual
+              [month]: increment(this.fuelAmount),
             },
           },
-          { merge: true } // Permite fusionar campos en lugar de sobrescribir
+          { merge: true }
         );
 
-        // Muestra un mensaje de éxito con SweetAlert2
         Swal.fire({
           title: '¡Éxito!',
           text: `Combustible asignado a ${this.selectedMachine.name}: ${this.fuelAmount} L`,
@@ -161,10 +154,10 @@ export class FuelManagementComponent implements OnInit {
   }
 
   private resetForm(): void {
-    this.selectedMachineType = undefined; // Reiniciar tipo de máquina
-    this.specificMachines = []; // Reiniciar máquinas específicas
-    this.selectedMachine = undefined; // Reiniciar máquina seleccionada
+    this.selectedMachine = undefined;
     this.fuelAmount = 0;
+    this.searchQuery = ''; // Limpia el campo de búsqueda
+    this.filteredMachines = []; // Vacía la lista de máquinas filtradas
     this.successMessage = '';
     this.errorMessage = '';
   }
