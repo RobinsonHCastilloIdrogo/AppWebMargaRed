@@ -220,12 +220,12 @@ export class DashboardComponent implements OnInit {
     try {
       const machinesCollection = collection(
         this.firestore,
-        `projects/${this.selectedResource}/team/members/machines`
+        `projects/${this.selectedResource}/team`
       );
       const snapshot = await getDocs(machinesCollection);
 
       this.assignedMachines = snapshot.docs.map((doc) => ({
-        name: doc.data()['name'],
+        name: doc.data()['maquina']?.nombre ?? 'Maquina sin nombre',
         quantity: 1, // Ajusta según sea necesario si existe una cantidad real
       }));
 
