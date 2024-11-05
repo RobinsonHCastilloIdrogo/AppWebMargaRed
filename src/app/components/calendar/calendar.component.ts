@@ -161,45 +161,62 @@ export class CalendarComponent implements OnInit, OnDestroy {
     return machine ? machine.name : 'Maquinaria desconocida';
   }
   handleEventClick(arg: any): void {
-    const { type, nombre, descripcion, fecha, empleados } =
-      arg.event.extendedProps;
-
+    const { type, nombre, descripcion, fecha, empleados } = arg.event.extendedProps;
+    const eventId = arg.event.id;
+  
+    // Verificar si el ID del evento está definido
+    if (!eventId) {
+      console.error('No se pudo obtener el ID del evento.');
+      return;
+    }
+  
     // Verificar si el tipo de asignación está definido
     if (!type) {
       console.error('No se pudo determinar el tipo de asignación.');
       return;
     }
-
+  
     if (type === 'event') {
-      // Lógica para los eventos: abrir modal con la información correcta
-      const initialState = {
-        eventDetails: {
-          nombre: nombre,
-          descripcion: descripcion,
-          fecha: fecha,
-          empleados: empleados,
+      // Lógica para los eventos: obtener detalles y abrir modal
+      this.firebaseService.getEventById(eventId).subscribe(
+        (eventDetails: any) => { // Especifica el tipo
+          if (eventDetails) {
+            const initialState = {
+              eventDetails: {
+                nombre: eventDetails.nombre || nombre,
+                descripcion: eventDetails.descripcion || descripcion,
+                fecha: eventDetails.fecha || fecha,
+                empleados: eventDetails.empleados || empleados,
+              },
+            };
+  
+            this.bsModalRef = this.modalService.show(EventDetailsModalComponent, {
+              initialState,
+            });
+  
+            if (this.bsModalRef.content) {
+              this.bsModalRef.content.closeBtnName = 'Cerrar';
+            } else {
+              console.error('El contenido del modal no se cargó correctamente.');
+            }
+          } else {
+            console.error('No se encontró el evento con ID:', eventId);
+          }
         },
-      };
-
-      this.bsModalRef = this.modalService.show(EventDetailsModalComponent, {
-        initialState,
-      });
-
-      if (this.bsModalRef.content) {
-        this.bsModalRef.content.closeBtnName = 'Cerrar';
-      } else {
-        console.error('El contenido del modal no se cargó correctamente.');
-      }
+        (error: any) => { // Especifica el tipo
+          console.error('Error al cargar los detalles del evento:', error);
+        }
+      );
     } else if (type === 'project') {
       // Lógica para los proyectos: redirigir al project-dashboard
-      const projectId = arg.event.id || arg.event.extendedProps.proyectoId;
-
+      const projectId = arg.event.id || arg.event.extendedProps.projectId;
+  
       // Verificar si el ID del proyecto está definido
       if (!projectId) {
         console.error('El ID del proyecto no está definido.');
         return;
       }
-
+  
       // Navegar al project-dashboard pasando el ID del proyecto
       this.router
         .navigate([`/projects/${projectId}`])
@@ -215,18 +232,20 @@ export class CalendarComponent implements OnInit, OnDestroy {
       console.error('Tipo de asignación desconocido:', type);
     }
   }
+  
 
   handleDateClick(arg: any): void {
     // Crear el estado inicial para el modal con la fecha seleccionada
     const initialState = { selectedDate: arg.dateStr };
-
+  
     // Mostrar el modal de creación de evento
     this.bsModalRef = this.modalService.show(CalendarModalComponent, {
       initialState,
     });
-
+  
     // Verificar si `bsModalRef` y su contenido existen antes de intentar suscribirse
-    if (this.bsModalRef?.content && this.bsModalRef.content.assignmentSaved) {
+    if (this.bsModalRef?.content) {
+      // Suscribirse al evento `assignmentSaved`
       this.bsModalRef.content.assignmentSaved.subscribe(() => {
         this.loadAssignments(); // Cargar nuevamente las asignaciones después de guardar
       });
@@ -234,4 +253,5 @@ export class CalendarComponent implements OnInit, OnDestroy {
       console.error('El modal o el evento assignmentSaved no están definidos.');
     }
   }
+  
 }

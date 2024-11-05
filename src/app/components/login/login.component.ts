@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '/Users/Estefano Quito/Documents/GitHub/AppWebMargaRed/src/app/services/auth.service';
 import { FormsModule } from '@angular/forms'; // Importa FormsModule aquí
 
 @Component({
@@ -20,8 +20,7 @@ export class LoginComponent {
   handleLogin(event: Event) {
     event.preventDefault();
 
-    this.authService
-      .login(this.username, this.password)
+    this.authService.login(this.username, this.password)
       .then(() => {
         this.router.navigate(['/dashboard']); // Redirige al dashboard si el inicio de sesión es exitoso
       })

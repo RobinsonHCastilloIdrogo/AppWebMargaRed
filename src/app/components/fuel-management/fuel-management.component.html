@@ -12,13 +12,13 @@
       <label for="machine-search-input">Buscar máquina:</label>
       <input
         id="machine-search-input"
-        type="text"
-        [(ngModel)]="searchQuery"
+        type="text" 
+        [(ngModel)]="searchQuery" 
         (input)="filterMachines($event)"
         placeholder="Buscar máquina..."
         autocomplete="off"
       />
-
+    
       <!-- Dropdown list -->
       <div *ngIf="filteredMachines.length > 0" class="dropdown-list">
         <ul>

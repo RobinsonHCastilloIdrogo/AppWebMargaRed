@@ -190,7 +190,7 @@ export class CalendarModalComponent implements OnInit {
       alert('Por favor, ingrese el nombre del evento y la fecha.');
       return;
     }
-
+  
     const evento = {
       nombre: this.eventName,
       descripcion: this.eventDescription,
@@ -202,9 +202,10 @@ export class CalendarModalComponent implements OnInit {
         horaFin: assignment.endHour,
       })),
     };
-
+  
+    // Usar el nombre del evento como ID
     this.firebaseService
-      .addEvento(evento)
+      .addEventoConId(evento, this.eventName)
       .then(() => {
         this.modalRef.hide();
       })
@@ -212,6 +213,7 @@ export class CalendarModalComponent implements OnInit {
         console.error('Error al guardar el evento:', error);
       });
   }
+  
 
   private guardarProyecto(): void {
     // Validar los campos

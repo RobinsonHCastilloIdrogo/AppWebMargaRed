@@ -74,10 +74,25 @@
   margin: 0; /* Eliminar margen */
 }
 
+
 canvas {
   max-width: 100%; /* Ajustar el ancho como desees */
   max-height: 100%; /* Ajustar la altura como desees */
   position: relative; /* Cambiar de absolute a relative */
+}
+/* Ajustar el gráfico de ApexCharts */
+.apexcharts-canvas {
+  width: 100% !important; /* Asegura que el canvas ocupe todo el ancho */
+  height: 100% !important; /* Asegura que el canvas ocupe toda la altura */
+  position: absolute; /* Posición absoluta para llenar el contenedor */
+  top: 0; /* Alinear al borde superior */
+  left: 0; /* Alinear al borde izquierdo */
+  margin: 0; /* Eliminar margen */
+}
+
+/* Opcional: Estilo para el título */
+.full-width-card h3 {
+  margin: 0 0 10px;
 }
 
 /* Cuadros pequeños a la derecha (dos tarjetas de proyectos) */

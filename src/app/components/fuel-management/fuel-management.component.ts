@@ -1,17 +1,8 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
-import {
-  Firestore,
-  doc,
-  collection,
-  getDocs,
-  setDoc,
-  Timestamp,
-  arrayUnion,
-  increment,
-} from '@angular/fire/firestore';
+import { Firestore, doc, collection, getDocs, setDoc, Timestamp, arrayUnion, increment } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Machine } from '../../models/machine.model';
+import { Machine } from '/Users/Estefano Quito/Documents/GitHub/AppWebMargaRed/src/app/models/machine.model';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
 import Swal from 'sweetalert2';
 
@@ -29,7 +20,7 @@ export class FuelManagementComponent implements OnInit {
   filteredMachines: Machine[] = []; // Lista para las máquinas filtradas en el campo de búsqueda
   selectedMachine?: Machine;
   fuelAmount: number = 0;
-  searchQuery: string = ''; // Variable para el cuadro de búsqueda
+  searchQuery: string = '';  // Variable para el cuadro de búsqueda
   successMessage: string = '';
   errorMessage: string = '';
 
@@ -42,24 +33,22 @@ export class FuelManagementComponent implements OnInit {
   async loadMachines(): Promise<void> {
     const machinesCollection = collection(this.firestore, 'machines');
     const machineSnapshot = await getDocs(machinesCollection);
-
+  
     const machinesMap = new Map<string, Machine[]>();
-    machineSnapshot.docs.forEach((doc) => {
+    machineSnapshot.docs.forEach(doc => {
       const data = doc.data() as { machines: Machine[] };
       if (data && Array.isArray(data['machines'])) {
-        data['machines'].forEach((machine) => {
+        data['machines'].forEach(machine => {
           const { id, name, quantity, status } = machine;
           if (!machinesMap.has(name)) {
             machinesMap.set(name, []);
             this.machineTypes.push(name);
           }
-          machinesMap
-            .get(name)
-            ?.push({ id, name, quantity, status } as Machine);
+          machinesMap.get(name)?.push({ id, name, quantity, status } as Machine);
         });
       }
     });
-
+  
     this.machines = Array.from(machinesMap.values()).flat();
     console.log('Máquinas cargadas:', this.machines);
   }
@@ -67,10 +56,8 @@ export class FuelManagementComponent implements OnInit {
   filterMachines(event: Event): void {
     const query = (event.target as HTMLInputElement).value.toLowerCase().trim();
     this.filteredMachines = query
-      ? this.machines.filter(
-          (machine) =>
-            machine.name.toLowerCase().includes(query) ||
-            machine.id.toString().includes(query)
+      ? this.machines.filter(machine =>
+          machine.name.toLowerCase().includes(query) || machine.id.toString().includes(query)
         )
       : [];
   }
@@ -84,16 +71,13 @@ export class FuelManagementComponent implements OnInit {
   async assignFuel(): Promise<void> {
     if (this.selectedMachine && this.fuelAmount > 0) {
       try {
-        const fuelDocRef = doc(
-          this.firestore,
-          `machines/${this.selectedMachine.name}/fuelAssignments/${this.selectedMachine.id}`
-        );
-
+        const fuelDocRef = doc(this.firestore, `machines/${this.selectedMachine.name}/fuelAssignments/${this.selectedMachine.id}`);
+        
         const newFuelEntry = {
           Combustible: this.fuelAmount,
-          Fecha: Timestamp.now(),
+          Fecha: Timestamp.now()
         };
-
+        
         await setDoc(
           fuelDocRef,
           { fuelHistory: arrayUnion(newFuelEntry) },
@@ -109,19 +93,16 @@ export class FuelManagementComponent implements OnInit {
           { merge: true }
         );
 
-        const machineTotalDocRef = doc(
-          this.firestore,
-          `machineFuelTotals/${this.selectedMachine.id}`
-        );
-
+        const machineTotalDocRef = doc(this.firestore, `machineFuelTotals/${this.selectedMachine.id}`);
+        
         await setDoc(
           machineTotalDocRef,
-          {
-            totalFuelAssigned: increment(this.fuelAmount),
+          { 
+            totalFuelAssigned: increment(this.fuelAmount), 
             machineType: this.selectedMachine.name,
             monthlyTotals: {
-              [month]: increment(this.fuelAmount),
-            },
+              [month]: increment(this.fuelAmount)
+            }
           },
           { merge: true }
         );
@@ -132,14 +113,14 @@ export class FuelManagementComponent implements OnInit {
           icon: 'success',
           confirmButtonText: 'Aceptar',
         });
-
+  
         this.resetForm();
       } catch (error) {
         Swal.fire({
           title: '¡Error!',
           text: 'Error al asignar combustible. Intente nuevamente.',
           icon: 'error',
-          confirmButtonText: 'Aceptar',
+          confirmButtonText: 'Aceptar'
         });
         console.error('Error al asignar combustible:', error);
       }
@@ -148,7 +129,7 @@ export class FuelManagementComponent implements OnInit {
         title: '¡Advertencia!',
         text: 'Selecciona una máquina y asigna una cantidad válida de combustible.',
         icon: 'warning',
-        confirmButtonText: 'Aceptar',
+        confirmButtonText: 'Aceptar'
       });
     }
   }
@@ -156,7 +137,7 @@ export class FuelManagementComponent implements OnInit {
   private resetForm(): void {
     this.selectedMachine = undefined;
     this.fuelAmount = 0;
-    this.searchQuery = ''; // Limpia el campo de búsqueda
+    this.searchQuery = '';  // Limpia el campo de búsqueda
     this.filteredMachines = []; // Vacía la lista de máquinas filtradas
     this.successMessage = '';
     this.errorMessage = '';

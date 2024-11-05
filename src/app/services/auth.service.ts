@@ -1,16 +1,10 @@
 import { Injectable } from '@angular/core';
-import {
-  Auth,
-  signInWithEmailAndPassword,
-  signOut,
-  User,
-  onAuthStateChanged,
-} from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword, signOut, User, onAuthStateChanged } from '@angular/fire/auth';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthService {
   user$: Observable<User | null>;
