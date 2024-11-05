@@ -74,71 +74,34 @@
               <th>Fecha</th>
               <th>Hora de Inicio</th>
               <th>Hora de Fin</th>
-              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let event of events">
               <td>{{ event.name }}</td>
-              <td>{{ event.date | date : "MM/dd/yy" }}</td>
+              <td>{{ event.date | date: "MM/dd/yy" }}</td>
               <td>{{ event.horaInicio }}</td>
               <td>{{ event.horaFin }}</td>
-              <td>
-                <div class="action-buttons">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    (click)="viewEvent(event.id)"
-                    width="20"
-                    height="20"
-                    fill="none"
-                    stroke="gray"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    style="cursor: pointer; margin-right: 10px"
-                  >
-                    <path
-                      d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"
-                    ></path>
-                    <path d="M13.5 6.5l4 4"></path>
-                    <path d="M16 19h6"></path>
-                    <path d="M19 16v6"></path>
-                  </svg>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    (click)="deleteEvent(event.id)"
-                    width="20"
-                    height="20"
-                    fill="none"
-                    stroke="gray"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    style="cursor: pointer"
-                  >
-                    <path d="M4 7h16"></path>
-                    <path
-                      d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"
-                    ></path>
-                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-                    <path d="M10 12l4 4m0 -4l-4 4"></path>
-                  </svg>
-                </div>
-              </td>
             </tr>
           </tbody>
         </table>
+        <p *ngIf="events.length === 0" class="no-events">
+          No hay eventos disponibles.
+        </p>
       </div>
-      <p *ngIf="events.length === 0" class="no-events">
-        No hay eventos disponibles.
-      </p>
     </div>
 
     <!-- Gráfico de Líneas -->
     <div class="card full-width-card">
-      <h3>Gráfico de líneas</h3>
+      <h3>Gráfico de Líneas</h3>
       <div class="chart-container-line">
-        <canvas id="myLineChart"></canvas>
+        <apx-chart
+          [series]="lineChartOptions.series"
+          [chart]="lineChartOptions.chart"
+          [xaxis]="lineChartOptions.xaxis"
+          [title]="lineChartOptions.title"
+          style="width: 100%; height: 100%;"
+        ></apx-chart>
       </div>
     </div>
   </div>

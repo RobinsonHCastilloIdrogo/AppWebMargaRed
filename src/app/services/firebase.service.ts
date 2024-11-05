@@ -18,6 +18,7 @@ import { map, catchError } from 'rxjs/operators';
 })
 export class FirebaseService {
   private nuevoEventoSubject = new Subject<any>(); // Nuevo Subject para emitir eventos
+  afs: any;
 
   constructor(private firestore: Firestore) {}
 
@@ -57,6 +58,45 @@ export class FirebaseService {
     ).then((docRef) => {
       this.emitirEvento({ id: docRef.id, ...eventoData });
     });
+  }
+
+  getEventDetails(documentName: string, eventId: string): Observable<any> {
+    return this.afs.collection('assignments').doc(documentName)
+      .collection('events').doc(eventId).valueChanges();
+  }
+  getEventById(eventId: string): Observable<any> {
+    const documentName = this.obtenerNombreDocumento(); // O ajusta este método si es necesario
+    const eventPath = `assignments/${documentName}/events/${eventId}`;
+    return docData(doc(this.firestore, eventPath), { idField: 'id' });
+  }
+  
+    // Nuevo método: Agregar un evento usando un ID específico
+  addEventoConId(evento: any, eventId: string): Promise<void> {
+    const documentName = this.obtenerNombreDocumento(); // Documento del mes actual
+    const eventoData = {
+        nombre: evento.nombre,
+        descripcion: evento.descripcion,
+        fecha: evento.fecha,
+        cantidadEmpleados: evento.empleados.length,
+        empleados: evento.empleados.map((emp: any) => ({
+            nombre: emp.nombre,
+            rol: emp.rol,
+            horaInicio: emp.horaInicio,
+            horaFin: emp.horaFin,
+        })),
+    };
+
+    // Utiliza `setDoc` para agregar el evento con un ID específico
+    const eventoDocRef = doc(this.firestore, `assignments/${documentName}/events/${eventId}`);
+
+    return setDoc(eventoDocRef, eventoData)
+        .then(() => {
+            this.emitirEvento({ id: eventId, ...eventoData });
+        })
+        .catch((error) => {
+            console.error('Error al agregar evento:', error);
+            throw error;
+        });
   }
 
   // Nuevo método: Agregar un proyecto usando un ID específico

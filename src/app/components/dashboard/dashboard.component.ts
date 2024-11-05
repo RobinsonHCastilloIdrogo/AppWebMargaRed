@@ -9,9 +9,11 @@ import {
 import { Chart, registerables } from 'chart.js';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
 import { NgIf, NgFor, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Import FormsModule
+import { FormsModule } from '@angular/forms';
 import { query, where } from 'firebase/firestore';
 import { ProjectDetailsComponent } from '../project-dashboard/project-details/project-details.component';
+import { ChartComponent, ApexAxisChartSeries, ApexChart, ApexXAxis, ApexTitleSubtitle } from 'ng-apexcharts';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 Chart.register(...registerables);
 
@@ -26,6 +28,7 @@ Chart.register(...registerables);
     DatePipe,
     FormsModule,
     ProjectDetailsComponent,
+    NgApexchartsModule // Añadir aquí
   ],
   styleUrls: ['./dashboard.component.css'],
 })
@@ -44,47 +47,57 @@ export class DashboardComponent implements OnInit {
     horaFin: string;
   }[] = [];
   chart: any;
-  lineChart: any;
   showLogoutModal: boolean = false;
 
-  selectedResource: string = ''; // Para el proyecto seleccionado
-  assignedMachines: any[] = []; // Máquinas asignadas al proyecto seleccionado
-  monthlyFuelData: number[] = new Array(12).fill(0); // Inicializa con 0 para 12 meses
+  selectedResource: string = '';
+  assignedMachines: any[] = [];
+  monthlyFuelData: number[] = new Array(12).fill(0);
+
+  // Inicializar lineChartOptions
+  lineChartOptions: {
+    series: ApexAxisChartSeries;
+    chart: ApexChart;
+    xaxis: ApexXAxis;
+    title: ApexTitleSubtitle;
+  } = {
+    series: [], // Aquí puedes agregar tus datos de la serie
+    chart: {
+      type: 'line',
+      height: '100%',
+      toolbar: { // Añadir la configuración de la barra de herramientas
+        show: true, // Mostrar la barra de herramientas
+        tools: {
+          download: true, // Ocultar el botón de descarga
+          selection: true, // Ocultar el botón de selección
+          zoom: true, // Ocultar el botón de zoom (lupa)
+          pan: false, // Ocultar el botón de pan (mano)
+          reset: true // Mantener el botón de reinicio (casa)
+        },
+      },
+    },
+    title: {
+      text: 'Consumo de Combustible a lo Largo del Tiempo',
+      align: 'left',
+    },
+    xaxis: {
+      categories: [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 
+        'Mayo', 'Junio', 'Julio', 'Agosto', 
+        'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+      ],
+    },
+  };  
 
   constructor(private firestore: Firestore) {}
 
   async ngOnInit() {
     await this.getCounts();
     await this.loadEvents();
-
     await this.loadProjects();
-
     await this.loadMonthlyFuelTotals(); // Cargar datos de combustible mensual
+
     this.createChart();
-    this.createLineChart();
-  }
-
-  async loadProjectStatusCounts(): Promise<void> {
-    try {
-      const projectsCollection = collection(this.firestore, 'projects');
-
-      const inProgressQuery = query(
-        projectsCollection,
-        where('status', '==', 'En curso')
-      );
-      const completedQuery = query(
-        projectsCollection,
-        where('status', '==', 'Finalizado')
-      );
-
-      const inProgressSnapshot = await getDocs(inProgressQuery);
-      const completedSnapshot = await getDocs(completedQuery);
-
-      this.projectsInProgress = inProgressSnapshot.size;
-      this.projectsCompleted = completedSnapshot.size;
-    } catch (error) {
-      console.error('Error al cargar el conteo de proyectos:', error);
-    }
+    this.initializeLineChart();
   }
 
   async getCounts() {
@@ -106,19 +119,30 @@ export class DashboardComponent implements OnInit {
   }
 
   async loadEvents() {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const path = `assignments/${year}-${month}/events`;
+
     try {
-      const eventsCollection = collection(this.firestore, '/assignments');
+      const eventsCollection = collection(this.firestore, path);
       const eventsSnapshot = await getDocs(eventsCollection);
 
-      this.events = eventsSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        name: doc.data()['nombreEvento'] ?? 'Evento sin nombre',
-        date: new Date(doc.data()['date']),
-        horaInicio: doc.data()['horaInicio'] ?? '00:00',
-        horaFin: doc.data()['horaFin'] ?? '00:00',
-      }));
+      this.events = eventsSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const employees = data['empleados'] || [];
+        const firstEmployee = employees[0] || {};
+        const horaInicio = firstEmployee['horaInicio'] || '00:00';
+        const horaFin = firstEmployee['horaFin'] || '00:00';
 
-      console.log('Eventos cargados:', this.events);
+        return {
+          id: doc.id,
+          name: data['nombre'] || 'Evento sin nombre',
+          date: data['fecha'] ? new Date(data['fecha']) : new Date(),
+          horaInicio: horaInicio,
+          horaFin: horaFin,
+        };
+      });
     } catch (error) {
       console.error('Error al cargar eventos:', error);
     }
@@ -134,11 +158,7 @@ export class DashboardComponent implements OnInit {
           id: doc.id,
           name: doc.data()['name'] || 'Proyecto sin nombre',
         }));
-      } else {
-        console.warn('No se encontraron proyectos.');
       }
-
-      console.log('Proyectos cargados:', this.resources);
     } catch (error) {
       console.error('Error al cargar proyectos:', error);
     }
@@ -153,17 +173,14 @@ export class DashboardComponent implements OnInit {
       const monthlyFuelSnapshot = await getDocs(monthlyFuelCollection);
 
       monthlyFuelSnapshot.forEach((doc) => {
-        const month = doc.id; // Nombre del mes, ej: 'octubre'
-        const totalFuel = doc.data()['totalFuel'] ?? 0; // Obtén el total de combustible
+        const month = doc.id;
+        const totalFuel = doc.data()['totalFuel'] ?? 0;
 
-        // Mapeo de meses a índices de arreglo
         const monthIndex = this.getMonthIndex(month);
         if (monthIndex !== -1) {
-          this.monthlyFuelData[monthIndex] = totalFuel; // Asigna el total al índice correspondiente
+          this.monthlyFuelData[monthIndex] = totalFuel;
         }
       });
-
-      console.log('Datos de combustible mensual:', this.monthlyFuelData);
     } catch (error) {
       console.error('Error al cargar los totales de combustible:', error);
     }
@@ -184,65 +201,7 @@ export class DashboardComponent implements OnInit {
       noviembre: 10,
       diciembre: 11,
     };
-    return monthMapping[month.toLowerCase()] ?? -1; // Retorna -1 si no se encuentra el mes
-  }
-
-  async deleteEvent(eventId: string) {
-    try {
-      await deleteDoc(doc(this.firestore, `assignments/${eventId}`));
-      console.log(`Evento ${eventId} eliminado`);
-      this.events = this.events.filter((event) => event.id !== eventId);
-    } catch (error) {
-      console.error('Error al eliminar evento:', error);
-    }
-  }
-
-  viewEvent(eventId: string) {
-    console.log(`Visualizando evento con ID: ${eventId}`);
-  }
-
-  openLogoutModal() {
-    this.showLogoutModal = true;
-  }
-
-  closeLogoutModal() {
-    this.showLogoutModal = false;
-  }
-
-  logout() {
-    this.closeLogoutModal();
-    console.log('Cierre de sesión exitoso');
-  }
-
-  async loadAssignedMachines() {
-    if (!this.selectedResource) return;
-
-    try {
-      const machinesCollection = collection(
-        this.firestore,
-        `projects/${this.selectedResource}/team`
-      );
-      const snapshot = await getDocs(machinesCollection);
-
-      this.assignedMachines = snapshot.docs.map((doc) => ({
-        name: doc.data()['maquina']?.nombre ?? 'Maquina sin nombre',
-        quantity: 1, // Ajusta según sea necesario si existe una cantidad real
-      }));
-
-      this.updatePieChart();
-    } catch (error) {
-      console.error('Error al cargar máquinas asignadas:', error);
-    }
-  }
-
-  // Actualizar los datos del gráfico de pie
-  updatePieChart() {
-    const labels = this.assignedMachines.map((machine) => machine.name);
-    const data = this.assignedMachines.map((machine) => machine.quantity);
-
-    this.chart.data.labels = labels;
-    this.chart.data.datasets[0].data = data;
-    this.chart.update();
+    return monthMapping[month.toLowerCase()] ?? -1;
   }
 
   createChart() {
@@ -269,58 +228,68 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  createLineChart() {
-    const ctx = document.getElementById('myLineChart') as HTMLCanvasElement;
-    const labels = [
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre',
+  initializeLineChart() {
+    // Suponiendo que monthlyFuelData ya está definido y contiene los datos de litros
+    const monthlyCostData = this.monthlyFuelData.map(litros => litros * 4.91);
+  
+    this.lineChartOptions.series = [
+      {
+        name: 'Litros de Combustible',
+        data: this.monthlyFuelData,
+      },
+      {
+        name: 'Costo Total',
+        data: monthlyCostData, // Datos del costo total calculados
+      },
     ];
+    
+    this.lineChartOptions.xaxis.categories = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+    ];
+  }  
 
-    this.lineChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Litros de Combustible',
-            data: this.monthlyFuelData,
-            backgroundColor: 'rgba(0, 123, 255, 0.2)',
-            borderColor: 'rgba(0, 123, 255, 1)',
-            borderWidth: 2,
-            fill: true,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top' },
-          title: {
-            display: true,
-            text: 'Consumo de Combustible a lo Largo del Tiempo',
-          },
-        },
-        scales: {
-          y: { beginAtZero: true },
-          x: { beginAtZero: true },
-        },
-      },
-    });
+  onResourceChange() {
+    this.loadAssignedMachines();
   }
 
-  // Manejar el cambio del recurso seleccionado
-  onResourceChange() {
-    this.loadAssignedMachines(); // Cargar las máquinas asignadas al proyecto seleccionado
+  async loadAssignedMachines() {
+    if (!this.selectedResource) return;
+
+    try {
+      const machinesCollection = collection(
+        this.firestore,
+        `projects/${this.selectedResource}/team`
+      );
+      const snapshot = await getDocs(machinesCollection);
+
+      this.assignedMachines = snapshot.docs.map((doc) => ({
+        name: doc.data()['maquina']?.nombre ?? 'Maquina sin nombre',
+        quantity: 1,
+      }));
+
+      this.updatePieChart();
+    } catch (error) {
+      console.error('Error al cargar máquinas asignadas:', error);
+    }
+  }
+
+  updatePieChart() {
+    const labels = this.assignedMachines.map((machine) => machine.name);
+    const data = this.assignedMachines.map((machine) => machine.quantity);
+
+    this.chart.data.labels = labels;
+    this.chart.data.datasets[0].data = data;
+    this.chart.update();
+  }
+
+  // Métodos para el modal de cierre de sesión
+  closeLogoutModal() {
+    this.showLogoutModal = false;
+  }
+
+  logout() {
+    // Agregar lógica para cerrar sesión
+    console.log('Sesión cerrada');
   }
 }
