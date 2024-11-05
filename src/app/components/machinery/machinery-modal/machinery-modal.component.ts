@@ -8,6 +8,7 @@ import {
   doc,
   getDoc,
 } from '@angular/fire/firestore';
+
 import { Machine, MachineryData } from '../../../models/machine.model';
 @Component({
   selector: 'app-machinery-modal',

@@ -10,6 +10,7 @@ import {
   deleteDoc,
   docData,
 } from '@angular/fire/firestore';
+import { getDoc } from 'firebase/firestore';
 import { Observable, from, Subject, firstValueFrom } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -213,5 +214,24 @@ export class FirebaseService {
         return [];
       })
     );
+  }
+
+  getEventById(documentName: string, eventId: string): Promise<any> {
+    const eventRef = doc(
+      this.firestore,
+      `assignments/${documentName}/events/${eventId}`
+    );
+    return getDoc(eventRef)
+      .then((docSnapshot) => {
+        if (docSnapshot.exists()) {
+          return { id: docSnapshot.id, ...docSnapshot.data() };
+        } else {
+          throw new Error('Evento no encontrado');
+        }
+      })
+      .catch((error) => {
+        console.error('Error al obtener el evento:', error);
+        throw error;
+      });
   }
 }
