@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { FirebaseService } from '../../../services/firebase.service';
@@ -19,6 +19,16 @@ interface Machine {
   name: string;
 }
 
+interface ProjectAssignment {
+  employeeId: string | null;
+  employeeName: string | null;
+  machineId: string | null;
+  machineName?: string | null;
+  role: string;
+  startHour: string | null;
+  endHour: string | null;
+}
+
 @Component({
   selector: 'app-calendar-modal',
   standalone: true,
@@ -28,22 +38,23 @@ interface Machine {
 })
 export class CalendarModalComponent implements OnInit {
   @Input() selectedDate!: string;
+  @Output() assignmentSaved = new EventEmitter<void>(); // Emisor del evento cuando se guarda la asignación
 
-  isEventSelected: boolean = true;
+  isEventSelected: boolean | null = null;
 
   // Variables para el Evento
-  nombreEvento: string = '';
-  selectedEmployee: string = '';
-  selectedMachine: string = '';
-  horaInicio: string = '';
-  horaFin: string = '';
-  descripcion: string = '';
+  eventName: string = '';
+  eventDescription: string = '';
+  eventStartTime: string = '';
+  eventEndTime: string = '';
 
   // Variables para el Proyecto
   selectedProject: string = '';
-  horaInicioProyecto: string = '';
-  horaFinProyecto: string = '';
   descripcionProyecto: string = '';
+  projectAssignments: ProjectAssignment[] = [];
+  employeeCount: number = 0; // Cantidad de empleados a asignar
+  selectedAssignmentIndex: number | null = null; // Índice del empleado seleccionado
+  selectedAssignment: ProjectAssignment | null = null;
 
   employees: Employee[] = [];
   projects: Project[] = [];
@@ -58,6 +69,14 @@ export class CalendarModalComponent implements OnInit {
     this.loadEmployees();
     this.loadProjects();
     this.loadMachines();
+  }
+
+  // Obtener el nombre dinámico de la colección en base al mes y año actuales
+  getAsignacionCollectionName(): string {
+    const fecha = new Date();
+    const mes = fecha.toLocaleString('default', { month: 'long' });
+    const año = fecha.getFullYear();
+    return `asignacion${mes}${año}`;
   }
 
   loadEmployees(): void {
@@ -81,63 +100,167 @@ export class CalendarModalComponent implements OnInit {
     });
   }
 
-  guardarAsignacion(): void {
+  onAssignmentTypeChange(): void {
+    this.clearProjectAssignments();
     if (this.isEventSelected) {
-      this.guardarEvento();
+      this.clearProjectFields();
+      this.employeeCount = Math.min(this.employeeCount, 2); // Limitar a 2 empleados para eventos
     } else {
+      this.clearEventFields();
+    }
+  }
+
+  clearProjectAssignments(): void {
+    this.projectAssignments = [];
+    this.selectedAssignmentIndex = null;
+    this.selectedAssignment = null;
+  }
+
+  clearEventFields(): void {
+    this.eventName = '';
+    this.eventDescription = '';
+    this.eventStartTime = '';
+    this.eventEndTime = '';
+  }
+
+  clearProjectFields(): void {
+    this.selectedProject = '';
+    this.descripcionProyecto = '';
+    this.projectAssignments = [];
+    this.employeeCount = 0;
+    this.selectedAssignmentIndex = null;
+    this.selectedAssignment = null;
+  }
+
+  generateEmployeeAssignments(): void {
+    if (this.isEventSelected && this.employeeCount > 2) {
+      this.employeeCount = 2; // Limitar a 2 empleados si es un evento
+    }
+    if (this.employeeCount < 1) {
+      this.employeeCount = 1; // Evitar números negativos o cero
+    }
+
+    this.projectAssignments = [];
+    for (let i = 0; i < this.employeeCount; i++) {
+      this.projectAssignments.push({
+        employeeId: null,
+        employeeName: null,
+        machineId: null,
+        role: 'Obrero',
+        startHour: null,
+        endHour: null,
+      });
+    }
+    this.selectedAssignmentIndex = null;
+    this.selectedAssignment = null;
+  }
+
+  selectEmployeeAssignment(): void {
+    if (this.selectedAssignmentIndex !== null) {
+      this.selectedAssignment =
+        this.projectAssignments[this.selectedAssignmentIndex];
+    }
+  }
+
+  getEmployeeName(employeeId: string | null): string {
+    if (!employeeId) return '';
+    const employee = this.employees.find((emp) => emp.id === employeeId);
+    return employee ? employee.name : '';
+  }
+
+  getMachineName(machineId: string | null): string {
+    if (!machineId) return '';
+    const machine = this.machines.find((mac) => mac.id === machineId);
+    return machine ? machine.name : '';
+  }
+
+  guardarAsignacion(): void {
+    if (this.isEventSelected === true) {
+      this.guardarEvento();
+    } else if (this.isEventSelected === false) {
       this.guardarProyecto();
+    } else {
+      alert('Seleccione una asignación válida antes de guardar.');
     }
   }
 
   private guardarEvento(): void {
+    // Validar los campos
+    if (!this.eventName || !this.selectedDate) {
+      alert('Por favor, ingrese el nombre del evento y la fecha.');
+      return;
+    }
+  
     const evento = {
-      date: this.selectedDate,
-      empleado: this.selectedEmployee,
-      maquina: this.selectedMachine,
-      horaInicio: this.horaInicio,
-      horaFin: this.horaFin,
-      nombreEvento: this.nombreEvento?.trim(),
-      descripcion: this.descripcion,
+      nombre: this.eventName,
+      descripcion: this.eventDescription,
+      fecha: this.selectedDate,
+      empleados: this.projectAssignments.map((assignment) => ({
+        nombre: this.getEmployeeName(assignment.employeeId),
+        rol: assignment.role,
+        horaInicio: assignment.startHour,
+        horaFin: assignment.endHour,
+      })),
     };
-
-    this.firebaseService.addAssignment(evento).then(() => {
-      const newEvent = {
-        title: evento.nombreEvento || 'Evento sin nombre',
-        start: evento.date,
-        extendedProps: { ...evento },
-      };
-      this.firebaseService.emitirEvento(newEvent);
-      this.modalRef.hide();
-    });
+  
+    // Usar el nombre del evento como ID
+    this.firebaseService
+      .addEventoConId(evento, this.eventName)
+      .then(() => {
+        this.modalRef.hide();
+      })
+      .catch((error) => {
+        console.error('Error al guardar el evento:', error);
+      });
   }
+  
 
   private guardarProyecto(): void {
-    const proyectoSeleccionado = this.projects.find(
-      (proj) => proj.id === this.selectedProject
-    );
-
-    if (!proyectoSeleccionado) {
-      alert('Por favor, selecciona un proyecto válido.');
+    // Validar los campos
+    if (!this.selectedProject || !this.selectedDate) {
+      alert('Por favor, selecciona un proyecto y una fecha.');
       return;
     }
 
     const proyecto = {
-      id: this.selectedProject,
-      date: this.selectedDate,
-      nombreProyecto: proyectoSeleccionado.name,
-      horaInicio: this.horaInicioProyecto,
-      horaFin: this.horaFinProyecto,
+      proyectoId: this.selectedProject,
+      nombreProyecto: this.projects.find(
+        (proj) => proj.id === this.selectedProject
+      )?.name,
       descripcion: this.descripcionProyecto,
+      fecha: this.selectedDate,
+      empleados: this.projectAssignments.map((assignment) => ({
+        nombre: this.getEmployeeName(assignment.employeeId),
+        rol: assignment.role,
+        horaInicio: assignment.startHour,
+        horaFin: assignment.endHour,
+        maquina: assignment.machineId
+          ? {
+              id: assignment.machineId,
+              nombre: this.getMachineName(assignment.machineId),
+            }
+          : null,
+      })),
     };
 
-    this.firebaseService.addAssignment(proyecto).then(() => {
-      const newEvent = {
-        title: proyecto.nombreProyecto,
-        start: proyecto.date,
-        extendedProps: { ...proyecto },
-      };
-      this.firebaseService.emitirEvento(newEvent);
-      this.modalRef.hide();
-    });
+    // Utiliza el método con el ID especificado
+    this.firebaseService
+      .addProyectoConId(proyecto, this.selectedProject)
+      .then(() => {
+        this.modalRef.hide();
+        this.assignmentSaved.emit(); // Emitir evento cuando se guarda una asignación
+      })
+      .catch((error) => {
+        console.error('Error al guardar el proyecto:', error);
+      });
+  }
+
+  updateAssignmentRole(index: number, role: string): void {
+    const assignment = this.projectAssignments[index];
+    assignment.role = role;
+    if (role === 'Obrero') {
+      assignment.machineId = null;
+      assignment.machineName = null;
+    }
   }
 }

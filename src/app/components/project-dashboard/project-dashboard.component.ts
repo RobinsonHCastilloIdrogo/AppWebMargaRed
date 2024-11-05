@@ -31,9 +31,18 @@ export class ProjectDashboardComponent implements OnInit {
 
   async ngOnInit() {
     this.projectId = this.route.snapshot.paramMap.get('id'); // Obtener el ID del proyecto
+    console.log('ID del proyecto obtenido:', this.projectId); // Verificar si se está obteniendo el ID correctamente
     if (this.projectId) {
-      await this.loadProject(this.projectId); // Cargar los datos del proyecto
-      await this.loadSubcollections(this.projectId); // Cargar las subcolecciones del proyecto
+      try {
+        await this.loadProject(this.projectId); // Cargar los datos del proyecto
+        await this.loadSubcollections(this.projectId); // Cargar las subcolecciones del proyecto
+      } catch (error) {
+        console.error('Error al cargar los datos del proyecto:', error);
+        this.router.navigate(['/projects']); // Redirigir si ocurre algún error durante la carga
+      }
+    } else {
+      console.error('No se encontró un ID de proyecto en la ruta');
+      this.router.navigate(['/projects']); // Redirigir si no se encuentra el ID del proyecto
     }
   }
 
@@ -48,11 +57,11 @@ export class ProjectDashboardComponent implements OnInit {
         console.log('Proyecto cargado:', this.project);
       } else {
         console.error('El proyecto no existe');
-        this.router.navigate(['/projects']); // Redirigir si no se encuentra el proyecto
+        throw new Error('El proyecto no existe'); // Lanzar error para manejarlo en el bloque catch del ngOnInit
       }
     } catch (error) {
       console.error('Error al cargar el proyecto:', error);
-      this.router.navigate(['/projects']); // Redirigir en caso de error
+      throw error; // Relanzar el error para que el ngOnInit lo maneje
     }
   }
 
@@ -103,6 +112,8 @@ export class ProjectDashboardComponent implements OnInit {
   navigateTo(subroute: string) {
     if (this.projectId) {
       this.router.navigate([`/projects/${this.projectId}/${subroute}`]);
+    } else {
+      console.error('No se puede navegar, el ID del proyecto es nulo');
     }
   }
 

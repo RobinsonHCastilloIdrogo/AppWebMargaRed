@@ -1,32 +1,35 @@
-<div class="modal-header">
-  <h5 class="modal-title">
-    Detalles del {{ isEvent ? "Evento" : "Proyecto" }}
-  </h5>
-  <button type="button" class="close" (click)="close()">
-    <span>&times;</span>
-  </button>
-</div>
-
-<div class="modal-body">
-  <div *ngIf="isEvent; else projectDetails">
-    <p><strong>Evento:</strong> {{ eventDetails.nombreEvento }}</p>
-    <p><strong>Empleado:</strong> {{ eventDetails.empleado }}</p>
-    <p><strong>Maquinaria:</strong> {{ eventDetails.maquina }}</p>
-    <p><strong>Descripción:</strong> {{ eventDetails.descripcion }}</p>
-    <p><strong>Inicio:</strong> {{ eventDetails.horaInicio }}</p>
-    <p><strong>Fin:</strong> {{ eventDetails.horaFin }}</p>
+<div class="custom-modal">
+  <div class="modal-header">
+    <h5 class="modal-title">Detalles del Evento</h5>
+    <button type="button" class="close" (click)="close()">
+      <span>&times;</span>
+    </button>
   </div>
 
-  <ng-template #projectDetails>
-    <p><strong>Proyecto:</strong> {{ eventDetails.nombreProyecto }}</p>
+  <div class="modal-body">
+    <p><strong>Evento:</strong> {{ eventDetails.nombre }}</p>
     <p><strong>Descripción:</strong> {{ eventDetails.descripcion }}</p>
-    <p><strong>Inicio:</strong> {{ eventDetails.horaInicio }}</p>
-    <p><strong>Fin:</strong> {{ eventDetails.horaFin }}</p>
-  </ng-template>
-</div>
+    <p><strong>Fecha:</strong> {{ eventDetails.fecha | date : "short" }}</p>
+    <p>
+      <strong>Cantidad de Empleados:</strong>
+      {{ eventDetails.cantidadEmpleados }}
+    </p>
 
-<div class="modal-footer">
-  <button type="button" class="btn btn-success" (click)="close()">
-    Cerrar
-  </button>
+    <div *ngFor="let empleado of eventDetails.empleados; let i = index">
+      <h6>Empleado {{ i + 1 }}</h6>
+      <p><strong>Nombre:</strong> {{ empleado.nombre }}</p>
+      <p><strong>Rol:</strong> {{ empleado.rol }}</p>
+      <p *ngIf="empleado.maquina">
+        <strong>Maquinaria:</strong> {{ empleado.maquina.nombre }}
+      </p>
+      <p><strong>Hora de Inicio:</strong> {{ empleado.horaInicio }}</p>
+      <p><strong>Hora de Fin:</strong> {{ empleado.horaFin }}</p>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success" (click)="close()">
+      Cerrar
+    </button>
+  </div>
 </div>

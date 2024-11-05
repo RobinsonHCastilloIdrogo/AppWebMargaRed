@@ -4,12 +4,13 @@ import {
   collectionData,
   collection,
   addDoc,
+  setDoc,
   doc,
   updateDoc,
   deleteDoc,
   docData,
 } from '@angular/fire/firestore';
-import { Observable, from, Subject } from 'rxjs';
+import { Observable, from, Subject, firstValueFrom } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
@@ -17,65 +18,155 @@ import { map, catchError } from 'rxjs/operators';
 })
 export class FirebaseService {
   private nuevoEventoSubject = new Subject<any>(); // Nuevo Subject para emitir eventos
+  afs: any;
 
   constructor(private firestore: Firestore) {}
 
-  // Obtener datos de una colección en tiempo real
-  getData(collectionName: string): Observable<any[]> {
-    const collectionRef = collection(this.firestore, collectionName);
-    return collectionData(collectionRef, { idField: 'id' });
+  // Obtener el nombre dinámico del documento según el mes y año actuales (YYYY-MM)
+  private obtenerNombreDocumento(): string {
+    const fechaActual = new Date();
+    const mes = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Asegura que siempre sea 2 dígitos
+    const año = fechaActual.getFullYear();
+    return `${año}-${mes}`; // Formato: YYYY-MM
   }
 
-  // Obtener un documento específico por su ID con validación de ID
-  getDocument(collectionName: string, docId: string): Observable<any> {
-    if (!docId) {
-      throw new Error(
-        `El ID del documento no puede ser nulo para la colección ${collectionName}`
-      );
-    }
-    const docRef = doc(this.firestore, `${collectionName}/${docId}`);
-    return docData(docRef, { idField: 'id' });
-  }
-
-  // Obtener un documento por su ID utilizando Promesas
+  // Obtener un documento específico por su ID utilizando Promesas (versión RxJS 6)
   getDocumentAsPromise(collectionName: string, docId: string): Promise<any> {
-    if (!docId) {
-      return Promise.reject(
-        new Error(
-          `El ID del documento no puede ser nulo para la colección ${collectionName}`
-        )
-      );
-    }
     const docRef = doc(this.firestore, `${collectionName}/${docId}`);
     return docData(docRef, { idField: 'id' }).toPromise();
   }
 
-  // Agregar un nuevo documento a una colección
-  addData(collectionName: string, data: any) {
-    const collectionRef = collection(this.firestore, collectionName);
-    return addDoc(collectionRef, data);
+  // Agregar un evento en la subcolección dinámica
+  addEvento(evento: any): Promise<void> {
+    const documentName = this.obtenerNombreDocumento(); // Documento del mes actual
+    const eventoData = {
+      nombre: evento.nombre,
+      descripcion: evento.descripcion,
+      fecha: evento.fecha,
+      cantidadEmpleados: evento.empleados.length,
+      empleados: evento.empleados.map((emp: any) => ({
+        nombre: emp.nombre,
+        rol: emp.rol,
+        horaInicio: emp.horaInicio,
+        horaFin: emp.horaFin,
+      })),
+    };
+
+    return addDoc(
+      collection(this.firestore, `assignments/${documentName}/events`),
+      eventoData
+    ).then((docRef) => {
+      this.emitirEvento({ id: docRef.id, ...eventoData });
+    });
   }
 
-  // Actualizar un documento existente
-  updateData(collectionName: string, docId: string, data: any) {
-    if (!docId) {
-      throw new Error(
-        `El ID del documento no puede ser nulo para actualizar en ${collectionName}`
-      );
-    }
-    const docRef = doc(this.firestore, `${collectionName}/${docId}`);
-    return updateDoc(docRef, data);
+  getEventDetails(documentName: string, eventId: string): Observable<any> {
+    return this.afs.collection('assignments').doc(documentName)
+      .collection('events').doc(eventId).valueChanges();
+  }
+  getEventById(eventId: string): Observable<any> {
+    const documentName = this.obtenerNombreDocumento(); // O ajusta este método si es necesario
+    const eventPath = `assignments/${documentName}/events/${eventId}`;
+    return docData(doc(this.firestore, eventPath), { idField: 'id' });
+  }
+  
+    // Nuevo método: Agregar un evento usando un ID específico
+  addEventoConId(evento: any, eventId: string): Promise<void> {
+    const documentName = this.obtenerNombreDocumento(); // Documento del mes actual
+    const eventoData = {
+        nombre: evento.nombre,
+        descripcion: evento.descripcion,
+        fecha: evento.fecha,
+        cantidadEmpleados: evento.empleados.length,
+        empleados: evento.empleados.map((emp: any) => ({
+            nombre: emp.nombre,
+            rol: emp.rol,
+            horaInicio: emp.horaInicio,
+            horaFin: emp.horaFin,
+        })),
+    };
+
+    // Utiliza `setDoc` para agregar el evento con un ID específico
+    const eventoDocRef = doc(this.firestore, `assignments/${documentName}/events/${eventId}`);
+
+    return setDoc(eventoDocRef, eventoData)
+        .then(() => {
+            this.emitirEvento({ id: eventId, ...eventoData });
+        })
+        .catch((error) => {
+            console.error('Error al agregar evento:', error);
+            throw error;
+        });
   }
 
-  // Eliminar un documento
-  deleteData(collectionName: string, docId: string) {
-    if (!docId) {
-      throw new Error(
-        `El ID del documento no puede ser nulo para eliminar en ${collectionName}`
-      );
-    }
-    const docRef = doc(this.firestore, `${collectionName}/${docId}`);
-    return deleteDoc(docRef);
+  // Nuevo método: Agregar un proyecto usando un ID específico
+  addProyectoConId(proyecto: any, proyectoId: string): Promise<void> {
+    const documentName = this.obtenerNombreDocumento(); // Documento del mes actual
+    const proyectoData = {
+      proyectoId: proyecto.proyectoId,
+      nombreProyecto: proyecto.nombreProyecto,
+      descripcion: proyecto.descripcion,
+      fecha: proyecto.fecha,
+      cantidadEmpleados: proyecto.empleados.length,
+      empleados: proyecto.empleados.map((emp: any) => ({
+        nombre: emp.nombre,
+        rol: emp.rol,
+        horaInicio: emp.horaInicio,
+        horaFin: emp.horaFin,
+        maquina: emp.maquina
+          ? { id: emp.maquina.id, nombre: emp.maquina.nombre }
+          : null, // Añadir info de la máquina
+      })),
+    };
+
+    // Utiliza `setDoc` para agregar el proyecto con un ID específico
+    const proyectoDocRef = doc(
+      this.firestore,
+      `assignments/${documentName}/projects/${proyectoId}`
+    );
+
+    return setDoc(proyectoDocRef, proyectoData)
+      .then(() => {
+        this.emitirEvento({ id: proyectoId, ...proyectoData });
+
+        // Después de agregar el proyecto, guarda los miembros del equipo en la subcolección 'team'
+        const teamCollectionRef = collection(
+          this.firestore,
+          `projects/${proyectoId}/team`
+        );
+
+        const teamPromises = proyecto.empleados.map((emp: any) => {
+          const teamMemberData = {
+            nombre: emp.nombre,
+            rol: emp.rol,
+            horaInicio: emp.horaInicio,
+            horaFin: emp.horaFin,
+            maquina: emp.maquina
+              ? { id: emp.maquina.id, nombre: emp.maquina.nombre }
+              : null, // Añadir info de la máquina
+          };
+          return addDoc(teamCollectionRef, teamMemberData);
+        });
+
+        return Promise.all(teamPromises).then(() => {});
+      })
+      .catch((error) => {
+        console.error(
+          'Error al agregar proyecto y miembros del equipo:',
+          error
+        );
+        throw error;
+      });
+  }
+
+  // Observable para nuevos eventos del calendario
+  get nuevoEvento$(): Observable<any> {
+    return this.nuevoEventoSubject.asObservable();
+  }
+
+  // Emitir un nuevo evento
+  emitirEvento(event: any) {
+    this.nuevoEventoSubject.next(event);
   }
 
   // Obtener empleados desde la colección 'employees'
@@ -92,84 +183,14 @@ export class FirebaseService {
 
   getEmployeeName(id: string): Promise<string> {
     return this.getDocumentAsPromise('employees', id).then(
-      (data) => data?.name || 'Empleado desconocido'
+      (data) => data?.name || 'Unknown employee'
     );
   }
 
   getMachineName(id: string): Promise<string> {
     return this.getDocumentAsPromise('machines', id).then(
-      (data) => data?.name || 'Maquinaria desconocida'
+      (data) => data?.name || 'Unknown machine'
     );
-  }
-
-  // Agregar un empleado
-  addEmployee(employee: any) {
-    const employeesCollection = collection(this.firestore, 'employees');
-    return addDoc(employeesCollection, employee);
-  }
-
-  // Guardar una nueva asignación en Firebase
-  addAssignment(assignment: any) {
-    const assignmentsCollection = collection(this.firestore, 'assignments');
-    return addDoc(assignmentsCollection, assignment).then((docRef) => {
-      const event = {
-        id: docRef.id, // Capturar el ID generado por Firebase
-        title:
-          assignment.nombreProyecto || assignment.nombreEvento || 'Sin nombre', // Verificar el nombre correcto
-        start: assignment.date,
-        extendedProps: { ...assignment },
-      };
-      console.log('Evento emitido:', event); // Verificación en consola
-      this.emitirEvento(event); // Emitir el evento
-    });
-  }
-
-  // Obtener todas las asignaciones
-  // Obtener todas las asignaciones utilizando collectionData
-  getAssignments(): Observable<any[]> {
-    const assignmentsCollection = collection(this.firestore, 'assignments');
-
-    return collectionData(assignmentsCollection, { idField: 'id' }).pipe(
-      map((assignments: any[]) =>
-        assignments.map((assignment) => {
-          const title =
-            assignment.nombreProyecto ||
-            assignment.nombreEvento ||
-            'Sin nombre';
-          console.log(`Título asignado: ${title}`); // Depuración
-
-          return {
-            id: assignment.id,
-            title: title, // Asignar el nombre correcto aquí
-            start: assignment.date,
-            extendedProps: { ...assignment },
-          };
-        })
-      ),
-      catchError((error) => {
-        console.error('Error al cargar asignaciones:', error);
-        return []; // Retornar un array vacío en caso de error
-      })
-    );
-  }
-
-  // Obtener múltiples documentos por sus IDs
-  getMultipleDocuments(
-    collectionName: string,
-    ids: string[]
-  ): Observable<any[]> {
-    const observables = ids.map((id) => this.getDocument(collectionName, id));
-    return from(Promise.all(observables));
-  }
-
-  // Observable para nuevos eventos del calendario
-  get nuevoEvento$(): Observable<any> {
-    return this.nuevoEventoSubject.asObservable();
-  }
-
-  // Emitir un nuevo evento
-  emitirEvento(event: any) {
-    this.nuevoEventoSubject.next(event);
   }
 
   // Obtener proyectos desde la colección 'projects'
@@ -180,12 +201,56 @@ export class FirebaseService {
       map((projects: any[]) =>
         projects.map((project) => ({
           id: project.id,
-          name: project.name || 'Sin Nombre', // Manejo seguro del campo 'name'
+          name: project.name || 'No Name', // Manejo seguro del campo 'name'
         }))
       ),
       catchError((error) => {
-        console.error('Error al cargar proyectos:', error);
+        console.error('Error loading projects:', error);
         return []; // Retornar un array vacío en caso de error
+      })
+    );
+  }
+
+  // Obtener todas las asignaciones de eventos y proyectos por mes
+  getAssignments(documentName: string): Observable<any[]> {
+    console.log('Cargando asignaciones desde el documento:', documentName);
+
+    const docRef = doc(this.firestore, `assignments/${documentName}`);
+
+    const eventsCollection = collection(docRef, 'events');
+    const projectsCollection = collection(docRef, 'projects');
+
+    const events$ = collectionData(eventsCollection, { idField: 'id' });
+    const projects$ = collectionData(projectsCollection, { idField: 'id' });
+
+    return from(
+      Promise.all([
+        firstValueFrom(events$ as Observable<any[]>),
+        firstValueFrom(projects$ as Observable<any[]>),
+      ])
+    ).pipe(
+      map(([events, projects]) => {
+        console.log('Eventos:', events);
+        console.log('Proyectos:', projects);
+        return [
+          ...events.map((event: any) => ({
+            id: event.id,
+            title: event.nombre || event.descripcion || 'Sin título',
+            start: event.fecha,
+            type: 'event',
+          })),
+          ...projects.map((project: any) => ({
+            id: project.id,
+            title:
+              project.nombreProyecto || project.descripcion || 'Sin título',
+            start: project.fecha,
+            type: 'project',
+          })),
+        ];
+      }),
+      catchError((error) => {
+        console.error('Error al cargar asignaciones:', error);
+        return [];
       })
     );
   }
