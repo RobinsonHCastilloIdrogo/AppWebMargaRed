@@ -1,0 +1,252 @@
+/* Contenedor de las tareas */
+.tasks-container {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Título de la sección */
+h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #2d3748;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Formulario para agregar nuevas tareas */
+.add-task-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.add-task-form input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.add-task-form input:focus {
+  border-color: #3182ce;
+  outline: none;
+}
+
+.add-task-form button {
+  padding: 12px 24px;
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    transform 0.2s ease;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.add-task-form button:hover {
+  background-color: #2b6cb0;
+  box-shadow: 0 8px 16px rgba(50, 115, 220, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Estilos para la tabla de tareas */
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.task-table th,
+.task-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 16px;
+}
+
+.task-table th.centered,
+.task-table td.task-checkbox,
+.task-table td.task-actions {
+  text-align: center;
+}
+
+.task-table th {
+  color: #2d3748;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.task-table tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.task-table tr:hover {
+  background-color: #edf2f7;
+  transition: background-color 0.3s ease;
+}
+
+.task-table .task-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Estilo del checkbox */
+.task-table input[type="checkbox"] {
+  transform: scale(1.3);
+  cursor: pointer;
+}
+
+/* Botones de acción */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.icon-button:hover {
+  transform: translateY(-2px);
+}
+
+.icon-button svg {
+  stroke: #2d3748;
+}
+
+.icon-button.edit svg {
+  stroke: #38a169; /* Verde */
+}
+
+.icon-button.delete svg {
+  stroke: #e53e3e; /* Rojo */
+}
+
+.icon-button.edit:hover svg {
+  stroke: #2f855a;
+}
+
+.icon-button.delete:hover svg {
+  stroke: #c53030;
+}
+
+/* Estilos del modal para la ventana emergente de edición de tareas */
+.edit-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 30px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  z-index: 1010;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content h3 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #2d3748;
+  font-weight: bold;
+  text-align: center;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.modal-content input:focus {
+  border-color: #3182ce;
+  outline: none;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.save-button,
+.cancel-button {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.save-button {
+  background-color: #38a169; /* Verde */
+  color: white;
+}
+
+.save-button:hover {
+  background-color: #2f855a;
+  transform: translateY(-2px);
+}
+
+.cancel-button {
+  background-color: #e53e3e; /* Rojo */
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #c53030;
+  transform: translateY(-2px);
+}
+
+/* Animación de aparición del modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

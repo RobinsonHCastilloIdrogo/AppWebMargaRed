@@ -53,10 +53,11 @@
 }
 
 .table-container {
-  width: 100%;
-  overflow-x: auto;
-  background-color: white;
+  max-height: 800px; /* Define la altura máxima de la tabla */
+  overflow-y: auto; /* Agrega scroll vertical si la tabla excede la altura */
+  margin-bottom: 10px; /* Espacio entre la tabla y otros contenidos */
   border-radius: 8px;
+  background-color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -64,14 +65,43 @@
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+  table-layout: fixed;
 }
 
+/* Ajustar el estilo de las celdas para reducir el alto de las filas */
 .employee-table th,
 .employee-table td {
-  padding: 12px;
-  text-align: left;
+  padding: 8px 12px; /* Reducir el padding para hacer filas más compactas */
+  line-height: 1.4; /* Ajustar la altura de línea */
+  vertical-align: middle; /* Centrar verticalmente el contenido */
+  text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* Prevenir que el texto se divida en varias líneas */
 }
 
+/* Definir un ancho pequeño y ajustable para la columna ID */
+.employee-table .id-column,
+.employee-table .dni-column {
+  width: 100px; /* Puedes ajustar este valor según sea necesario */
+  max-width: 100px; /* El máximo ancho también se establece aquí */
+  min-width: 60px; /* El ancho mínimo para que no se haga más pequeño de lo deseado */
+  overflow: hidden; /* Esconde cualquier contenido que exceda */
+}
+
+/* Asegura que las demás columnas ocupen el espacio restante */
+.employee-table .worker-type-column,
+.employee-table .entry-date-column,
+.employee-table .actions-column{
+  width: auto; /* Permite que el ancho se adapte automáticamente */
+  flex: 1; /* Estas columnas ocuparán el espacio restante de manera equitativa */
+}
+
+.employee-table .name-column{
+  width: 650px;
+}
+
+/* Mantener el estilo general */
 .employee-table th {
   background-color: #2563eb;
   color: white;
@@ -85,4 +115,39 @@
 
 .employee-table tr:hover {
   background-color: #f1f5f9;
+}
+
+/* Contenedor de la tabla con scroll */
+.table-container {
+  max-height: 500px; /* Ajustar el alto máximo */
+  overflow-y: auto; /* Habilitar scroll vertical */
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.actions-column {
+  display: flex;
+  gap: 10px; /* Espacio entre los botones */
+}
+
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  transition: transform 0.2s ease;
+}
+
+.action-button:hover {
+  transform: scale(1.1); /* Efecto de hover para animación */
+}
+
+.action-button svg {
+  stroke: #2563eb; /* Color inicial del ícono */
+  transition: stroke 0.2s ease;
+}
+
+.action-button:hover svg {
+  stroke: #1e40af; /* Cambia el color al pasar el cursor */
 }

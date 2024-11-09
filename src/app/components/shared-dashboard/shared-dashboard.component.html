@@ -2,8 +2,25 @@
   <!-- Barra lateral -->
   <div class="barra-lateral bg-light">
     <div class="nombre-pagina">
-      <img src="assets/margarita.png" alt="Flor" class="logo-flor" />
+      <img src="assets/logo2.png" alt="Flor" class="logo-flor" />
       <span>MargaRed</span>
+    </div>
+
+    <!-- Selector de Proyectos -->
+    <!-- Dropdown modificado -->
+    <div class="dropdown mt-3">
+      <button (click)="toggleDropdown()" class="dropdown-btn">
+        Administración General
+        <span [class.open]="isDropdownOpen">&#9660;</span>
+      </button>
+      <ul [class.open]="isDropdownOpen" class="dropdown-menu">
+        <li *ngFor="let project of projects" (click)="selectProject(project)">
+          {{ project.name }}
+        </li>
+      </ul>
+      <p *ngIf="isDropdownOpen && projects.length === 0">
+        No hay proyectos disponibles.
+      </p>
     </div>
 
     <nav>
@@ -14,12 +31,102 @@
             [class.active]="activeSections.has('gestiones')"
             (click)="toggleSection('gestiones')"
           >
-            Gestiones
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="icon icon-tabler icon-tabler-clipboard-typography"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="#000000"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path
+                d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2"
+              />
+              <path
+                d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"
+              />
+              <path d="M9 12v-1h6v1" />
+              <path d="M12 11v6" />
+              <path d="M11 17h2" /></svg
+            >Gestiones
           </div>
           <ul *ngIf="activeSections.has('gestiones')" class="section-content">
-            <li><a [routerLink]="['/employees']">Empleados</a></li>
-            <li><a [routerLink]="['/machinery']">Maquinaria</a></li>
-            <li><a [routerLink]="['/dashboard']">Panel de Control</a></li>
+            <li>
+              <a [routerLink]="['/employees']"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="icon icon-tabler icon-tabler-user-edit"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="#000000"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                  <path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" />
+                  <path
+                    d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z"
+                  /></svg
+                >Empleados</a
+              >
+            </li>
+            <li>
+              <a [routerLink]="['/machinery']"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="icon icon-tabler icon-tabler-bulldozer"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="#000000"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M2 17a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                  <path d="M12 17a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                  <path d="M19 13v4a2 2 0 0 0 2 2h1" />
+                  <path d="M14 19h-10" />
+                  <path d="M4 15h10" />
+                  <path d="M9 11v-5h2a3 3 0 0 1 3 3v6" />
+                  <path d="M5 15v-3a1 1 0 0 1 1 -1h8" />
+                  <path d="M19 17h-3" /></svg
+                >Maquinaria</a
+              >
+            </li>
+            <li>
+              <a [routerLink]="['/dashboard']"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="icon icon-tabler icon-tabler-layout-dashboard"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="#000000"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M4 4h6v8h-6z" />
+                  <path d="M4 16h6v4h-6z" />
+                  <path d="M14 12h6v8h-6z" />
+                  <path d="M14 4h6v4h-6z" /></svg
+                >Panel de Control</a
+              >
+            </li>
           </ul>
         </li>
         <li class="nav-item">
@@ -28,11 +135,82 @@
             [class.active]="activeSections.has('operaciones')"
             (click)="toggleSection('operaciones')"
           >
-            Operaciones
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="icon icon-tabler icon-tabler-brand-stackshare"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="#000000"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M19 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+              <path d="M19 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+              <path d="M5 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+              <path d="M7 12h3l3.5 6h3.5" />
+              <path d="M17 6h-3.5l-3.5 6" /></svg
+            >Operaciones
           </div>
           <ul *ngIf="activeSections.has('operaciones')" class="section-content">
-            <li><a [routerLink]="['/work-hours']">Horas Laborales</a></li>
-            <li><a [routerLink]="['/projects']">Proyectos</a></li>
+            <li>
+              <a [routerLink]="['/calendar']"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="icon icon-tabler icon-tabler-calendar-month"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="#000000"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path
+                    d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"
+                  />
+                  <path d="M16 3v4" />
+                  <path d="M8 3v4" />
+                  <path d="M4 11h16" />
+                  <path d="M7 14h.013" />
+                  <path d="M10.01 14h.005" />
+                  <path d="M13.01 14h.005" />
+                  <path d="M16.015 14h.005" />
+                  <path d="M13.015 17h.005" />
+                  <path d="M7.01 17h.005" />
+                  <path d="M10.01 17h.005" /></svg
+                >Calendario Laboral</a
+              >
+            </li>
+            <li>
+              <a [routerLink]="['/projects']"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="icon icon-tabler icon-tabler-file-description"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="#000000"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                  <path
+                    d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"
+                  />
+                  <path d="M9 17h6" />
+                  <path d="M9 13h6" /></svg
+                >Proyectos</a
+              >
+            </li>
           </ul>
         </li>
         <li class="nav-item">
@@ -41,11 +219,82 @@
             [class.active]="activeSections.has('recursos')"
             (click)="toggleSection('recursos')"
           >
-            Recursos
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="icon icon-tabler icon-tabler-ballpen-filled"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="#000000"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path
+                d="M17.828 2a3 3 0 0 1 1.977 .743l.145 .136l1.171 1.17a3 3 0 0 1 .136 4.1l-.136 .144l-1.706 1.707l2.292 2.293a1 1 0 0 1 .083 1.32l-.083 .094l-4 4a1 1 0 0 1 -1.497 -1.32l.083 -.094l3.292 -3.293l-1.586 -1.585l-7.464 7.464a3.828 3.828 0 0 1 -2.474 1.114l-.233 .008c-.674 0 -1.33 -.178 -1.905 -.508l-1.216 1.214a1 1 0 0 1 -1.497 -1.32l.083 -.094l1.214 -1.216a3.828 3.828 0 0 1 .454 -4.442l.16 -.17l10.586 -10.586a3 3 0 0 1 1.923 -.873l.198 -.006zm0 2a1 1 0 0 0 -.608 .206l-.099 .087l-1.707 1.707l2.586 2.585l1.707 -1.706a1 1 0 0 0 .284 -.576l.01 -.131a1 1 0 0 0 -.207 -.609l-.087 -.099l-1.171 -1.171a1 1 0 0 0 -.708 -.293z"
+                stroke-width="0"
+                fill="currentColor"
+              /></svg
+            >Recursos
           </div>
           <ul *ngIf="activeSections.has('recursos')" class="section-content">
+            <!-- Temporalmente deshabilitado
             <li>
-              <a [routerLink]="['/assign-resources']">Asignar Recursos</a>
+              <a [routerLink]="['/assign-resources']"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="icon icon-tabler icon-tabler-body-scan"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="#000000"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
+                  <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+                  <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+                  <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
+                  <path d="M12 8m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                  <path d="M10 17v-1a2 2 0 1 1 4 0v1" />
+                  <path
+                    d="M8 10c.666 .666 1.334 1 2 1h4c.666 0 1.334 -.334 2 -1"
+                  />
+                  <path d="M12 11v3" /></svg
+                >Asignar Recursos</a>
+              </li>
+            -->
+              <li>
+                <a [routerLink]="['/fuel']"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="icon icon-tabler icon-tabler-body-scan"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="#000000"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
+                  <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+                  <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+                  <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
+                  <path d="M12 8m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                  <path d="M10 17v-1a2 2 0 1 1 4 0v1" />
+                  <path
+                    d="M8 10c.666 .666 1.334 1 2 1h4c.666 0 1.334 -.334 2 -1"
+                  />
+                  <path d="M12 11v3" /></svg
+                >Combustible</a>
             </li>
           </ul>
         </li>

@@ -1,0 +1,69 @@
+<div class="project-details-container">
+  <div class="header">
+    <h2>Detalles del Proyecto</h2>
+    <button class="btn-edit" *ngIf="!isEditing" (click)="enableEditing()">
+      Editar
+    </button>
+  </div>
+
+  <div class="form-group">
+    <label for="projectDescription">Descripción:</label>
+    <textarea
+      id="projectDescription"
+      [(ngModel)]="projectDescription"
+      placeholder="Descripción del Proyecto"
+      [readonly]="!isEditing"
+    ></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="startDate">Fecha de Inicio:</label>
+    <input
+      type="date"
+      id="startDate"
+      [(ngModel)]="startDate"
+      [readonly]="!isEditing"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="endDate">Fecha de Finalización:</label>
+    <input
+      type="date"
+      id="endDate"
+      [(ngModel)]="endDate"
+      [readonly]="!isEditing"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="status">Estado:</label>
+    <select id="status" [(ngModel)]="status" [disabled]="!isEditing">
+      <option value="En curso">En curso</option>
+      <option value="Finalizado">Finalizado</option>
+      <option value="Cancelado">Cancelado</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <h3>Asignación de Recursos</h3>
+    <table class="resource-table">
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Máquina</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pair of resourcePairs; let i = index">
+          <td>{{ pair.employee }}</td>
+          <td>{{ pair.machine }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <button class="btn btn-primary" *ngIf="isEditing" (click)="saveDetails()">
+    Guardar Cambios
+  </button>
+</div>

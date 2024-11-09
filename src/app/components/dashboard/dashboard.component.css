@@ -7,11 +7,11 @@
 /* Contenido principal */
 .dashboard-content {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr; /* 3 columnas: 1 grande y 2 pequeñas */
+  grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr; /* 3 columnas: 1 grande y 2 pequeñas */
   grid-template-rows: 1fr 1fr 1.2fr; /* Ajuste: aumentar la altura de la última fila */
   grid-gap: 20px;
-  width: 100%;
-  padding: 30px;
+  width: 90%;
+  padding: 20px;
   margin-left: 250px; /* Espacio para la barra lateral */
 }
 
@@ -36,6 +36,24 @@
   position: relative; /* Mantener el contexto para el canvas */
 }
 
+/* Contenedor del título y selector */
+.title-selector-container {
+  display: flex; /* Usar flexbox para la alineación */
+  justify-content: space-between; /* Espacio entre los elementos */
+  align-items: center; /* Alinear verticalmente */
+  margin-bottom: 16px; /* Espacio inferior para separación del gráfico, opcional */
+}
+
+/* Estilo para el selector */
+.resource-selector {
+  margin-left: 0; /* Sin margen a la izquierda */
+  font-size: 16px; /* Aumenta el tamaño de fuente */
+  padding: 8px; /* Aumenta el espacio interno para mayor tamaño */
+  border-radius: 4px; /* Bordes redondeados opcionales */
+  border: 1px solid #ccc; /* Borde del selector */
+  min-width: 150px; /* Ancho mínimo para el selector */
+}
+
 /* Contenedor del gráfico de lineas */
 .chart-container-line {
   width: 100%;
@@ -56,10 +74,25 @@
   margin: 0; /* Eliminar margen */
 }
 
+
 canvas {
   max-width: 100%; /* Ajustar el ancho como desees */
   max-height: 100%; /* Ajustar la altura como desees */
   position: relative; /* Cambiar de absolute a relative */
+}
+/* Ajustar el gráfico de ApexCharts */
+.apexcharts-canvas {
+  width: 100% !important; /* Asegura que el canvas ocupe todo el ancho */
+  height: 100% !important; /* Asegura que el canvas ocupe toda la altura */
+  position: absolute; /* Posición absoluta para llenar el contenedor */
+  top: 0; /* Alinear al borde superior */
+  left: 0; /* Alinear al borde izquierdo */
+  margin: 0; /* Eliminar margen */
+}
+
+/* Opcional: Estilo para el título */
+.full-width-card h3 {
+  margin: 0 0 10px;
 }
 
 /* Cuadros pequeños a la derecha (dos tarjetas de proyectos) */
@@ -73,7 +106,7 @@ canvas {
 
 /* Cuadro resumen debajo de las dos tarjetas de proyectos */
 .summary-card {
-  grid-column: 2 / 4;
+  grid-column: 2 / 5;
   grid-row: 2 / 3;
   background-color: white;
   padding: 20px;
@@ -85,7 +118,7 @@ canvas {
 
 /* Cuadro de ancho completo al final */
 .full-width-card {
-  grid-column: 1 / 4; /* Ocupa todo el ancho */
+  grid-column: 1 / 5; /* Ocupa todo el ancho */
   grid-row: 3 / 4;
   background-color: white;
   padding: 20px;
@@ -101,10 +134,20 @@ canvas {
 }
 
 /* Estilo para el título de los proyectos */
-.project-card h3, .summary-card h3, .full-width-card h3 {
+.project-card h3,
+.summary-card h3,
+.full-width-card h3 {
   margin: 0 0 10px;
   font-size: 24px;
   color: #007bff;
+}
+
+.large-chart h2 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  color: #007bff;
+  margin-right: 20px;
+  display: inline-block;
 }
 
 .project-info {
@@ -127,4 +170,152 @@ canvas {
 .project-description {
   font-size: 16px;
   color: #666;
+}
+
+/* Contenedor de la tabla con scroll */
+.table-container {
+  max-height: 300px; /* Limitar la altura del contenedor */
+  overflow-y: auto; /* Activar scroll vertical */
+  margin-top: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px; /* Bordes más redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff; /* Fondo blanco limpio */
+  scrollbar-width: thin; /* Scroll más delgado */
+}
+
+/* Estilo de la tabla */
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  color: #333; /* Color de texto más neutral */
+}
+
+/* Encabezado fijo y estilizado */
+.modern-table thead {
+  background-color: #007bff;
+  color: white;
+  text-align: left;
+  font-weight: bold;
+  position: sticky; /* Encabezado fijo */
+  top: 0;
+  z-index: 2;
+}
+
+.modern-table th,
+.modern-table td {
+  padding: 15px; /* Espacio más amplio */
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center; /* Centrado del texto */
+}
+
+/* Alternar color de filas */
+.modern-table tbody tr:nth-child(even) {
+  background-color: #f2f6fc;
+}
+
+.modern-table tbody tr:hover {
+  background-color: #eaf2fb; /* Cambio de color al pasar el cursor */
+}
+
+/* Botones mejorados */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 30px; /* Botones más redondeados */
+  cursor: pointer;
+  margin-right: 5px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+/* Botón Ver */
+.btn-view {
+  background-color: #28a745;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.btn-view:hover {
+  background-color: #218838;
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón Eliminar */
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Mensaje cuando no hay eventos */
+.no-events {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 18px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Scroll personalizable */
+.table-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background-color: #007bff;
+  border-radius: 10px;
+}
+
+/* Contenedor de los botones de acción */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Espacio entre los íconos */
+}
+
+.action-buttons svg {
+  transition: transform 0.2s, stroke 0.3s; /* Efecto de transición */
+}
+
+.action-buttons svg:hover {
+  transform: scale(1.1); /* Aumentar tamaño al pasar el cursor */
+  stroke: black; /* Cambiar color al pasar el cursor */
+}
+/* Estilo para los botones de ícono */
+.btn-icon {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Botón Editar */
+.btn-edit svg {
+  stroke: #28a745;
+}
+
+.btn-edit:hover {
+  background-color: rgba(40, 167, 69, 0.1);
+  transform: scale(1.1);
+}
+
+/* Botón Eliminar */
+.btn-delete svg {
+  stroke: #dc3545;
+}
+
+.btn-delete:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  transform: scale(1.1);
 }

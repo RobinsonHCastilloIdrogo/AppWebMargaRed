@@ -1,31 +1,36 @@
-<div class="modal-overlay">
-  <div class="modal-content">
-    <h2>Nueva Maquinaria</h2>
-    <div>
-      <div class="input-group">
-        <label for="name">Nombre de la maquinaria:</label>
-        <input
-          type="text"
-          id="name"
-          [(ngModel)]="name"
-          required
-          placeholder="Nombre de la maquinaria"
-        />
-      </div>
-      <div class="input-group">
-        <label for="quantity">Cantidad:</label>
-        <input
-          type="number"
-          id="quantity"
-          [(ngModel)]="quantity"
-          required
-          placeholder="Cantidad disponible"
-        />
-      </div>
-      <div class="button-group">
-        <button type="button" (click)="closeModal()">Cancelar</button>
-        <button type="button" (click)="addMachine()">Agregar</button>
-      </div>
+<div class="modal-overlay" (click)="close()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h2 *ngIf="!machinery.id">Nueva Maquinaria</h2>
+    <h2 *ngIf="machinery.id">Editar Maquinaria</h2>
+
+    <label for="machineryName">Nombre de la maquinaria:</label>
+    <input
+      id="machineryName"
+      [(ngModel)]="machinery.name"
+      class="input-field"
+      placeholder="Nombre de la maquinaria"
+      required
+    />
+
+    <label for="quantity">Cantidad:</label>
+    <input
+      id="quantity"
+      type="number"
+      [(ngModel)]="machinery.quantity"
+      class="input-field"
+      min="1"
+      required
+    />
+
+    <div class="modal-buttons">
+      <button class="btn btn-secondary" (click)="close()">Cancelar</button>
+      <button
+        class="btn btn-primary"
+        [disabled]="!isValidInput()"
+        (click)="saveMachinery()"
+      >
+        {{ machinery.id ? "Guardar Cambios" : "Agregar" }}
+      </button>
     </div>
   </div>
 </div>

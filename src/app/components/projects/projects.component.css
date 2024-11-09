@@ -1,63 +1,159 @@
-.project-container {
-    flex-grow: 1;
-    margin-left: 250px; 
-    padding: 20px;
-    overflow-y: auto;
-    height: 100vh;
-    box-sizing: border-box; 
-    width: calc(100% - 250px); 
-  }
-  
-  input {
-    padding: 10px;
-    margin: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  button {
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #218838;
-  }
-  
-  .dashboard-container {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-  }
+/* Contenedor principal del dashboard */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
 
-  .cards-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px; /* Espacio entre tarjetas */
-    margin-top: 16px;
-  }
-  
-  .project-card {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 16px;
-    flex: 1 1 200px; /* Tamaño mínimo de la tarjeta */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    cursor: pointer; /* Cambia el cursor para indicar que es clickeable */
-    transition: box-shadow 0.2s ease; /* Efecto de transición */
-  }
-  
-  .project-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Efecto al pasar el mouse */
-  }
-  
-  .no-projects-message {
-    text-align: center;
-    margin-top: 16px;
-  }
-  
+/* Sidebar */
+.sidebar {
+  flex-shrink: 0;
+  width: 250px;
+  background-color: #f4f4f4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenido principal */
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+/* Header con título */
+.header-container {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Contenedor para los botones de acción */
+.actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background-color: #f9f9f9;
+  padding: 10px 0;
+  z-index: 10;
+  margin-bottom: 20px;
+}
+
+/* Lista de proyectos */
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Tarjetas de los proyectos */
+.project-card {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  flex: 1 1 250px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease, transform 0.2s;
+}
+
+.project-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.02);
+}
+
+/* Modal */
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px; /* Ajuste para que el modal esté centrado correctamente */
+  box-sizing: border-box;
+}
+
+/* Contenido del Modal */
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 60%; /* Ancho ajustado */
+  max-height: 80%; /* Limitar la altura */
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Alineación de botón de cierre */
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+}
+
+.close:hover {
+  color: #ff4c4c;
+  transform: scale(1.1);
+}
+
+/* Botón */
+.btn {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn:hover {
+  background-color: #0056b3;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.save-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.save-button {
+  padding: 12px 24px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.save-button:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}

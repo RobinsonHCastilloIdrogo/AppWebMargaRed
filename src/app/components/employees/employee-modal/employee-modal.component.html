@@ -1,36 +1,44 @@
 <div class="modal-overlay">
   <div class="modal-content">
-    <h2>{{ selectedEmployee ? 'Editar Empleado' : 'Nuevo Empleado' }}</h2>
+    <h2 class="modal-title">
+      {{ selectedEmployee ? "Editar Empleado" : "Nuevo Empleado" }}
+    </h2>
+
     <div class="modal-grid">
       <div class="input-group">
         <label for="dni">DNI:</label>
         <input type="text" id="dni" [(ngModel)]="dni" required />
       </div>
+
       <div class="input-group">
         <label for="name">Nombre:</label>
         <input type="text" id="name" [(ngModel)]="name" required />
       </div>
+
       <div class="input-group">
-        <label for="workerType">Tipo de trabajador:</label>
-        <input type="text" id="workerType" [(ngModel)]="workerType" required />
+        <label for="workerType">Tipo de Trabajador:</label>
+        <select id="workerType" [(ngModel)]="workerType" name="workerType" required>
+          <option value="OPERADOR">OPERADOR</option>
+          <option value="OBRERO">OBRERO</option>
+        </select>
       </div>
-      <div class="input-group">
-        <label for="position">Cargo:</label>
-        <input type="text" id="position" [(ngModel)]="position" required />
-      </div>
-      <div class="input-group">
-        <label for="area">Área:</label>
-        <input type="text" id="area" [(ngModel)]="area" required />
-      </div>
+
       <div class="input-group">
         <label for="entryDate">Fecha de Ingreso:</label>
-        <input type="date" id="entryDate" [(ngModel)]="entryDate" required />
+        <input type="date" id="entryDate" [(ngModel)]="entryDate" [disabled]="true" />
       </div>
     </div>
+
     <div class="button-group">
-      <button type="button" (click)="close()">Cancelar</button>
-      <button type="button" (click)="selectedEmployee ? editEmployee() : addEmployee()">
-        {{ selectedEmployee ? 'Actualizar' : 'Agregar' }}
+      <button class="button-cancel" type="button" (click)="close()">
+        Cancelar
+      </button>
+      <button
+        class="button-save"
+        type="button"
+        (click)="selectedEmployee ? editEmployee() : addEmployee()"
+      >
+        {{ selectedEmployee ? "Actualizar" : "Agregar" }}
       </button>
     </div>
   </div>

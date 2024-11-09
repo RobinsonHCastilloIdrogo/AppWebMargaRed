@@ -1,50 +1,104 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // Importa Router
-import { Firestore, collectionData, collection } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  collectionData,
+  Timestamp,
+} from '@angular/fire/firestore';
 import { Project } from '../../models/projects.model';
+import { map, catchError } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { ProjectModalTableComponent } from './project-modal-table/project-modal-table.component';
+import { FormsModule } from '@angular/forms';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
-import { ProjectModalComponent } from '../projects/project-modal/project-modal.component';
+import { ProjectModalComponent } from './project-modal/project-modal.component';
 
 @Component({
   selector: 'app-project',
   standalone: true,
-  imports: [CommonModule, FormsModule, SharedDashboardComponent, ProjectModalComponent],
+  imports: [
+    CommonModule,
+    ProjectModalTableComponent,
+    FormsModule,
+    SharedDashboardComponent,
+    ProjectModalComponent,
+  ],
   templateUrl: './projects.component.html',
   styleUrls: ['./projects.component.css'],
 })
-export class ProjectComponent {
-  projects$: Observable<Project[]>; // Observable para los proyectos
+export class ProjectComponent implements OnInit {
+  projects: Project[] = [];
   isModalOpen: boolean = false;
+  isProjectModalOpen: boolean = false;
+  newProjectName: string = ''; // Propiedad para el nombre del nuevo proyecto
 
-  constructor(private firestore: Firestore, private router: Router) {
-    const projectsCollection = collection(this.firestore, 'projects'); // Referencia a la colección 'projects'
-    this.projects$ = collectionData(projectsCollection, {
-      idField: 'id',
-    }) as Observable<Project[]>; // Obtener los datos de Firestore
+  constructor(private firestore: Firestore, private cdr: ChangeDetectorRef) {}
 
-    // Mostrar los datos en la consola del navegador para verificar
-    this.projects$.subscribe((data) => {
-      console.log('Proyectos obtenidos:', data); // Mostrar los datos obtenidos
-    });
+  ngOnInit(): void {
+    this.loadProjects();
   }
 
-  openModal() {
-    this.isModalOpen = true;
+  loadProjects(): void {
+    const projectsCollection = collection(this.firestore, 'projects');
+    const projectsQuery = query(
+      projectsCollection,
+      orderBy('createdAt', 'asc')
+    );
+
+    collectionData(projectsQuery, { idField: 'id' })
+      .pipe(
+        map((projects: Project[]) =>
+          projects.map((project) => ({
+            ...project,
+            createdAt: this.convertTimestampToDate(project.createdAt),
+          }))
+        ),
+        catchError((error) => {
+          console.error('Error al cargar los proyectos:', error);
+          return [];
+        })
+      )
+      .subscribe((projects: Project[]) => {
+        this.projects = projects;
+        this.cdr.detectChanges();
+      });
   }
 
-  closeModal() {
-    this.isModalOpen = false;
+  convertTimestampToDate(timestamp: any): Date {
+    return timestamp instanceof Timestamp
+      ? timestamp.toDate()
+      : new Date(timestamp);
   }
 
-  handleProjectAdded() {
-    // Aquí puedes realizar cualquier acción adicional después de agregar un proyecto
-    console.log('Se ha agregado un nuevo proyecto.');
+  toggleTableModal(): void {
+    this.isModalOpen = !this.isModalOpen;
   }
 
-  goToProjectDetails(projectId: string) {
-    this.router.navigate(['/project', projectId]); // Asegúrate de que la ruta esté configurada correctamente
+  toggleProjectModal(): void {
+    this.isProjectModalOpen = !this.isProjectModalOpen;
+  }
+  handleProjectAdded(): void {
+    this.loadProjects(); // Actualiza la lista de proyectos
+    this.toggleProjectModal(); // Cierra el modal
+  }
+
+  addNewProject(): void {
+    const projectsCollection = collection(this.firestore, 'projects');
+    addDoc(projectsCollection, {
+      name: this.newProjectName,
+      createdAt: new Date(),
+    })
+      .then(() => {
+        console.log('Proyecto agregado correctamente');
+        this.newProjectName = ''; // Limpiar el input
+        this.loadProjects(); // Actualizar la lista de proyectos
+        this.toggleProjectModal(); // Cerrar el modal
+      })
+      .catch((error) => {
+        console.error('Error al agregar el proyecto:', error);
+      });
   }
 }

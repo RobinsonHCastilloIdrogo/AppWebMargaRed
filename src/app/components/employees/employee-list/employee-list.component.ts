@@ -2,7 +2,14 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EmployeeModalComponent } from '../employee-modal/employee-modal.component';
-import { Firestore, collectionData, collection, doc, deleteDoc, updateDoc } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collectionData,
+  collection,
+  doc,
+  deleteDoc,
+  updateDoc,
+} from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Employee } from '../../../models/employee.model';
 import Swal from 'sweetalert2';
@@ -22,7 +29,9 @@ export class EmployeeListComponent {
 
   constructor(private firestore: Firestore) {
     const employeesCollection = collection(this.firestore, 'employees');
-    this.employees$ = collectionData(employeesCollection, { idField: 'id' }) as Observable<Employee[]>;
+    this.employees$ = collectionData(employeesCollection, {
+      idField: 'id',
+    }) as Observable<Employee[]>;
 
     this.employees$.subscribe((data) => {
       console.log('Empleados obtenidos:', data);
@@ -33,12 +42,18 @@ export class EmployeeListComponent {
     if (!employees || employees.length === 0) {
       return [];
     }
-
+  
     return employees.filter((employee) => {
-      const matchesName = employee.name.toLowerCase().includes(this.searchTerm.toLowerCase());
-      return matchesName;
+      const searchTermLower = this.searchTerm.toLowerCase();
+  
+      // Verificar si el searchTerm coincide con nombre, dni o id (sin importar mayúsculas/minúsculas)
+      const matchesName = employee.name.toLowerCase().includes(searchTermLower);
+      const matchesDni = employee.dni.toLowerCase().includes(searchTermLower);
+      const matchesId = employee.id.toLowerCase().includes(searchTermLower); // Si 'id' es un string, si es otro tipo de dato ajusta según sea necesario
+  
+      return matchesName || matchesDni || matchesId;
     });
-  }
+  }  
 
   openModal() {
     this.selectedEmployee = null; // Reinicia el empleado seleccionado
@@ -58,13 +73,13 @@ export class EmployeeListComponent {
   confirmDelete(employeeId: string) {
     Swal.fire({
       title: '¿Estás seguro?',
-      text: "No podrás revertir esto!",
+      text: 'No podrás revertir esto!',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sí, borrar!',
-      cancelButtonText: 'Cancelar',
+      cancelButtonText: 'Cancelar', 
     }).then((result) => {
       if (result.isConfirmed) {
         this.deleteEmployee(employeeId);

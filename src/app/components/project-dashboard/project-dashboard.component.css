@@ -1,0 +1,146 @@
+/* Estilos generales */
+body {
+  font-family: "Poppins", sans-serif; /* Fuente moderna y profesional */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #f4f6f8; /* Fondo más suave */
+}
+
+/* Contenedor principal */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+/* Barra lateral del proyecto */
+.barra-lateral {
+  width: 250px;
+  background-color: #2d3748; /* Fondo oscuro */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #4a5568;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  color: #f7fafc; /* Texto claro */
+}
+
+/* Icono del proyecto seleccionado */
+.proyecto-seleccionado-icon {
+  width: 35px;
+  height: 35px;
+}
+
+/* Encabezado del proyecto */
+.nombre-pagina {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 30px;
+}
+
+/* Íconos de la navegación */
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Navegación lateral */
+.barra-lateral nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.barra-lateral nav li {
+  margin: 12px 0;
+}
+
+/* Enlaces de navegación */
+.barra-lateral nav a {
+  text-decoration: none;
+  color: #cbd5e0;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.barra-lateral nav a:hover {
+  background-color: #4a5568;
+  color: #63b3ed; /* Azul claro */
+  font-weight: 600;
+}
+
+.nav-item a.active {
+  background-color: #2b6cb0; /* Fondo más oscuro para el activo */
+  color: #f7fafc;
+  font-weight: bold;
+}
+
+/* Botón de retorno */
+.boton {
+  background-color: #3182ce; /* Azul claro */
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+  margin-top: auto;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.boton:hover {
+  background-color: #2b6cb0; /* Azul más oscuro */
+  transform: scale(1.05); /* Efecto de crecimiento */
+}
+
+/* Contenido principal */
+.content {
+  margin-left: 250px;
+  padding: 40px;
+  width: calc(100% - 250px);
+  overflow-y: auto;
+}
+
+.content h1 {
+  font-size: 32px;
+  margin-bottom: 15px;
+  color: #2d3748;
+  font-weight: 700;
+}
+
+.content p {
+  font-size: 18px;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+  .barra-lateral {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+  }
+
+  .content {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+}

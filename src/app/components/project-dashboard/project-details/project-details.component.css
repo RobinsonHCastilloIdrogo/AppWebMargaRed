@@ -1,0 +1,156 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.btn-edit {
+  padding: 10px 15px;
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-edit:hover {
+  background-color: #2b6cb0;
+  transform: scale(1.05);
+}
+
+.details-container {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #2d3748;
+}
+
+.project-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  font-size: 16px;
+  padding: 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+}
+
+.btn-primary {
+  margin-top: 20px;
+  padding: 12px 20px;
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #2b6cb0;
+  transform: scale(1.05);
+}
+
+.resource-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.resource-table th,
+.resource-table td {
+  border: 1px solid #e2e8f0;
+  padding: 15px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.resource-table th {
+  background-color: #f7fafc;
+  color: #2d3748;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.resource-table td {
+  color: #4a5568;
+  background-color: #ffffff;
+}
+
+.resource-table tbody tr:nth-child(odd) {
+  background-color: #f9fafb;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .project-info {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-table th,
+  .resource-table td {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .details-container {
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+
+  .btn-primary {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .resource-table th,
+  .resource-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}

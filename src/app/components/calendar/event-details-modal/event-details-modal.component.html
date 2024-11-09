@@ -1,0 +1,35 @@
+<div class="custom-modal">
+  <div class="modal-header">
+    <h5 class="modal-title">Detalles del Evento</h5>
+    <button type="button" class="close" (click)="close()">
+      <span>&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <p><strong>Evento:</strong> {{ eventDetails.nombre }}</p>
+    <p><strong>Descripción:</strong> {{ eventDetails.descripcion }}</p>
+    <p><strong>Fecha:</strong> {{ eventDetails.fecha | date : "short" }}</p>
+    <p>
+      <strong>Cantidad de Empleados:</strong>
+      {{ eventDetails.cantidadEmpleados }}
+    </p>
+
+    <div *ngFor="let empleado of eventDetails.empleados; let i = index">
+      <h6>Empleado {{ i + 1 }}</h6>
+      <p><strong>Nombre:</strong> {{ empleado.nombre }}</p>
+      <p><strong>Rol:</strong> {{ empleado.rol }}</p>
+      <p *ngIf="empleado.maquina">
+        <strong>Maquinaria:</strong> {{ empleado.maquina.nombre }}
+      </p>
+      <p><strong>Hora de Inicio:</strong> {{ empleado.horaInicio }}</p>
+      <p><strong>Hora de Fin:</strong> {{ empleado.horaFin }}</p>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success" (click)="close()">
+      Cerrar
+    </button>
+  </div>
+</div>

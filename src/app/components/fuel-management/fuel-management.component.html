@@ -1,0 +1,70 @@
+<div class="dashboard-container">
+  <app-shared-dashboard></app-shared-dashboard>
+  <div class="dashboard-content">
+    <header>
+      <h2>Asignación de Combustible</h2>
+    </header>
+
+    <div class="fuel-management-container">
+      <h3>Asignar Combustible a Máquina</h3>
+
+      <!-- Search field -->
+      <label for="machine-search-input">Buscar máquina:</label>
+      <input
+        id="machine-search-input"
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="filterMachines($event)"
+        placeholder="Buscar máquina..."
+        autocomplete="off"
+      />
+    
+      <!-- Dropdown list -->
+      <div *ngIf="filteredMachines.length > 0" class="dropdown-list">
+        <ul>
+          <li
+            *ngFor="let machine of filteredMachines"
+            (click)="selectMachine(machine)"
+            class="dropdown-item"
+          >
+            {{ machine.name }} - {{ machine.id }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Mensajes de confirmación -->
+      <div *ngIf="successMessage" class="confirmation-message success-message">
+        {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" class="confirmation-message error-message">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Sección para asignar combustible -->
+      <div *ngIf="selectedMachine" class="fuel-assignment-section">
+        <h3>Asignar Combustible a {{ selectedMachine.id }}</h3>
+        <label for="fuel-amount">Cantidad de Combustible (L):</label>
+        <input
+          type="number"
+          id="fuel-amount"
+          [(ngModel)]="fuelAmount"
+          placeholder="Ingrese la cantidad de combustible (máx. 50L)"
+          min="1"
+          max="50"  
+          step="0.1"  
+          [value]="fuelAmount !== null ? fuelAmount : ''"
+          required
+        />
+        
+        <!-- Mensajes de validación -->
+        <div *ngIf="fuelAmount !== null && fuelAmount <= 0" style="color: red;">La cantidad de combustible debe ser mayor que 0.</div>
+        <div *ngIf="fuelAmount !== null && fuelAmount > 50" style="color: red;">La cantidad máxima de combustible es 50 litros.</div>
+
+        <!-- Botón para asignar combustible -->
+        <button (click)="assignFuel()" [disabled]="fuelAmount === null || fuelAmount <= 0 || fuelAmount > 50">
+          Asignar Combustible
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
