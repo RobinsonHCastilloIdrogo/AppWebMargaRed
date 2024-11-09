@@ -42,14 +42,18 @@ export class EmployeeListComponent {
     if (!employees || employees.length === 0) {
       return [];
     }
-
+  
     return employees.filter((employee) => {
-      const matchesName = employee.name
-        .toLowerCase()
-        .includes(this.searchTerm.toLowerCase());
-      return matchesName;
+      const searchTermLower = this.searchTerm.toLowerCase();
+  
+      // Verificar si el searchTerm coincide con nombre, dni o id (sin importar mayúsculas/minúsculas)
+      const matchesName = employee.name.toLowerCase().includes(searchTermLower);
+      const matchesDni = employee.dni.toLowerCase().includes(searchTermLower);
+      const matchesId = employee.id.toLowerCase().includes(searchTermLower); // Si 'id' es un string, si es otro tipo de dato ajusta según sea necesario
+  
+      return matchesName || matchesDni || matchesId;
     });
-  }
+  }  
 
   openModal() {
     this.selectedEmployee = null; // Reinicia el empleado seleccionado
@@ -75,7 +79,7 @@ export class EmployeeListComponent {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sí, borrar!',
-      cancelButtonText: 'Cancelar',
+      cancelButtonText: 'Cancelar', 
     }).then((result) => {
       if (result.isConfirmed) {
         this.deleteEmployee(employeeId);

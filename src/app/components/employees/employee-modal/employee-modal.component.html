@@ -17,22 +17,15 @@
 
       <div class="input-group">
         <label for="workerType">Tipo de Trabajador:</label>
-        <input type="text" id="workerType" [(ngModel)]="workerType" required />
-      </div>
-
-      <div class="input-group">
-        <label for="position">Cargo:</label>
-        <input type="text" id="position" [(ngModel)]="position" required />
-      </div>
-
-      <div class="input-group">
-        <label for="area">Área:</label>
-        <input type="text" id="area" [(ngModel)]="area" required />
+        <select id="workerType" [(ngModel)]="workerType" name="workerType" required>
+          <option value="OPERADOR">OPERADOR</option>
+          <option value="OBRERO">OBRERO</option>
+        </select>
       </div>
 
       <div class="input-group">
         <label for="entryDate">Fecha de Ingreso:</label>
-        <input type="date" id="entryDate" [(ngModel)]="entryDate" required />
+        <input type="date" id="entryDate" [(ngModel)]="entryDate" [disabled]="true" />
       </div>
     </div>
 

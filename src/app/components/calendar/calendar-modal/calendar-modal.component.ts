@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { FirebaseService } from '../../../services/firebase.service';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 interface Employee {
   id: string;
@@ -136,9 +137,6 @@ export class CalendarModalComponent implements OnInit {
       error: (err) => console.error('Error al cargar maquinarias:', err),
     });
   }
-
-  // Rest of the component methods remain the same...
-  // Include all other methods from the original component
   
   getAsignacionCollectionName(): string {
     const fecha = new Date();
@@ -222,20 +220,107 @@ export class CalendarModalComponent implements OnInit {
 
   guardarAsignacion(): void {
     if (this.isEventSelected === true) {
-      this.guardarEvento();
+      if (this.validateEventFields()) {
+        this.guardarEvento();
+      }
     } else if (this.isEventSelected === false) {
-      this.guardarProyecto();
+      if (this.validateProjectFields()) {
+        this.guardarProyecto();
+      }
     } else {
-      alert('Seleccione una asignación válida antes de guardar.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Seleccione una asignación válida antes de guardar.',
+      });
     }
   }
 
-  private guardarEvento(): void {
-    if (!this.eventName || !this.selectedDate) {
-      alert('Por favor, ingrese el nombre del evento y la fecha.');
-      return;
+  private validateEventFields(): boolean {
+    if (!this.eventName || !this.selectedDate || this.projectAssignments.length < 1) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Debe completar todos los campos y asignar al menos un empleado para crear un evento.',
+      });
+      return false;
     }
-  
+
+    // Validar que se haya seleccionado un empleado
+    const hasEmployee = this.projectAssignments.some(
+    (assignment) => assignment.employeeId !== null
+    );
+      if (!hasEmployee) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Empleado no seleccionado',
+        text: 'Debe seleccionar al menos un empleado para guardar el evento.',
+      });
+    return false;
+    }
+
+    // Check if employees are already assigned
+    const selectedEmployeeIds = new Set<string>();
+    for (const assignment of this.projectAssignments) {
+      const employeeId = assignment.employeeId;
+      if (employeeId && selectedEmployeeIds.has(employeeId)) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Empleado duplicado',
+          text: `El empleado ${this.getEmployeeName(employeeId)} ya ha sido asignado.`,
+        });
+        return false;
+      }
+      if (employeeId) {
+        selectedEmployeeIds.add(employeeId);
+      }
+    }
+
+     // Validar que el rol "Operador" tenga una máquina asignada
+    for (const assignment of this.projectAssignments) {
+      if (assignment.role === 'Operador' && !assignment.machineId) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Máquina no asignada',
+          text: 'Si el rol es "Operador", debe asignarse una máquina para el evento.',
+        });
+        return false;
+      }
+    }
+
+    // Check if machines are already assigned
+    const selectedMachineIds = new Set<string>();
+    for (const assignment of this.projectAssignments) {
+      const machineId = assignment.machineId;
+      if (machineId && selectedMachineIds.has(machineId)) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Máquina duplicada',
+          text: `La máquina ${this.getMachineName(machineId)} ya ha sido asignada.`,
+        });
+        return false;
+      }
+      if (machineId) {
+        selectedMachineIds.add(machineId);
+      }
+    }
+
+    // Check if start and end times are filled
+    for (const assignment of this.projectAssignments) {
+      if (!assignment.startHour || !assignment.endHour) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Horas incompletas',
+          text: 'Por favor, complete las horas de inicio y fin para cada asignación.',
+        });
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private guardarEvento(): void {
     const evento = {
       nombre: this.eventName,
       descripcion: this.eventDescription,
@@ -251,6 +336,11 @@ export class CalendarModalComponent implements OnInit {
     this.firebaseService
       .addEventoConId(evento, this.eventName)
       .then(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Evento guardado con éxito',
+          text: 'El evento ha sido guardado exitosamente.',
+        });
         this.modalRef.hide();
       })
       .catch((error) => {
@@ -258,42 +348,128 @@ export class CalendarModalComponent implements OnInit {
       });
   }
 
-  private guardarProyecto(): void {
-    if (!this.selectedProject || !this.selectedDate) {
-      alert('Por favor, selecciona un proyecto y una fecha.');
-      return;
+  private validateProjectFields(): boolean {
+    if (!this.selectedProject || !this.selectedDate || this.employeeCount < 1) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor, selecciona un proyecto, una fecha y especifica la cantidad de empleados.',
+      });
+      return false;
     }
 
-    const proyecto = {
-      proyectoId: this.selectedProject,
-      nombreProyecto: this.projects.find(
-        (proj) => proj.id === this.selectedProject
-      )?.name,
-      descripcion: this.descripcionProyecto,
-      fecha: this.selectedDate,
-      empleados: this.projectAssignments.map((assignment) => ({
-        nombre: this.getEmployeeName(assignment.employeeId),
-        rol: assignment.role,
-        horaInicio: assignment.startHour,
-        horaFin: assignment.endHour,
-        maquina: assignment.machineId
-          ? {
-              id: assignment.machineId,
-              nombre: this.getMachineName(assignment.machineId),
-            }
-          : null,
-      })),
-    };
-
-    this.firebaseService
-      .addProyectoConId(proyecto, this.selectedProject)
-      .then(() => {
-        this.modalRef.hide();
-        this.assignmentSaved.emit();
-      })
-      .catch((error) => {
-        console.error('Error al guardar el proyecto:', error);
+    // Validar que se haya seleccionado un empleado
+    const hasEmployee = this.projectAssignments.some(
+      (assignment) => assignment.employeeId !== null
+    );
+    if (!hasEmployee) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Empleado no seleccionado',
+        text: 'Debe seleccionar al menos un empleado para guardar el proyecto.',
       });
+      return false;
+    }
+
+    // Check if employees are already assigned
+    const selectedEmployeeIds = new Set<string>();
+    for (let i = 0; i < this.employeeCount; i++) {
+      const employeeId = this.projectAssignments[i]?.employeeId;
+      if (employeeId && selectedEmployeeIds.has(employeeId)) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Empleado duplicado',
+          text: `El empleado ${this.getEmployeeName(employeeId)} ya ha sido asignado.`,
+        });
+        return false;
+      }
+      if (employeeId) {
+        selectedEmployeeIds.add(employeeId);
+      }
+    }
+
+    // Validar que si el rol es "Operador", se haya asignado una máquina
+    for (let i = 0; i < this.employeeCount; i++) {
+      const assignment = this.projectAssignments[i];
+      if (assignment.role === 'Operador' && !assignment.machineId) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Máquina no asignada',
+          text: 'Si el rol es "Operador", debe asignarse una máquina.',
+        });
+        return false;
+      }
+    }
+
+    // Check if machines are already assigned
+    const selectedMachineIds = new Set<string>();
+    for (let i = 0; i < this.employeeCount; i++) {
+      const machineId = this.projectAssignments[i]?.machineId;
+      if (machineId && selectedMachineIds.has(machineId)) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Máquina duplicada',
+          text: `La máquina ${this.getMachineName(machineId)} ya ha sido asignada.`,
+        });
+        return false;
+      }
+      if (machineId) {
+        selectedMachineIds.add(machineId);
+      }
+    }
+
+    // Check if all fields are filled, including hours
+    for (let i = 0; i < this.employeeCount; i++) {
+      const assignment = this.projectAssignments[i];
+      if (!assignment.employeeId || !assignment.role || !assignment.startHour || !assignment.endHour) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos incompletos',
+          text: 'Por favor, complete todos los campos, incluyendo las horas de inicio y fin, para todos los empleados.',
+        });
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private guardarProyecto(): void {
+  const proyecto = {
+    proyectoId: this.selectedProject,
+    nombreProyecto: this.projects.find(
+      (proj) => proj.id === this.selectedProject
+    )?.name,
+    descripcion: this.descripcionProyecto,
+    fecha: this.selectedDate,
+    empleados: this.projectAssignments.map((assignment) => ({
+      nombre: this.getEmployeeName(assignment.employeeId),
+      rol: assignment.role,
+      horaInicio: assignment.startHour,
+      horaFin: assignment.endHour,
+      maquina: assignment.machineId
+        ? {
+            id: assignment.machineId,
+            nombre: this.getMachineName(assignment.machineId),
+          }
+        : null,
+    })),
+  };
+
+  this.firebaseService
+    .addProyectoConId(proyecto, this.selectedProject)
+    .then(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Proyecto guardado con éxito',
+        text: 'El proyecto ha sido guardado exitosamente.',
+      });
+      this.modalRef.hide();
+      this.assignmentSaved.emit();
+    })
+    .catch((error) => {
+      console.error('Error al guardar el proyecto:', error);
+    });
   }
 
   updateAssignmentRole(index: number, role: string): void {

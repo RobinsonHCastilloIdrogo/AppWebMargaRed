@@ -9,6 +9,8 @@ import {
   getDoc,
 } from '@angular/fire/firestore';
 import { Machine, MachineryData } from '../../../models/machine.model';
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-machinery-modal',
   templateUrl: './machinery-modal.component.html',
@@ -91,6 +93,14 @@ export class MachineryModalComponent implements OnInit {
         }
 
         await setDoc(machineryDocRef, existingData); // Guardar los datos
+
+        // Confirmación de que la maquinaria fue agregada o editada
+        Swal.fire({
+          title: '¡Éxito!',
+          text: isEditMode ? 'La maquinaria ha sido editada correctamente.' : 'La maquinaria ha sido agregada correctamente.',
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+        });
 
         console.log('✅ Maquinaria guardada con éxito:', existingData);
         this.resetForm();

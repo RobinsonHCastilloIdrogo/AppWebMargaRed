@@ -17,6 +17,22 @@
   backdrop-filter: blur(1px); /* Desenfoque del fondo */
 }
 
+/* Estilos para el select */
+select {
+  width: 100%;
+  padding: 14px; /* Asegura el mismo padding que los inputs */
+  border: 1px solid #bdc3c7; /* Igual que los inputs */
+  border-radius: 8px; /* Esquinas redondeadas */
+  font-size: 16px; /* Coincide con el tamaño de fuente de los inputs */
+}
+
+/* Estilo al hacer foco */
+select:focus {
+  border-color: #2980b9; /* Color de borde al hacer foco, igual que los inputs */
+  box-shadow: none; /* Elimina la sombra del foco predeterminada */
+  outline: none; /* Asegura que no haya un borde de enfoque */
+}
+
 /* Contenido del modal */
 .modal-content {
   background-color: #ffffff; /* Color blanco limpio */
