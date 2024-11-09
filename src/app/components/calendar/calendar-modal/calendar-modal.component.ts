@@ -38,27 +38,34 @@ interface ProjectAssignment {
 })
 export class CalendarModalComponent implements OnInit {
   @Input() selectedDate!: string;
-  @Output() assignmentSaved = new EventEmitter<void>(); // Emisor del evento cuando se guarda la asignación
+  @Output() assignmentSaved = new EventEmitter<void>();
 
   isEventSelected: boolean | null = null;
 
-  // Variables para el Evento
+  // Search filters
+  employeeSearchTerm: string = '';
+  machineSearchTerm: string = '';
+
+  // Lists for original data
+  allEmployees: Employee[] = [];
+  allMachines: string[] = [];
+
+  // Filtered lists
+  employees: Employee[] = [];
+  machines: string[] = [];
+  projects: Project[] = [];
+
+  // Modal state variables
   eventName: string = '';
   eventDescription: string = '';
   eventStartTime: string = '';
   eventEndTime: string = '';
-
-  // Variables para el Proyecto
   selectedProject: string = '';
   descripcionProyecto: string = '';
   projectAssignments: ProjectAssignment[] = [];
-  employeeCount: number = 0; // Cantidad de empleados a asignar
-  selectedAssignmentIndex: number | null = null; // Índice del empleado seleccionado
+  employeeCount: number = 0;
+  selectedAssignmentIndex: number | null = null;
   selectedAssignment: ProjectAssignment | null = null;
-
-  employees: Employee[] = [];
-  projects: Project[] = [];
-  machines: Machine[] = [];
 
   constructor(
     public modalRef: BsModalRef,
@@ -71,17 +78,37 @@ export class CalendarModalComponent implements OnInit {
     this.loadMachines();
   }
 
-  // Obtener el nombre dinámico de la colección en base al mes y año actuales
-  getAsignacionCollectionName(): string {
-    const fecha = new Date();
-    const mes = fecha.toLocaleString('default', { month: 'long' });
-    const año = fecha.getFullYear();
-    return `asignacion${mes}${año}`;
+  // Filter functions
+  filterEmployees(): void {
+    if (!this.employeeSearchTerm.trim()) {
+      this.employees = [...this.allEmployees];
+      return;
+    }
+    
+    const searchTerm = this.employeeSearchTerm.toLowerCase().trim();
+    this.employees = this.allEmployees.filter(employee => 
+      employee.name.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  filterMachines(): void {
+    if (!this.machineSearchTerm.trim()) {
+      this.machines = [...this.allMachines];
+      return;
+    }
+    
+    const searchTerm = this.machineSearchTerm.toLowerCase().trim();
+    this.machines = this.allMachines.filter(machine => 
+      machine.toLowerCase().includes(searchTerm)
+    );
   }
 
   loadEmployees(): void {
     this.firebaseService.getEmployees().subscribe({
-      next: (employees) => (this.employees = employees),
+      next: (employees) => {
+        this.allEmployees = employees;
+        this.employees = [...employees];
+      },
       error: (err) => console.error('Error al cargar empleados:', err),
     });
   }
@@ -95,16 +122,36 @@ export class CalendarModalComponent implements OnInit {
 
   loadMachines(): void {
     this.firebaseService.getMachines().subscribe({
-      next: (machines) => (this.machines = machines),
+      next: (machines) => {
+        this.allMachines = [];
+        machines.forEach(doc => {
+          const machineData = doc.machines;
+          machineData.forEach((machine: Machine) => {
+            this.allMachines.push(machine.id);
+          });
+        });
+        this.machines = [...this.allMachines];
+        console.log('Máquinas cargadas:', this.machines);
+      },
       error: (err) => console.error('Error al cargar maquinarias:', err),
     });
+  }
+
+  // Rest of the component methods remain the same...
+  // Include all other methods from the original component
+  
+  getAsignacionCollectionName(): string {
+    const fecha = new Date();
+    const mes = fecha.toLocaleString('default', { month: 'long' });
+    const año = fecha.getFullYear();
+    return `asignacion${mes}${año}`;
   }
 
   onAssignmentTypeChange(): void {
     this.clearProjectAssignments();
     if (this.isEventSelected) {
       this.clearProjectFields();
-      this.employeeCount = Math.min(this.employeeCount, 2); // Limitar a 2 empleados para eventos
+      this.employeeCount = Math.min(this.employeeCount, 2);
     } else {
       this.clearEventFields();
     }
@@ -134,10 +181,10 @@ export class CalendarModalComponent implements OnInit {
 
   generateEmployeeAssignments(): void {
     if (this.isEventSelected && this.employeeCount > 2) {
-      this.employeeCount = 2; // Limitar a 2 empleados si es un evento
+      this.employeeCount = 2;
     }
     if (this.employeeCount < 1) {
-      this.employeeCount = 1; // Evitar números negativos o cero
+      this.employeeCount = 1;
     }
 
     this.projectAssignments = [];
@@ -157,21 +204,20 @@ export class CalendarModalComponent implements OnInit {
 
   selectEmployeeAssignment(): void {
     if (this.selectedAssignmentIndex !== null) {
-      this.selectedAssignment =
-        this.projectAssignments[this.selectedAssignmentIndex];
+      this.selectedAssignment = this.projectAssignments[this.selectedAssignmentIndex];
     }
   }
 
   getEmployeeName(employeeId: string | null): string {
     if (!employeeId) return '';
-    const employee = this.employees.find((emp) => emp.id === employeeId);
+    const employee = this.allEmployees.find((emp) => emp.id === employeeId);
     return employee ? employee.name : '';
   }
 
   getMachineName(machineId: string | null): string {
     if (!machineId) return '';
-    const machine = this.machines.find((mac) => mac.id === machineId);
-    return machine ? machine.name : '';
+    const machine = this.allMachines.find(m => m === machineId);
+    return machine ? machine : '';
   }
 
   guardarAsignacion(): void {
@@ -185,7 +231,6 @@ export class CalendarModalComponent implements OnInit {
   }
 
   private guardarEvento(): void {
-    // Validar los campos
     if (!this.eventName || !this.selectedDate) {
       alert('Por favor, ingrese el nombre del evento y la fecha.');
       return;
@@ -203,7 +248,6 @@ export class CalendarModalComponent implements OnInit {
       })),
     };
   
-    // Usar el nombre del evento como ID
     this.firebaseService
       .addEventoConId(evento, this.eventName)
       .then(() => {
@@ -213,10 +257,8 @@ export class CalendarModalComponent implements OnInit {
         console.error('Error al guardar el evento:', error);
       });
   }
-  
 
   private guardarProyecto(): void {
-    // Validar los campos
     if (!this.selectedProject || !this.selectedDate) {
       alert('Por favor, selecciona un proyecto y una fecha.');
       return;
@@ -243,12 +285,11 @@ export class CalendarModalComponent implements OnInit {
       })),
     };
 
-    // Utiliza el método con el ID especificado
     this.firebaseService
       .addProyectoConId(proyecto, this.selectedProject)
       .then(() => {
         this.modalRef.hide();
-        this.assignmentSaved.emit(); // Emitir evento cuando se guarda una asignación
+        this.assignmentSaved.emit();
       })
       .catch((error) => {
         console.error('Error al guardar el proyecto:', error);

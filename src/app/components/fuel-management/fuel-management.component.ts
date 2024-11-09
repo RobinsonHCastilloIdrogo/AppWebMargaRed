@@ -19,10 +19,11 @@ export class FuelManagementComponent implements OnInit {
   specificMachines: Machine[] = [];
   filteredMachines: Machine[] = []; // Lista para las máquinas filtradas en el campo de búsqueda
   selectedMachine?: Machine;
-  fuelAmount: number = 0;
+  fuelAmount: number | null = null;  // Inicializado como null
   searchQuery: string = '';  // Variable para el cuadro de búsqueda
   successMessage: string = '';
   errorMessage: string = '';
+  fuelMaxLimit: number = 50; // Límite máximo de combustible (en litros).
 
   constructor(private firestore: Firestore) {}
 
@@ -64,12 +65,34 @@ export class FuelManagementComponent implements OnInit {
 
   selectMachine(machine: Machine): void {
     this.selectedMachine = machine;
-    this.fuelAmount = 0;
+    this.fuelAmount = null;  // Set null to clear the input
     this.filteredMachines = []; // Oculta la lista desplegable después de seleccionar
   }
 
   async assignFuel(): Promise<void> {
-    if (this.selectedMachine && this.fuelAmount > 0) {
+    if (this.selectedMachine) {
+      // Validar que la cantidad de combustible sea un número válido
+      if (this.fuelAmount === null || this.fuelAmount <= 0 || isNaN(this.fuelAmount)) {
+        Swal.fire({
+          title: '¡Advertencia!',
+          text: 'La cantidad de combustible debe ser un número mayor que cero.',
+          icon: 'warning',
+          confirmButtonText: 'Aceptar'
+        });
+        return;
+      }
+  
+      // Validar que la cantidad de combustible no exceda el límite máximo
+      if (this.fuelAmount > this.fuelMaxLimit) {
+        Swal.fire({
+          title: '¡Advertencia!',
+          text: `La cantidad máxima de combustible por asignación es de ${this.fuelMaxLimit} litros.`,
+          icon: 'warning',
+          confirmButtonText: 'Aceptar'
+        });
+        return;
+      }
+  
       try {
         const fuelDocRef = doc(this.firestore, `machines/${this.selectedMachine.name}/fuelAssignments/${this.selectedMachine.id}`);
         
@@ -83,22 +106,20 @@ export class FuelManagementComponent implements OnInit {
           { fuelHistory: arrayUnion(newFuelEntry) },
           { merge: true }
         );
-
+  
         const month = new Date().toLocaleString('default', { month: 'long' });
         const monthDocRef = doc(this.firestore, `monthlyFuelTotals/${month}`);
-
         await setDoc(
           monthDocRef,
           { totalFuel: increment(this.fuelAmount) },
           { merge: true }
         );
-
+  
         const machineTotalDocRef = doc(this.firestore, `machineFuelTotals/${this.selectedMachine.id}`);
-        
         await setDoc(
           machineTotalDocRef,
           { 
-            totalFuelAssigned: increment(this.fuelAmount), 
+            totalFuelAssigned: increment(this.fuelAmount),
             machineType: this.selectedMachine.name,
             monthlyTotals: {
               [month]: increment(this.fuelAmount)
@@ -106,7 +127,7 @@ export class FuelManagementComponent implements OnInit {
           },
           { merge: true }
         );
-
+  
         Swal.fire({
           title: '¡Éxito!',
           text: `Combustible asignado a ${this.selectedMachine.name}: ${this.fuelAmount} L`,
@@ -124,22 +145,13 @@ export class FuelManagementComponent implements OnInit {
         });
         console.error('Error al asignar combustible:', error);
       }
-    } else {
-      Swal.fire({
-        title: '¡Advertencia!',
-        text: 'Selecciona una máquina y asigna una cantidad válida de combustible.',
-        icon: 'warning',
-        confirmButtonText: 'Aceptar'
-      });
     }
   }
 
   private resetForm(): void {
     this.selectedMachine = undefined;
-    this.fuelAmount = 0;
+    this.fuelAmount = null;
     this.searchQuery = '';  // Limpia el campo de búsqueda
-    this.filteredMachines = []; // Vacía la lista de máquinas filtradas
-    this.successMessage = '';
-    this.errorMessage = '';
+    this.filteredMachines = []; // Vacía la lista filtrada
   }
 }
