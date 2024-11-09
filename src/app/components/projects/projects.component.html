@@ -10,17 +10,7 @@
 
     <div class="actions-container">
       <button class="btn" (click)="toggleProjectModal()">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          width="20"
-          height="20"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 5v14"></path>
           <path d="M5 12h14"></path>
         </svg>
@@ -28,17 +18,7 @@
       </button>
 
       <button class="btn" (click)="toggleTableModal()">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          width="20"
-          height="20"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 9l6 6 6-6"></path>
         </svg>
         Acciones
@@ -46,11 +26,7 @@
     </div>
 
     <div class="cards-container">
-      <div
-        class="project-card"
-        *ngFor="let project of projects"
-        (click)="toggleTableModal()"
-      >
+      <div class="project-card" *ngFor="let project of projects" (click)="viewProjectDetails(project)">
         <h3 class="project-title">{{ project.name }}</h3>
       </div>
 
@@ -65,6 +41,39 @@
       (closeModal)="toggleProjectModal()"
       (projectAdded)="handleProjectAdded()"
     ></app-project-modal>
+
+    <!-- Modal de detalles del proyecto -->
+    <div class="modal-overlay" *ngIf="isDetailsModalOpen" (click)="closeDetailsModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>Detalles del Proyecto</h2>
+
+        <div class="project-details">
+          <p><strong>Nombre del Proyecto:</strong> {{ selectedProject?.name }}</p>
+          <p><strong>Fecha de Creación:</strong> {{ selectedProject?.createdAt | date: 'yyyy-MM-dd' }}</p>
+          <p><strong>Hora de Creación:</strong> {{ selectedProject?.createdAt | date: 'HH:mm:ss' }}</p>
+        </div>
+
+        <!-- Mostrar los miembros del equipo -->
+        <div class="team-members" *ngIf="teamMembers.length > 0">
+          <h3>Miembros del Equipo</h3>
+          <ul>
+            <li *ngFor="let member of teamMembers">
+              <p><strong>Empleado:</strong> {{ member.empleadoNombre }}</p>
+              <p><strong>Máquina:</strong> {{ member.maquinaNombre }}</p>
+              <p><strong>ID de Máquina:</strong> {{ member.maquinaId }}</p>
+              <p><strong>Rol:</strong> {{ member.rol }}</p>
+              <p><strong>Hora de Inicio:</strong> {{ member.horaInicio }}</p>
+              <p><strong>Hora de Fin:</strong> {{ member.horaFin }}</p>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Botones del modal -->
+        <div class="modal-buttons">
+          <button class="btn btn-primary" (click)="closeDetailsModal()">Cerrar</button>
+        </div>
+      </div>
+    </div>
 
     <app-project-modal-table
       *ngIf="isModalOpen"

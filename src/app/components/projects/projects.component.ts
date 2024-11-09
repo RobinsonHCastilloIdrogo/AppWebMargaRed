@@ -6,6 +6,8 @@ import {
   query,
   orderBy,
   collectionData,
+  getDocs,
+  doc,
   Timestamp,
 } from '@angular/fire/firestore';
 import { Project } from '../../models/projects.model';
@@ -33,7 +35,10 @@ export class ProjectComponent implements OnInit {
   projects: Project[] = [];
   isModalOpen: boolean = false;
   isProjectModalOpen: boolean = false;
-  newProjectName: string = ''; // Propiedad para el nombre del nuevo proyecto
+  isDetailsModalOpen: boolean = false; // Modal de detalles
+  selectedProject: Project | null = null; // Proyecto seleccionado
+  teamMembers: any[] = []; // Miembros del equipo
+  newProjectName: string = ''; // Nombre del nuevo proyecto
 
   constructor(private firestore: Firestore, private cdr: ChangeDetectorRef) {}
 
@@ -80,9 +85,46 @@ export class ProjectComponent implements OnInit {
   toggleProjectModal(): void {
     this.isProjectModalOpen = !this.isProjectModalOpen;
   }
+
+  // Función para abrir el modal de detalles del proyecto
+  async viewProjectDetails(project: Project): Promise<void> {
+    this.selectedProject = project;
+    this.teamMembers = await this.getTeamMembers(project.id); // Obtener miembros del equipo
+    this.isDetailsModalOpen = true;
+  }
+
+  // Función para obtener los miembros del equipo desde la subcolección 'team'
+  async getTeamMembers(projectId: string): Promise<any[]> {
+    try {
+      const teamCollection = collection(this.firestore, `projects/${projectId}/team`);
+      const teamSnapshot = await getDocs(teamCollection);
+      return teamSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          horaInicio: data['horaInicio'],
+          horaFin: data['horaFin'],
+          maquinaId: data['maquina']?.['id'], // Acceso con corchetes
+          maquinaNombre: data['maquina']?.['nombre'], // Acceso con corchetes
+          empleadoNombre: data['nombre'], // Acceso con corchetes
+          rol: data['rol'], // Acceso con corchetes
+        };
+      });
+    } catch (error) {
+      console.error('Error al cargar los miembros del equipo:', error);
+      return [];
+    }
+  }
+  
+
   handleProjectAdded(): void {
-    this.loadProjects(); // Actualiza la lista de proyectos
-    this.toggleProjectModal(); // Cierra el modal
+    this.loadProjects(); // Actualizar la lista de proyectos
+    this.toggleProjectModal(); // Cerrar el modal de nuevo proyecto
+  }
+
+  closeDetailsModal(): void {
+    this.isDetailsModalOpen = false;
+    this.selectedProject = null; // Limpiar el proyecto seleccionado
+    this.teamMembers = []; // Limpiar los miembros del equipo
   }
 
   addNewProject(): void {
