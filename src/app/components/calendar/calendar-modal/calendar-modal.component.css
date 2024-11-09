@@ -71,6 +71,49 @@
   box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
 }
 
+/* Estilo para el campo de búsqueda de maquinaria */
+#machine-search-input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  font-size: 1rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  background-color: #edf2f7;
+  transition: border-color 0.3s ease;
+}
+
+#machine-search-input:focus {
+  border-color: #63b3ed;
+  background-color: #e6fffa;
+  outline: none;
+}
+
+/* Estilo para la lista desplegable */
+.dropdown-list {
+  position: relative;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  margin-top: 5px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para los elementos de la lista desplegable */
+.dropdown-item {
+  padding: 10px;
+  font-size: 1rem;
+  color: #4a5568;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #e2e8f0;
+}
+
 /* Estilo para los botones del modal */
 .modal-footer {
   display: flex;

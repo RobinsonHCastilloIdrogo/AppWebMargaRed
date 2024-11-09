@@ -28,6 +28,8 @@ interface ProjectAssignment {
   role: string;
   startHour: string | null;
   endHour: string | null;
+  machineSearchQuery?: string;
+  filteredMachines: Machine[]; // Inicializa como una lista vacía
 }
 
 @Component({
@@ -45,15 +47,13 @@ export class CalendarModalComponent implements OnInit {
 
   // Search filters
   employeeSearchTerm: string = '';
-  machineSearchTerm: string = '';
 
   // Lists for original data
   allEmployees: Employee[] = [];
-  allMachines: string[] = [];
+  allMachines: Machine[] = [];
 
   // Filtered lists
   employees: Employee[] = [];
-  machines: string[] = [];
   projects: Project[] = [];
 
   // Modal state variables
@@ -85,23 +85,29 @@ export class CalendarModalComponent implements OnInit {
       this.employees = [...this.allEmployees];
       return;
     }
-    
+
     const searchTerm = this.employeeSearchTerm.toLowerCase().trim();
-    this.employees = this.allEmployees.filter(employee => 
+    this.employees = this.allEmployees.filter((employee) =>
       employee.name.toLowerCase().includes(searchTerm)
     );
   }
 
-  filterMachines(): void {
-    if (!this.machineSearchTerm.trim()) {
-      this.machines = [...this.allMachines];
-      return;
-    }
-    
-    const searchTerm = this.machineSearchTerm.toLowerCase().trim();
-    this.machines = this.allMachines.filter(machine => 
-      machine.toLowerCase().includes(searchTerm)
-    );
+  filterMachinesForAssignment(assignment: ProjectAssignment): void {
+    const query = assignment.machineSearchQuery?.toLowerCase().trim() || '';
+    assignment.filteredMachines = query
+      ? this.allMachines.filter(
+          (machine) =>
+            machine.name.toLowerCase().includes(query) ||
+            machine.id.toString().includes(query)
+        )
+      : [];
+  }
+
+  selectMachine(assignment: ProjectAssignment, machine: Machine): void {
+    assignment.machineId = machine.id;
+    assignment.machineName = machine.name; // Asigna el nombre de la máquina seleccionada al objeto de asignación
+    assignment.machineSearchQuery = machine.name; // Muestra el nombre de la máquina seleccionada en el campo de búsqueda
+    assignment.filteredMachines = []; // Oculta la lista desplegable
   }
 
   loadEmployees(): void {
@@ -125,19 +131,18 @@ export class CalendarModalComponent implements OnInit {
     this.firebaseService.getMachines().subscribe({
       next: (machines) => {
         this.allMachines = [];
-        machines.forEach(doc => {
+        machines.forEach((doc) => {
           const machineData = doc.machines;
           machineData.forEach((machine: Machine) => {
-            this.allMachines.push(machine.id);
+            this.allMachines.push(machine);
           });
         });
-        this.machines = [...this.allMachines];
-        console.log('Máquinas cargadas:', this.machines);
+        console.log('Máquinas cargadas:', this.allMachines);
       },
       error: (err) => console.error('Error al cargar maquinarias:', err),
     });
   }
-  
+
   getAsignacionCollectionName(): string {
     const fecha = new Date();
     const mes = fecha.toLocaleString('default', { month: 'long' });
@@ -194,6 +199,8 @@ export class CalendarModalComponent implements OnInit {
         role: 'Obrero',
         startHour: null,
         endHour: null,
+        machineSearchQuery: '', // Inicialización de la búsqueda
+        filteredMachines: [], // Inicialización de lista vacía
       });
     }
     this.selectedAssignmentIndex = null;
@@ -202,7 +209,8 @@ export class CalendarModalComponent implements OnInit {
 
   selectEmployeeAssignment(): void {
     if (this.selectedAssignmentIndex !== null) {
-      this.selectedAssignment = this.projectAssignments[this.selectedAssignmentIndex];
+      this.selectedAssignment =
+        this.projectAssignments[this.selectedAssignmentIndex];
     }
   }
 
@@ -214,8 +222,8 @@ export class CalendarModalComponent implements OnInit {
 
   getMachineName(machineId: string | null): string {
     if (!machineId) return '';
-    const machine = this.allMachines.find(m => m === machineId);
-    return machine ? machine : '';
+    const machine = this.allMachines.find((m) => m.id === machineId);
+    return machine ? machine.name : '';
   }
 
   guardarAsignacion(): void {
@@ -237,7 +245,11 @@ export class CalendarModalComponent implements OnInit {
   }
 
   private validateEventFields(): boolean {
-    if (!this.eventName || !this.selectedDate || this.projectAssignments.length < 1) {
+    if (
+      !this.eventName ||
+      !this.selectedDate ||
+      this.projectAssignments.length < 1
+    ) {
       Swal.fire({
         icon: 'warning',
         title: 'Campos incompletos',
@@ -246,20 +258,18 @@ export class CalendarModalComponent implements OnInit {
       return false;
     }
 
-    // Validar que se haya seleccionado un empleado
     const hasEmployee = this.projectAssignments.some(
-    (assignment) => assignment.employeeId !== null
+      (assignment) => assignment.employeeId !== null
     );
-      if (!hasEmployee) {
+    if (!hasEmployee) {
       Swal.fire({
         icon: 'warning',
         title: 'Empleado no seleccionado',
         text: 'Debe seleccionar al menos un empleado para guardar el evento.',
       });
-    return false;
+      return false;
     }
 
-    // Check if employees are already assigned
     const selectedEmployeeIds = new Set<string>();
     for (const assignment of this.projectAssignments) {
       const employeeId = assignment.employeeId;
@@ -267,7 +277,9 @@ export class CalendarModalComponent implements OnInit {
         Swal.fire({
           icon: 'warning',
           title: 'Empleado duplicado',
-          text: `El empleado ${this.getEmployeeName(employeeId)} ya ha sido asignado.`,
+          text: `El empleado ${this.getEmployeeName(
+            employeeId
+          )} ya ha sido asignado.`,
         });
         return false;
       }
@@ -276,7 +288,6 @@ export class CalendarModalComponent implements OnInit {
       }
     }
 
-     // Validar que el rol "Operador" tenga una máquina asignada
     for (const assignment of this.projectAssignments) {
       if (assignment.role === 'Operador' && !assignment.machineId) {
         Swal.fire({
@@ -288,7 +299,6 @@ export class CalendarModalComponent implements OnInit {
       }
     }
 
-    // Check if machines are already assigned
     const selectedMachineIds = new Set<string>();
     for (const assignment of this.projectAssignments) {
       const machineId = assignment.machineId;
@@ -296,7 +306,9 @@ export class CalendarModalComponent implements OnInit {
         Swal.fire({
           icon: 'warning',
           title: 'Máquina duplicada',
-          text: `La máquina ${this.getMachineName(machineId)} ya ha sido asignada.`,
+          text: `La máquina ${this.getMachineName(
+            machineId
+          )} ya ha sido asignada.`,
         });
         return false;
       }
@@ -305,7 +317,6 @@ export class CalendarModalComponent implements OnInit {
       }
     }
 
-    // Check if start and end times are filled
     for (const assignment of this.projectAssignments) {
       if (!assignment.startHour || !assignment.endHour) {
         Swal.fire({
@@ -332,7 +343,7 @@ export class CalendarModalComponent implements OnInit {
         horaFin: assignment.endHour,
       })),
     };
-  
+
     this.firebaseService
       .addEventoConId(evento, this.eventName)
       .then(() => {
@@ -358,7 +369,6 @@ export class CalendarModalComponent implements OnInit {
       return false;
     }
 
-    // Validar que se haya seleccionado un empleado
     const hasEmployee = this.projectAssignments.some(
       (assignment) => assignment.employeeId !== null
     );
@@ -371,7 +381,6 @@ export class CalendarModalComponent implements OnInit {
       return false;
     }
 
-    // Check if employees are already assigned
     const selectedEmployeeIds = new Set<string>();
     for (let i = 0; i < this.employeeCount; i++) {
       const employeeId = this.projectAssignments[i]?.employeeId;
@@ -379,7 +388,9 @@ export class CalendarModalComponent implements OnInit {
         Swal.fire({
           icon: 'warning',
           title: 'Empleado duplicado',
-          text: `El empleado ${this.getEmployeeName(employeeId)} ya ha sido asignado.`,
+          text: `El empleado ${this.getEmployeeName(
+            employeeId
+          )} ya ha sido asignado.`,
         });
         return false;
       }
@@ -388,7 +399,6 @@ export class CalendarModalComponent implements OnInit {
       }
     }
 
-    // Validar que si el rol es "Operador", se haya asignado una máquina
     for (let i = 0; i < this.employeeCount; i++) {
       const assignment = this.projectAssignments[i];
       if (assignment.role === 'Operador' && !assignment.machineId) {
@@ -401,7 +411,6 @@ export class CalendarModalComponent implements OnInit {
       }
     }
 
-    // Check if machines are already assigned
     const selectedMachineIds = new Set<string>();
     for (let i = 0; i < this.employeeCount; i++) {
       const machineId = this.projectAssignments[i]?.machineId;
@@ -409,7 +418,9 @@ export class CalendarModalComponent implements OnInit {
         Swal.fire({
           icon: 'warning',
           title: 'Máquina duplicada',
-          text: `La máquina ${this.getMachineName(machineId)} ya ha sido asignada.`,
+          text: `La máquina ${this.getMachineName(
+            machineId
+          )} ya ha sido asignada.`,
         });
         return false;
       }
@@ -418,10 +429,14 @@ export class CalendarModalComponent implements OnInit {
       }
     }
 
-    // Check if all fields are filled, including hours
     for (let i = 0; i < this.employeeCount; i++) {
       const assignment = this.projectAssignments[i];
-      if (!assignment.employeeId || !assignment.role || !assignment.startHour || !assignment.endHour) {
+      if (
+        !assignment.employeeId ||
+        !assignment.role ||
+        !assignment.startHour ||
+        !assignment.endHour
+      ) {
         Swal.fire({
           icon: 'warning',
           title: 'Campos incompletos',
@@ -435,41 +450,41 @@ export class CalendarModalComponent implements OnInit {
   }
 
   private guardarProyecto(): void {
-  const proyecto = {
-    proyectoId: this.selectedProject,
-    nombreProyecto: this.projects.find(
-      (proj) => proj.id === this.selectedProject
-    )?.name,
-    descripcion: this.descripcionProyecto,
-    fecha: this.selectedDate,
-    empleados: this.projectAssignments.map((assignment) => ({
-      nombre: this.getEmployeeName(assignment.employeeId),
-      rol: assignment.role,
-      horaInicio: assignment.startHour,
-      horaFin: assignment.endHour,
-      maquina: assignment.machineId
-        ? {
-            id: assignment.machineId,
-            nombre: this.getMachineName(assignment.machineId),
-          }
-        : null,
-    })),
-  };
+    const proyecto = {
+      proyectoId: this.selectedProject,
+      nombreProyecto: this.projects.find(
+        (proj) => proj.id === this.selectedProject
+      )?.name,
+      descripcion: this.descripcionProyecto,
+      fecha: this.selectedDate,
+      empleados: this.projectAssignments.map((assignment) => ({
+        nombre: this.getEmployeeName(assignment.employeeId),
+        rol: assignment.role,
+        horaInicio: assignment.startHour,
+        horaFin: assignment.endHour,
+        maquina: assignment.machineId
+          ? {
+              id: assignment.machineId,
+              nombre: this.getMachineName(assignment.machineId),
+            }
+          : null,
+      })),
+    };
 
-  this.firebaseService
-    .addProyectoConId(proyecto, this.selectedProject)
-    .then(() => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Proyecto guardado con éxito',
-        text: 'El proyecto ha sido guardado exitosamente.',
+    this.firebaseService
+      .addProyectoConId(proyecto, this.selectedProject)
+      .then(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Proyecto guardado con éxito',
+          text: 'El proyecto ha sido guardado exitosamente.',
+        });
+        this.modalRef.hide();
+        this.assignmentSaved.emit();
+      })
+      .catch((error) => {
+        console.error('Error al guardar el proyecto:', error);
       });
-      this.modalRef.hide();
-      this.assignmentSaved.emit();
-    })
-    .catch((error) => {
-      console.error('Error al guardar el proyecto:', error);
-    });
   }
 
   updateAssignmentRole(index: number, role: string): void {
