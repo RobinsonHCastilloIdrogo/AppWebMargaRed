@@ -9,7 +9,8 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { CommonModule } from '@angular/common';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
 import { Subscription } from 'rxjs';
-import { Router } from '@angular/router'; // Asegúrate de importar Router
+import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-calendar',
@@ -18,7 +19,6 @@ import { Router } from '@angular/router'; // Asegúrate de importar Router
     FullCalendarModule,
     CommonModule,
     SharedDashboardComponent,
-    EventDetailsModalComponent,
   ],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.css'],
@@ -26,8 +26,8 @@ import { Router } from '@angular/router'; // Asegúrate de importar Router
 export class CalendarComponent implements OnInit, OnDestroy {
   calendarOptions: any = {};
   assignments: any[] = [];
-  employees: any[] = []; // Almacena los empleados cargados
-  machines: any[] = []; // Almacena las máquinas cargadas
+  employees: any[] = [];
+  machines: any[] = [];
   bsModalRef?: BsModalRef;
   eventSubscription?: Subscription;
 
@@ -35,13 +35,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
     private modalService: BsModalService,
     private firebaseService: FirebaseService,
     private cd: ChangeDetectorRef,
-    private router: Router // Agrega Router como una dependencia
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.initializeCalendarOptions();
     this.loadEmployeesAndMachines();
-    this.loadAssignments(); // Cargar las asignaciones para el mes actual
+    this.loadAssignments();
 
     this.eventSubscription = this.firebaseService.nuevoEvento$.subscribe(
       (evento) => {
@@ -55,13 +55,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.eventSubscription?.unsubscribe();
   }
 
-  // Función para obtener el nombre del documento en base al mes y año actual
   getAssignmentDocumentName(): string | null {
     try {
       const fecha = new Date();
       const year = fecha.getFullYear();
-      const month = (fecha.getMonth() + 1).toString().padStart(2, '0'); // Asegura que el mes sea de 2 dígitos
-      return `${year}-${month}`; // Formato YYYY-MM
+      const month = (fecha.getMonth() + 1).toString().padStart(2, '0');
+      return `${year}-${month}`;
     } catch (error) {
       console.error('Error al generar el nombre del documento:', error);
       return null;
@@ -80,16 +79,16 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   loadAssignments(): void {
     const documentName = this.getAssignmentDocumentName();
-
+  
     if (!documentName) {
       console.error('El nombre del documento no es válido:', documentName);
       return;
     }
-
+  
     this.firebaseService.getAssignments(documentName).subscribe(
       (assignments) => {
         console.log('Asignaciones cargadas desde Firestore:', assignments);
-
+  
         if (assignments && assignments.length > 0) {
           this.assignments = assignments.map((assignment: any) => ({
             id: assignment.id,
@@ -104,7 +103,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
               projectId: assignment.id, // Agrega el ID del proyecto para la navegación si es un proyecto
             },
           }));
-
+  
           this.updateCalendarEvents();
         } else {
           console.warn('No se encontraron asignaciones para el mes actual');
@@ -121,7 +120,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       ...this.calendarOptions,
       events: [...this.assignments],
     };
-    this.cd.detectChanges(); // Forzar detección de cambios
+    this.cd.detectChanges();
   }
 
   addEventToCalendar(event: any): void {
@@ -131,8 +130,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.assignments.push({
         ...event,
         title: event.nombre || event.nombreProyecto || 'Sin nombre',
-        start: event.fecha, // Asegúrate de que sea una fecha válida
-        extendedProps: event, // Pasar las propiedades extendidas
+        start: event.fecha,
+        extendedProps: event,
       });
       this.updateCalendarEvents();
     } else {
@@ -141,15 +140,18 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   initializeCalendarOptions(): void {
+    const currentDate = new Date();
+  
     this.calendarOptions = {
       initialView: 'dayGridMonth',
       plugins: [dayGridPlugin, interactionPlugin],
       selectable: true,
-      dateClick: this.handleDateClick.bind(this),
-      events: this.assignments,
+      events: this.assignments,  // Mantener los eventos cargados sin restricciones
+      dateClick: (arg: any) => this.handleDateClick(arg, currentDate),  // Llamar al nuevo método para manejar el clic
       eventClick: this.handleEventClick.bind(this),
     };
   }
+  
 
   getEmployeeName(employeeId: string): string {
     const employee = this.employees.find((emp) => emp.id === employeeId);
@@ -160,26 +162,24 @@ export class CalendarComponent implements OnInit, OnDestroy {
     const machine = this.machines.find((mac) => mac.id === machineId);
     return machine ? machine.name : 'Maquinaria desconocida';
   }
+
   handleEventClick(arg: any): void {
     const { type, nombre, descripcion, fecha, empleados } = arg.event.extendedProps;
     const eventId = arg.event.id;
-  
-    // Verificar si el ID del evento está definido
+
     if (!eventId) {
       console.error('No se pudo obtener el ID del evento.');
       return;
     }
-  
-    // Verificar si el tipo de asignación está definido
+
     if (!type) {
       console.error('No se pudo determinar el tipo de asignación.');
       return;
     }
-  
+
     if (type === 'event') {
-      // Lógica para los eventos: obtener detalles y abrir modal
       this.firebaseService.getEventById(eventId).subscribe(
-        (eventDetails: any) => { // Especifica el tipo
+        (eventDetails: any) => {
           if (eventDetails) {
             const initialState = {
               eventDetails: {
@@ -189,11 +189,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 empleados: eventDetails.empleados || empleados,
               },
             };
-  
+
             this.bsModalRef = this.modalService.show(EventDetailsModalComponent, {
               initialState,
             });
-  
+
             if (this.bsModalRef.content) {
               this.bsModalRef.content.closeBtnName = 'Cerrar';
             } else {
@@ -203,21 +203,18 @@ export class CalendarComponent implements OnInit, OnDestroy {
             console.error('No se encontró el evento con ID:', eventId);
           }
         },
-        (error: any) => { // Especifica el tipo
+        (error: any) => {
           console.error('Error al cargar los detalles del evento:', error);
         }
       );
     } else if (type === 'project') {
-      // Lógica para los proyectos: redirigir al project-dashboard
       const projectId = arg.event.id || arg.event.extendedProps.projectId;
-  
-      // Verificar si el ID del proyecto está definido
+
       if (!projectId) {
         console.error('El ID del proyecto no está definido.');
         return;
       }
-  
-      // Navegar al project-dashboard pasando el ID del proyecto
+
       this.router
         .navigate([`/projects/${projectId}`])
         .then((navigated: boolean) => {
@@ -232,26 +229,40 @@ export class CalendarComponent implements OnInit, OnDestroy {
       console.error('Tipo de asignación desconocido:', type);
     }
   }
-  
 
-  handleDateClick(arg: any): void {
-    // Crear el estado inicial para el modal con la fecha seleccionada
-    const initialState = { selectedDate: arg.dateStr };
-  
-    // Mostrar el modal de creación de evento
-    this.bsModalRef = this.modalService.show(CalendarModalComponent, {
-      initialState,
-    });
-  
-    // Verificar si `bsModalRef` y su contenido existen antes de intentar suscribirse
-    if (this.bsModalRef?.content) {
-      // Suscribirse al evento `assignmentSaved`
-      this.bsModalRef.content.assignmentSaved.subscribe(() => {
-        this.loadAssignments(); // Cargar nuevamente las asignaciones después de guardar
+  handleDateClick(arg: any, currentDate: Date): void {
+    // Establecemos el formato de fecha para hacer la comparación más sencilla
+    const clickedDate = arg.date;
+    
+    // Convertir la fecha a la medianoche para comparar solo el día, sin la parte de la hora
+    const currentDateAtMidnight = new Date(currentDate.setHours(0, 0, 0, 0));
+    const clickedDateAtMidnight = new Date(clickedDate.setHours(0, 0, 0, 0));
+    
+    // Verificar si la fecha seleccionada es pasada (solo comparar el día)
+    if (clickedDateAtMidnight < currentDateAtMidnight) {
+      // Si es una fecha pasada, mostrar un mensaje con SweetAlert2
+      Swal.fire({
+        icon: 'warning',
+        title: 'Fecha no válida',
+        text: 'No puedes agregar eventos en fechas pasadas. Solo puedes agregar en la fecha actual o futuras.',
+        confirmButtonText: 'Aceptar',
       });
+      return;  // No hacer nada si se hace clic en una fecha pasada
     } else {
-      console.error('El modal o el evento assignmentSaved no están definidos.');
+      // Si es la fecha actual o futura, permitir agregar un nuevo evento
+      const initialState = { selectedDate: arg.dateStr };
+  
+      this.bsModalRef = this.modalService.show(CalendarModalComponent, {
+        initialState,
+      });
+  
+      if (this.bsModalRef?.content) {
+        this.bsModalRef.content.assignmentSaved.subscribe(() => {
+          this.loadAssignments(); // Cargar las asignaciones después de guardar
+        });
+      } else {
+        console.error('El modal o el evento assignmentSaved no están definidos.');
+      }
     }
   }
-  
 }

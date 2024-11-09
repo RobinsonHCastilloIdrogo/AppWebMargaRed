@@ -23,13 +23,12 @@
           <table class="employee-table">
             <thead>
               <tr>
-                <th>DNI</th>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Cargo</th>
-                <th>Área</th>
-                <th>Fecha de Ingreso</th>
-                <th>Acciones</th>
+                <th class="id-column">ID</th>
+                <th class="dni-column">DNI</th>
+                <th class="name-column">Nombre</th>
+                <th class="worker-type-column">Tipo</th>
+                <th class="entry-date-column">Fecha de Ingreso</th>
+                <th class="actions-column">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -38,12 +37,11 @@
                   *ngFor="let employee of filteredEmployees(employees)"
                 >
                   <tr>
-                    <td>{{ employee.dni }}</td>
-                    <td class="truncate">{{ employee.name }}</td>
-                    <td>{{ employee.workerType }}</td>
-                    <td>{{ employee.position }}</td>
-                    <td>{{ employee.area }}</td>
-                    <td>{{ employee.entryDate | date }}</td>
+                    <td class="id-column">{{ employee.id }}</td>
+                    <td class="dni-column">{{ employee.dni }}</td>
+                    <td class="name-column">{{ employee.name | titlecase}}</td>
+                    <td class="worker-type-column">{{ employee.workerType }}</td>
+                    <td class="entry-date-column">{{ employee.entryDate | date }}</td>
                     <td class="actions-column">
                       <!-- Botón Editar -->
                       <button

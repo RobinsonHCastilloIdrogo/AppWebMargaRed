@@ -27,7 +27,6 @@ Chart.register(...registerables);
     NgFor,
     DatePipe,
     FormsModule,
-    ProjectDetailsComponent,
     NgApexchartsModule // Añadir aquí
   ],
   styleUrls: ['./dashboard.component.css'],

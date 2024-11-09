@@ -65,6 +65,7 @@
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+  table-layout: fixed;
 }
 
 /* Ajustar el estilo de las celdas para reducir el alto de las filas */
@@ -73,6 +74,31 @@
   padding: 8px 12px; /* Reducir el padding para hacer filas más compactas */
   line-height: 1.4; /* Ajustar la altura de línea */
   vertical-align: middle; /* Centrar verticalmente el contenido */
+  text-align: left; /* Asegura que el texto esté alineado a la izquierda */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* Prevenir que el texto se divida en varias líneas */
+}
+
+/* Definir un ancho pequeño y ajustable para la columna ID */
+.employee-table .id-column,
+.employee-table .dni-column {
+  width: 100px; /* Puedes ajustar este valor según sea necesario */
+  max-width: 100px; /* El máximo ancho también se establece aquí */
+  min-width: 60px; /* El ancho mínimo para que no se haga más pequeño de lo deseado */
+  overflow: hidden; /* Esconde cualquier contenido que exceda */
+}
+
+/* Asegura que las demás columnas ocupen el espacio restante */
+.employee-table .worker-type-column,
+.employee-table .entry-date-column,
+.employee-table .actions-column{
+  width: auto; /* Permite que el ancho se adapte automáticamente */
+  flex: 1; /* Estas columnas ocuparán el espacio restante de manera equitativa */
+}
+
+.employee-table .name-column{
+  width: 650px;
 }
 
 /* Mantener el estilo general */
