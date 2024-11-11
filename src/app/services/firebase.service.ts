@@ -75,7 +75,6 @@ export class FirebaseService {
     return docData(doc(this.firestore, eventPath), { idField: 'id' });
   }
 
-  // Nuevo método: Agregar un evento usando un ID específico
   addEventoConId(evento: any, eventId: string): Promise<void> {
     const documentName = this.obtenerNombreDocumento(); // Documento del mes actual
     const eventoData = {
@@ -88,15 +87,16 @@ export class FirebaseService {
         rol: emp.rol,
         horaInicio: emp.horaInicio,
         horaFin: emp.horaFin,
+        maquina: emp.maquina,  // Incluye la máquina aquí (debe existir en `emp`)
       })),
     };
-
+  
     // Utiliza `setDoc` para agregar el evento con un ID específico
     const eventoDocRef = doc(
       this.firestore,
       `assignments/${documentName}/events/${eventId}`
     );
-
+  
     return setDoc(eventoDocRef, eventoData)
       .then(() => {
         this.emitirEvento({ id: eventId, ...eventoData });
@@ -105,7 +105,7 @@ export class FirebaseService {
         console.error('Error al agregar evento:', error);
         throw error;
       });
-  }
+  }  
 
   // Nuevo método: Agregar un proyecto usando un ID específico
   addProyectoConId(proyecto: any, proyectoId: string): Promise<void> {

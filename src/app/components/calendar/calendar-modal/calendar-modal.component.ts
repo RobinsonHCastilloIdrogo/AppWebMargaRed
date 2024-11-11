@@ -332,18 +332,29 @@ export class CalendarModalComponent implements OnInit {
   }
 
   private guardarEvento(): void {
+    // Crear el objeto del evento con las máquinas asignadas
     const evento = {
       nombre: this.eventName,
       descripcion: this.eventDescription,
       fecha: this.selectedDate,
-      empleados: this.projectAssignments.map((assignment) => ({
-        nombre: this.getEmployeeName(assignment.employeeId),
-        rol: assignment.role,
-        horaInicio: assignment.startHour,
-        horaFin: assignment.endHour,
-      })),
+      cantidadEmpleados: this.projectAssignments.length,
+      empleados: this.projectAssignments.map((assignment) => {
+        const maquina = assignment.machineId ? assignment.machineId : null;  // Usamos solo el ID de la máquina
+  
+        return {
+          nombre: this.getEmployeeName(assignment.employeeId),
+          rol: assignment.role,
+          horaInicio: assignment.startHour,
+          horaFin: assignment.endHour,
+          maquina: maquina  // Solo guardamos el ID de la máquina
+        };
+      })
     };
-
+  
+    // Verificamos la estructura final del objeto
+    console.log('Evento para guardar:', evento);
+  
+    // Ahora guardamos el evento en Firebase
     this.firebaseService
       .addEventoConId(evento, this.eventName)
       .then(() => {
@@ -358,6 +369,7 @@ export class CalendarModalComponent implements OnInit {
         console.error('Error al guardar el evento:', error);
       });
   }
+  
 
   private validateProjectFields(): boolean {
     if (!this.selectedProject || !this.selectedDate || this.employeeCount < 1) {
