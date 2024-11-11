@@ -11,7 +11,7 @@ import { NgIf, NgFor, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { query, where } from 'firebase/firestore';
 import { ProjectDetailsComponent } from '../project-dashboard/project-details/project-details.component';
-import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ApexDataLabels, ApexLegend, ApexAxisChartSeries, ApexXAxis, ApexTitleSubtitle } from 'ng-apexcharts';
+import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ApexDataLabels, ApexLegend, ApexAxisChartSeries, ApexXAxis, ApexTitleSubtitle, ApexYAxis, ApexStroke, ApexMarkers, ApexFill } from 'ng-apexcharts';
 import { NgApexchartsModule } from 'ng-apexcharts';
 
 @Component({
@@ -52,38 +52,107 @@ export class DashboardComponent implements OnInit {
 
   // Inicializar lineChartOptions
   lineChartOptions: {
-    series: ApexAxisChartSeries;
-    chart: ApexChart;
-    xaxis: ApexXAxis;
-    title: ApexTitleSubtitle;
-  } = {
-    series: [], // Aquí puedes agregar tus datos de la serie
-    chart: {
-      type: 'line',
-      height: '100%',
-      toolbar: { // Añadir la configuración de la barra de herramientas
-        show: true, // Mostrar la barra de herramientas
-        tools: {
-          download: true, // Ocultar el botón de descarga
-          selection: true, // Ocultar el botón de selección
-          zoom: true, // Ocultar el botón de zoom (lupa)
-          pan: false, // Ocultar el botón de pan (mano)
-          reset: true // Mantener el botón de reinicio (casa)
-        },
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  xaxis: ApexXAxis;
+  yaxis: ApexYAxis | ApexYAxis[];
+  title: ApexTitleSubtitle;
+  stroke: ApexStroke;  // Added stroke
+    markers: ApexMarkers; // Added markers
+    colors: string[];     // Added colors
+    fill: ApexFill;       // Added fill
+} = {
+  series: [
+    {
+      name: 'Litros de Combustible',
+      data: this.monthlyFuelData,
+    },
+    {
+      name: 'Costo Total',
+      data: this.monthlyFuelData.map(litros => litros * 4.91),
+    },
+  ],
+  chart: {
+    type: 'line',
+    height: '100%',
+    toolbar: {
+      show: true,
+      tools: {
+        download: true,
+        selection: true,
+        zoom: true,
+        pan: false,
+        reset: true
       },
     },
+  },
+  title: {
+    text: 'Consumo de Combustible a lo Largo del Tiempo',
+    align: 'left',
+  },
+  xaxis: {
+    categories: [
+      'Enero', 'Febrero', 'Marzo', 'Abril',
+      'Mayo', 'Junio', 'Julio', 'Agosto',
+      'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ],
     title: {
-      text: 'Consumo de Combustible a lo Largo del Tiempo',
-      align: 'left',
+      text: 'Meses', // Subtítulo para el eje X
+    }
+  },
+  yaxis: [
+    {
+      title: {
+        text: 'Combustible (L)', // Subtítulo para el eje Y izquierdo
+        style: {
+          color: '#008FFB', // Cambia el color aquí
+          fontSize: '14px',
+          fontWeight: 'bold',
+        }
+      },
+      labels: {
+        style: {
+          colors: '#008FFB', // Coincide con el color del título
+        },
+        formatter: function (val) {
+          return val.toFixed(0); // Mostrar valores enteros
+        }
+      }
     },
-    xaxis: {
-      categories: [
-        'Enero', 'Febrero', 'Marzo', 'Abril', 
-        'Mayo', 'Junio', 'Julio', 'Agosto', 
-        'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-      ],
-    },
-  };  
+    {
+      opposite: true, // Muestra este eje Y al lado derecho
+      title: {
+        text: 'Costo Total', // Subtítulo para el eje Y derecho
+        style: {
+          color: '#00E396', // Cambia el color aquí
+          fontSize: '14px',
+          fontWeight: 'bold',
+        }
+      },
+      labels: {
+        style: {
+          colors: '#00E396', // Coincide con el color del título
+        },
+        formatter: function (val) {
+          return `$${val.toFixed(2)}`;
+        }
+      }
+    }
+  ],
+  stroke: {
+    width: 3,  // Width of the line
+    curve: 'smooth',  // Smooth curve
+  },
+  markers: {
+    size: 5,  // Marker size
+    colors: ['#008FFB', '#00E396'],  // Marker colors for each series
+    strokeWidth: 2,  // Stroke width for markers
+  },
+  colors: ['#008FFB', '#00E396'],  // Line colors for the two series
+  fill: {
+    opacity: 0.5,  // Semi-transparent fill
+  },
+};
 
   pieChartOptions: {
     series: number[];
@@ -156,55 +225,59 @@ totalMachines: any;
   }
 
   // Método para cargar el gráfico de dona por defecto con proyectos y máquinas
-  loadDefaultPieChart() {
-    // Si no hay proyectos, mostramos un gráfico vacío
-    if (this.resources.length === 0) {
-      const defaultProjects = [{ name: 'No hay proyectos', quantity: 0 }];
-      this.assignedMachines = defaultProjects;
-      this.totalAssignedMachines = 0;
-    } else {
-      // Si hay proyectos, asignamos la cantidad de máquinas en cada uno
-      const defaultProjects = this.resources.map(async (project) => {
-        console.log(`Cargando máquinas para el proyecto: ${project.name}`);
+loadDefaultPieChart() {
+  // Si no hay proyectos, mostramos un gráfico vacío
+  if (this.resources.length === 0) {
+    const defaultProjects = [{ name: 'No hay proyectos', quantity: 0 }];
+    this.assignedMachines = defaultProjects;
+    this.totalAssignedMachines = 0;
+  } else {
+    // Si hay proyectos, asignamos la cantidad de máquinas en cada uno
+    const defaultProjects = this.resources.map(async (project) => {
+      console.log(`Cargando máquinas para el proyecto: ${project.name}`);
 
-        // Usamos la ruta correcta para acceder a los equipos del proyecto
-        const teamCollection = collection(
-          this.firestore,
-          `projects/${project.id}/team`  // Ruta correcta
-        );
-        const teamSnapshot = await getDocs(teamCollection);
-        
-        // Contamos el número de equipos (máquinas) asignadas a este proyecto
-        const machineCount = teamSnapshot.size;
-        
-        console.log(`Máquinas encontradas para el proyecto ${project.name}: ${machineCount}`);
+      // Usamos la ruta correcta para acceder a los equipos del proyecto
+      const teamCollection = collection(
+        this.firestore,
+        `projects/${project.id}/team`  // Ruta correcta
+      );
+      const teamSnapshot = await getDocs(teamCollection);
+      
+      // Contamos el número de equipos (máquinas) asignadas a este proyecto
+      const machineCount = teamSnapshot.docs.filter(doc => {
+        const machineName = doc.data()['maquina']?.nombre ?? 'Maquina sin nombre';
+        return machineName !== 'Maquina sin nombre';  // Excluir máquinas sin nombre
+      }).length;
 
-        return {
-          name: project.name,
-          quantity: machineCount,  // Cantidad de máquinas asignadas (en este caso equipos)
-        };
-      });
+      console.log(`Máquinas encontradas para el proyecto ${project.name}: ${machineCount}`);
 
-      // Esperamos a que todas las promesas sean resueltas
-      Promise.all(defaultProjects).then((projectsWithMachineCount) => {
-        console.log("Proyectos con las máquinas asignadas:", projectsWithMachineCount);
-        
-        // Asignamos los proyectos con sus respectivas cantidades de máquinas
-        this.assignedMachines = projectsWithMachineCount;
-        this.totalAssignedMachines = projectsWithMachineCount.reduce((total, project) => total + project.quantity, 0);
+      return {
+        name: project.name,
+        quantity: machineCount,  // Cantidad de máquinas asignadas (en este caso equipos)
+      };
+    });
 
-        // Si no se obtienen proyectos con máquinas asignadas, aseguramos que se agregue un valor predeterminado
-        if (this.assignedMachines.length === 0) {
-          this.assignedMachines = [{ name: 'No hay máquinas asignadas', quantity: 0 }];
-        }
+    // Esperamos a que todas las promesas sean resueltas
+    Promise.all(defaultProjects).then((projectsWithMachineCount) => {
+      console.log("Proyectos con las máquinas asignadas:", projectsWithMachineCount);
+      
+      // Asignamos los proyectos con sus respectivas cantidades de máquinas
+      this.assignedMachines = projectsWithMachineCount;
+      this.totalAssignedMachines = projectsWithMachineCount.reduce((total, project) => total + project.quantity, 0);
 
-        // Actualizamos el gráfico con los nuevos datos
-        this.updatePieChart();
-      }).catch(error => {
-        console.error("Error al cargar las máquinas:", error);
-      });
-    }
+      // Si no se obtienen proyectos con máquinas asignadas, aseguramos que se agregue un valor predeterminado
+      if (this.assignedMachines.length === 0) {
+        this.assignedMachines = [{ name: 'No hay máquinas asignadas', quantity: 0 }];
+      }
+
+      // Actualizamos el gráfico con los nuevos datos
+      this.updatePieChart();
+    }).catch(error => {
+      console.error("Error al cargar las máquinas:", error);
+    });
   }
+}
+
 
   async getCounts() {
     const employeesCollection = collection(this.firestore, '/employees');
@@ -311,25 +384,87 @@ totalMachines: any;
   }
 
   initializeLineChart() {
-    // Suponiendo que monthlyFuelData ya está definido y contiene los datos de litros
     const monthlyCostData = this.monthlyFuelData.map(litros => litros * 4.91);
   
+    // Encuentra el valor máximo entre las dos series
+    const maxValue = Math.max(
+      Math.max(...this.monthlyFuelData),        // Valor máximo de Litros de Combustible
+      Math.max(...monthlyCostData)              // Valor máximo de Costo Total
+    );
+  
+    // Configura las series
     this.lineChartOptions.series = [
       {
         name: 'Litros de Combustible',
         data: this.monthlyFuelData,
+        type: 'line',
       },
       {
         name: 'Costo Total',
-        data: monthlyCostData, // Datos del costo total calculados
+        data: monthlyCostData,
+        type: 'line',
       },
     ];
-    
-    this.lineChartOptions.xaxis.categories = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+  
+    // Configura el eje X (categorías del gráfico)
+    this.lineChartOptions.xaxis = {
+      categories: [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+      ],
+    };
+  
+    // Configura los ejes Y para que tengan el mismo rango
+    this.lineChartOptions.yaxis = [
+      {
+        title: {
+          text: 'Combustible (L)',
+          style: {
+            color: '#008FFB',
+            fontSize: '14px',
+            fontWeight: 'bold',
+          }
+        },
+        min: 0,  // Valor mínimo
+        max: maxValue,  // Valor máximo calculado
+        labels: {
+          style: {
+            colors: '#008FFB', // Coincide con el color del título
+          },
+          formatter: function (val) {
+            return val.toFixed(0);  // Mostrar valores enteros
+          }
+        }
+      },
+      {
+        opposite: true, // Coloca este eje Y en el lado derecho
+        title: {
+          text: 'Costo Total',
+          style: {
+            color: '#00E396',
+            fontSize: '14px',
+            fontWeight: 'bold',
+          }
+        },
+        labels: {
+          style: {
+            colors: '#00E396', // Coincide con el color del título
+          },
+          formatter: function (val) {
+            return `$${val.toFixed(2)}`;
+          }
+        }
+      },
     ];
-  }  
+  
+    // Configura la visualización del gráfico (sin necesidad de yAxisIndex en las series)
+    this.lineChartOptions.chart = {
+      type: 'line',
+      height: '100%',
+    };
+    
+  }
+  
 
   onResourceChange() {
     if (this.selectedResource === 'default') {
@@ -339,7 +474,7 @@ totalMachines: any;
       // Cargar máquinas asignadas para el recurso seleccionado
       this.loadAssignedMachines();
     }
-  }
+  }  
 
   async loadAssignedMachines() {
     if (!this.selectedResource) return;
@@ -351,10 +486,19 @@ totalMachines: any;
       );
       const snapshot = await getDocs(machinesCollection);
   
-      const assignedMachines = snapshot.docs.map((doc) => ({
-        name: doc.data()['maquina']?.nombre ?? 'Maquina sin nombre',
-        quantity: 1,
-      }));
+      const assignedMachines = snapshot.docs.map((doc) => {
+        const machineName = doc.data()['maquina']?.nombre ?? 'Maquina sin nombre';
+  
+        // Excluir máquinas sin nombre
+        if (machineName === 'Maquina sin nombre') {
+          return null;  // No contar esta máquina
+        }
+  
+        return {
+          name: machineName,
+          quantity: 1,
+        };
+      }).filter(machine => machine !== null);  // Filtra las máquinas con 'null'
   
       const machinesSnapshot = await getDocs(collection(this.firestore, 'machines'));
   
@@ -393,8 +537,7 @@ totalMachines: any;
     } catch (error) {
       console.error('Error al cargar máquinas asignadas:', error);
     }
-  }
-
+  }  
 
   updatePieChart() {
     const labels = this.assignedMachines.map((machine) => machine.name);
