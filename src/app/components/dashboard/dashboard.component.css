@@ -171,6 +171,20 @@ canvas {
   color: #666;
 }
 
+/* Estilo para el texto central del gráfico */
+.center-text {
+  position: absolute;
+  top: 45%;  /* Ajusta este valor para mover el texto hacia arriba o hacia abajo */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: bold;
+  color: black;
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
 /* Contenedor de la tabla con scroll */
 .table-container {
   max-height: 300px; /* Limitar la altura del contenedor */

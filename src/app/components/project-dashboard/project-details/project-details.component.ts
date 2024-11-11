@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProjectDataService } from '../../../services/project-data.service';
@@ -8,7 +8,7 @@ import { DashboardService } from '../../../services/dashboard.service'; // Impor
 
 @Component({
   selector: 'app-project-details',
-  imports: [DatePipe, CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './project-details.component.html',
   styleUrls: ['./project-details.component.css'],
   standalone: true,

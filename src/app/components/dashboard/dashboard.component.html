@@ -1,7 +1,6 @@
 <div class="dashboard-container">
   <app-shared-dashboard></app-shared-dashboard>
   <div class="dashboard-content">
-    <!-- Gráfico de Recursos -->
     <div class="card chart-card large-chart">
       <div class="title-selector-container">
         <h2>Gráfico de Recursos</h2>
@@ -10,13 +9,29 @@
           [(ngModel)]="selectedResource"
           (change)="onResourceChange()"
         >
+          <option value="default">General</option>
           <option *ngFor="let resource of resources" [value]="resource.id">
-            {{ resource.name }}
+          {{ resource.name }}
           </option>
         </select>
       </div>
       <div class="chart-container">
-        <canvas id="myPieChart" width="100" height="100"></canvas>
+        <!-- Gráfico de Pastel con ApexCharts -->
+        <apx-chart
+        [series]="pieChartOptions.series"
+        [chart]="pieChartOptions.chart"
+        [labels]="pieChartOptions.labels"
+        [responsive]="pieChartOptions.responsive"
+        [legend]="pieChartOptions.legend"
+        [dataLabels]="pieChartOptions.dataLabels"
+        [fill]="pieChartOptions.fill"
+        style="width: 100%; height: 100%"
+        ></apx-chart>
+        <div class="center-text">
+          <p class="total-machines" *ngIf="totalAssignedMachines > 0">
+            TOTAL: 
+            <p>{{ totalAssignedMachines }}</p>
+        </div>
       </div>
     </div>
 
