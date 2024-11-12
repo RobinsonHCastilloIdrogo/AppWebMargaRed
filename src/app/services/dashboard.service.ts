@@ -25,26 +25,33 @@ export class DashboardService {
   async loadProjectStatusCounts() {
     try {
       const projectsCollection = collection(this.firestore, 'projects');
+      const projectsSnapshot = await getDocs(projectsCollection);
 
-      const inProgressQuery = query(
-        projectsCollection,
-        where('status', '==', 'En curso')
-      );
-      const completedQuery = query(
-        projectsCollection,
-        where('status', '==', 'Finalizado')
-      );
+      let projectsInProgress = 0;
+      let projectsCompleted = 0;
 
-      const [inProgressSnapshot, completedSnapshot] = await Promise.all([
-        getDocs(inProgressQuery),
-        getDocs(completedQuery),
-      ]);
+      for (const projectDoc of projectsSnapshot.docs) {
+        // Cambiar la ruta para buscar dentro de la subcolección `details`
+        const detailsCollection = collection(
+          this.firestore,
+          `projects/${projectDoc.id}/details`
+        );
+        const detailsSnapshot = await getDocs(detailsCollection);
 
-      this.projectsInProgressSubject.next(inProgressSnapshot.size);
-      this.projectsCompletedSubject.next(completedSnapshot.size);
+        if (!detailsSnapshot.empty) {
+          detailsSnapshot.docs.forEach((detailDoc) => {
+            const status = detailDoc.data()['status'];
+            if (status === 'En curso') {
+              projectsInProgress++;
+            } else if (status === 'Finalizado') {
+              projectsCompleted++;
+            }
+          });
+        }
+      }
 
-      console.log('Proyectos en curso:', inProgressSnapshot.size);
-      console.log('Proyectos finalizados:', completedSnapshot.size);
+      this.projectsInProgressSubject.next(projectsInProgress);
+      this.projectsCompletedSubject.next(projectsCompleted);
     } catch (error) {
       console.error('Error al cargar el conteo de proyectos:', error);
     }

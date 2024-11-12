@@ -1,10 +1,17 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
-import { CommonModule} from '@angular/common';
+import {
+  Component,
+  Input,
+  OnInit,
+  Output,
+  EventEmitter,
+  Injector,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ProjectDataService } from '../../../services/project-data.service';
-import { DashboardService } from '../../../services/dashboard.service'; // Importa el servicio
+import { Firestore, doc, setDoc, docData } from '@angular/fire/firestore';
+import { DashboardService } from '../../../services/dashboard.service';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-project-details',
@@ -15,25 +22,30 @@ import { DashboardService } from '../../../services/dashboard.service'; // Impor
 })
 export class ProjectDetailsComponent implements OnInit {
   @Input() project: any;
-  @Output() statusChanged = new EventEmitter<void>(); // Emisor del evento
+  @Output() statusChanged = new EventEmitter<void>();
+
+  private firestore: Firestore;
 
   projectId: string | null = null;
-  detailId: string = '5QViexI3IOwLj9GiZZzK';
+  documentName: string = '2024-11';
 
-  projectDescription: string = '';
-  startDate: string = '';
-  endDate: string = '';
-  status: string = '';
-  employeesArray: string[] = [];
-  machinesArray: string[] = [];
-  resourcePairs: { employee: string; machine: string }[] = [];
+  // BehaviorSubject para manejar los detalles del proyecto
+  private projectDetailsSubject = new BehaviorSubject<any>(null);
+  projectDetails$: Observable<any> = this.projectDetailsSubject.asObservable();
+
   isEditing: boolean = false;
+  resourcePairs: { employee: string; machine: string }[] = [];
+
+  // Variable para almacenar el estado actual del proyecto
+  currentStatus: string = '';
 
   constructor(
-    private firestore: Firestore,
+    private injector: Injector,
     private route: ActivatedRoute,
-    private dashboardService: DashboardService // Inyecta el servicio aquí
-  ) {}
+    private dashboardService: DashboardService
+  ) {
+    this.firestore = this.injector.get(Firestore);
+  }
 
   ngOnInit(): void {
     this.route.parent?.paramMap.subscribe((params) => {
@@ -46,44 +58,41 @@ export class ProjectDetailsComponent implements OnInit {
     });
   }
 
-  async loadProjectDetails(): Promise<void> {
+  loadProjectDetails(): void {
     if (!this.projectId) return;
 
-    try {
-      const detailDocRef = doc(
-        this.firestore,
-        `projects/${this.projectId}/details/${this.detailId}`
-      );
-      const detailSnapshot = await getDoc(detailDocRef);
+    // Ruta corregida según la especificación
+    const detailDocRef = doc(
+      this.firestore,
+      `projects/${this.projectId}/details/${this.projectId}`
+    );
 
-      if (detailSnapshot.exists()) {
-        const projectData = detailSnapshot.data();
-        this.projectDescription = projectData['description'] || '';
-        this.startDate = projectData['startDate'] || '';
-        this.endDate = projectData['endDate'] || '';
-        this.status = projectData['status'] || '';
-        this.employeesArray = projectData['employees'] || [];
-        this.machinesArray = projectData['machines'] || [];
-
-        this.generateResourcePairs();
-      } else {
-        console.error('No se encontraron detalles del proyecto.');
+    docData(detailDocRef).subscribe(
+      (projectData: any) => {
+        if (projectData) {
+          console.log('Detalles del proyecto encontrados:', projectData);
+          this.projectDetailsSubject.next(projectData);
+          this.currentStatus = projectData.status || 'En curso'; // Guardar el estado en la variable currentStatus
+          this.generateResourcePairs(projectData);
+        } else {
+          console.error('No se encontraron detalles del proyecto.');
+        }
+      },
+      (error: any) => {
+        console.error('Error al cargar los detalles del proyecto:', error);
       }
-    } catch (error) {
-      console.error('Error al cargar los detalles del proyecto:', error);
-    }
+    );
   }
 
-  generateResourcePairs(): void {
-    const maxLength = Math.max(
-      this.employeesArray.length,
-      this.machinesArray.length
-    );
-    this.resourcePairs = [];
+  generateResourcePairs(projectData: any): void {
+    const employeesArray = projectData['employees'] || [];
+    const machinesArray = projectData['machines'] || [];
+    const maxLength = Math.max(employeesArray.length, machinesArray.length);
 
+    this.resourcePairs = [];
     for (let i = 0; i < maxLength; i++) {
-      const employee = this.employeesArray[i] || 'No asignado';
-      const machine = this.machinesArray[i] || 'No asignada';
+      const employee = employeesArray[i] || 'No asignado';
+      const machine = machinesArray[i] || 'No asignada';
       this.resourcePairs.push({ employee, machine });
     }
   }
@@ -98,27 +107,24 @@ export class ProjectDetailsComponent implements OnInit {
       return;
     }
 
+    // Obtener los detalles actualizados
+    const updatedDetails = this.projectDetailsSubject.getValue();
+    updatedDetails.status = this.currentStatus; // Actualizar el estado en los detalles
+
+    const detailDocRef = doc(
+      this.firestore,
+      `assignments/${this.documentName}/projects/${this.projectId}`
+    );
+
     try {
-      const detailDocRef = doc(
-        this.firestore,
-        `projects/${this.projectId}/details/${this.detailId}`
-      );
-
-      await setDoc(detailDocRef, {
-        description: this.projectDescription,
-        startDate: this.startDate,
-        endDate: this.endDate,
-        status: this.status,
-        employees: this.employeesArray,
-        machines: this.machinesArray,
-      });
-
+      await setDoc(detailDocRef, updatedDetails, { merge: true });
       console.log('Detalles del proyecto guardados correctamente');
       alert('Detalles del proyecto actualizados exitosamente.');
 
       this.isEditing = false;
 
       // Notificar al dashboard que los proyectos han cambiado
+      this.statusChanged.emit();
       this.dashboardService.loadProjectStatusCounts();
     } catch (error) {
       console.error('Error al guardar los detalles del proyecto:', error);

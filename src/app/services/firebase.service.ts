@@ -134,7 +134,7 @@ export class FirebaseService {
       })),
     };
 
-    // Utiliza `setDoc` para agregar el proyecto con un ID específico
+    // Utiliza `setDoc` para agregar el proyecto con un ID específico en assignments
     const proyectoDocRef = doc(
       this.firestore,
       `assignments/${documentName}/projects/${proyectoId}`
@@ -144,7 +144,25 @@ export class FirebaseService {
       .then(() => {
         this.emitirEvento({ id: proyectoId, ...proyectoData });
 
-        // Después de agregar el proyecto, guarda los miembros del equipo en la subcolección 'team'
+        // Después de agregar el proyecto, guarda los detalles del proyecto en la subcolección 'details'
+        const detailsDocRef = doc(
+          this.firestore,
+          `projects/${proyectoId}/details/${proyectoId}`
+        );
+
+        const detailsData = {
+          nombreProyecto: proyecto.nombreProyecto,
+          descripcion: proyecto.descripcion,
+          fechaInicio: proyecto.fechaInicio,
+          fechaFin: proyecto.fechaFin,
+          createdAt: new Date(), // Agrega la fecha de creación
+        };
+
+        // Guardar los detalles en la subcolección 'details'
+        return setDoc(detailsDocRef, detailsData, { merge: true });
+      })
+      .then(() => {
+        // Después de guardar los detalles, guarda los miembros del equipo en la subcolección 'team'
         const teamCollectionRef = collection(
           this.firestore,
           `projects/${proyectoId}/team`
@@ -167,7 +185,7 @@ export class FirebaseService {
       })
       .catch((error) => {
         console.error(
-          'Error al agregar proyecto y miembros del equipo:',
+          'Error al agregar proyecto, detalles y miembros del equipo:',
           error
         );
         throw error;
