@@ -67,6 +67,8 @@ export class CalendarModalComponent implements OnInit {
   employeeCount: number = 0;
   selectedAssignmentIndex: number | null = null;
   selectedAssignment: ProjectAssignment | null = null;
+  startDate: string = ''; // Fecha de inicio (autocompletada)
+  endDate: string = ''; // Fecha de finalización (seleccionada por el usuario)
 
   constructor(
     public modalRef: BsModalRef,
@@ -74,6 +76,7 @@ export class CalendarModalComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.startDate = this.selectedDate; // Autocompleta la fecha de inicio con la fecha seleccionada
     this.loadEmployees();
     this.loadProjects();
     this.loadMachines();
@@ -247,13 +250,14 @@ export class CalendarModalComponent implements OnInit {
   private validateEventFields(): boolean {
     if (
       !this.eventName ||
-      !this.selectedDate ||
+      !this.startDate ||
+      !this.endDate ||
       this.projectAssignments.length < 1
     ) {
       Swal.fire({
         icon: 'warning',
         title: 'Campos incompletos',
-        text: 'Debe completar todos los campos y asignar al menos un empleado para crear un evento.',
+        text: 'Debe completar todos los campos, incluyendo las fechas de inicio y finalización, y asignar al menos un empleado para crear un evento.',
       });
       return false;
     }
@@ -332,29 +336,26 @@ export class CalendarModalComponent implements OnInit {
   }
 
   private guardarEvento(): void {
-    // Crear el objeto del evento con las máquinas asignadas
     const evento = {
       nombre: this.eventName,
       descripcion: this.eventDescription,
+      fechaInicio: this.startDate, // Nueva fecha de inicio
+      fechaFin: this.endDate, // Nueva fecha de finalización
       fecha: this.selectedDate,
       cantidadEmpleados: this.projectAssignments.length,
+      type: 'event', // Agregar el tipo de asignación como 'event'
       empleados: this.projectAssignments.map((assignment) => {
-        const maquina = assignment.machineId ? assignment.machineId : null;  // Usamos solo el ID de la máquina
-  
+        const maquina = assignment.machineId ? assignment.machineId : null;
         return {
           nombre: this.getEmployeeName(assignment.employeeId),
           rol: assignment.role,
           horaInicio: assignment.startHour,
           horaFin: assignment.endHour,
-          maquina: maquina  // Solo guardamos el ID de la máquina
+          maquina: maquina,
         };
-      })
+      }),
     };
-  
-    // Verificamos la estructura final del objeto
-    console.log('Evento para guardar:', evento);
-  
-    // Ahora guardamos el evento en Firebase
+
     this.firebaseService
       .addEventoConId(evento, this.eventName)
       .then(() => {
@@ -364,19 +365,24 @@ export class CalendarModalComponent implements OnInit {
           text: 'El evento ha sido guardado exitosamente.',
         });
         this.modalRef.hide();
+        this.assignmentSaved.emit(); // Emitir el evento para actualizar el calendario
       })
       .catch((error) => {
         console.error('Error al guardar el evento:', error);
       });
   }
-  
 
   private validateProjectFields(): boolean {
-    if (!this.selectedProject || !this.selectedDate || this.employeeCount < 1) {
+    if (
+      !this.selectedProject ||
+      !this.startDate ||
+      !this.endDate ||
+      this.employeeCount < 1
+    ) {
       Swal.fire({
         icon: 'warning',
         title: 'Campos incompletos',
-        text: 'Por favor, selecciona un proyecto, una fecha y especifica la cantidad de empleados.',
+        text: 'Por favor, selecciona un proyecto, una fecha de inicio y finalización, y especifica la cantidad de empleados.',
       });
       return false;
     }
@@ -468,7 +474,10 @@ export class CalendarModalComponent implements OnInit {
         (proj) => proj.id === this.selectedProject
       )?.name,
       descripcion: this.descripcionProyecto,
+      fechaInicio: this.startDate, // Nueva fecha de inicio
+      fechaFin: this.endDate, // Nueva fecha de finalización
       fecha: this.selectedDate,
+      type: 'project', // Agregar el tipo de asignación como 'project'
       empleados: this.projectAssignments.map((assignment) => ({
         nombre: this.getEmployeeName(assignment.employeeId),
         rol: assignment.role,
@@ -492,7 +501,7 @@ export class CalendarModalComponent implements OnInit {
           text: 'El proyecto ha sido guardado exitosamente.',
         });
         this.modalRef.hide();
-        this.assignmentSaved.emit();
+        this.assignmentSaved.emit(); // Emitir el evento para actualizar el calendario
       })
       .catch((error) => {
         console.error('Error al guardar el proyecto:', error);

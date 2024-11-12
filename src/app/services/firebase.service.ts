@@ -43,6 +43,8 @@ export class FirebaseService {
     const eventoData = {
       nombre: evento.nombre,
       descripcion: evento.descripcion,
+      fechaInicio: evento.fechaInicio, // Nueva fecha de inicio
+      fechaFin: evento.fechaFin, // Nueva fecha de finalización
       fecha: evento.fecha,
       cantidadEmpleados: evento.empleados.length,
       empleados: evento.empleados.map((emp: any) => ({
@@ -69,6 +71,7 @@ export class FirebaseService {
       .doc(eventId)
       .valueChanges();
   }
+
   getEventById(eventId: string): Observable<any> {
     const documentName = this.obtenerNombreDocumento(); // O ajusta este método si es necesario
     const eventPath = `assignments/${documentName}/events/${eventId}`;
@@ -80,6 +83,8 @@ export class FirebaseService {
     const eventoData = {
       nombre: evento.nombre,
       descripcion: evento.descripcion,
+      fechaInicio: evento.fechaInicio, // Nueva fecha de inicio
+      fechaFin: evento.fechaFin, // Nueva fecha de finalización
       fecha: evento.fecha,
       cantidadEmpleados: evento.empleados.length,
       empleados: evento.empleados.map((emp: any) => ({
@@ -87,16 +92,16 @@ export class FirebaseService {
         rol: emp.rol,
         horaInicio: emp.horaInicio,
         horaFin: emp.horaFin,
-        maquina: emp.maquina,  // Incluye la máquina aquí (debe existir en `emp`)
+        maquina: emp.maquina, // Incluye la máquina aquí (debe existir en `emp`)
       })),
     };
-  
+
     // Utiliza `setDoc` para agregar el evento con un ID específico
     const eventoDocRef = doc(
       this.firestore,
       `assignments/${documentName}/events/${eventId}`
     );
-  
+
     return setDoc(eventoDocRef, eventoData)
       .then(() => {
         this.emitirEvento({ id: eventId, ...eventoData });
@@ -105,7 +110,7 @@ export class FirebaseService {
         console.error('Error al agregar evento:', error);
         throw error;
       });
-  }  
+  }
 
   // Nuevo método: Agregar un proyecto usando un ID específico
   addProyectoConId(proyecto: any, proyectoId: string): Promise<void> {
@@ -114,6 +119,8 @@ export class FirebaseService {
       proyectoId: proyecto.proyectoId,
       nombreProyecto: proyecto.nombreProyecto,
       descripcion: proyecto.descripcion,
+      fechaInicio: proyecto.fechaInicio, // Nueva fecha de inicio
+      fechaFin: proyecto.fechaFin, // Nueva fecha de finalización
       fecha: proyecto.fecha,
       cantidadEmpleados: proyecto.empleados.length,
       empleados: proyecto.empleados.map((emp: any) => ({
@@ -244,14 +251,16 @@ export class FirebaseService {
           ...events.map((event: any) => ({
             id: event.id,
             title: event.nombre || event.descripcion || 'Sin título',
-            start: event.fecha,
+            start: event.fechaInicio, // Usar fechaInicio para obtener el inicio del evento
+            end: event.fechaFin, // Nueva fecha de finalización para el evento
             type: 'event',
           })),
           ...projects.map((project: any) => ({
             id: project.id,
             title:
               project.nombreProyecto || project.descripcion || 'Sin título',
-            start: project.fecha,
+            start: project.fechaInicio, // Usar fechaInicio para obtener el inicio del proyecto
+            end: project.fechaFin, // Nueva fecha de finalización para el proyecto
             type: 'project',
           })),
         ];

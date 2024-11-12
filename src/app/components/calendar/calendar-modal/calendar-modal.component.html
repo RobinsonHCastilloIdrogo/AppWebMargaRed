@@ -45,6 +45,29 @@
         ></textarea>
       </div>
 
+      <!-- Campos de Fecha de Inicio y Fecha de Finalización -->
+      <div class="form-group">
+        <label>Fecha de Inicio</label>
+        <input
+          type="date"
+          [(ngModel)]="startDate"
+          class="form-control"
+          [value]="selectedDate"
+          readonly
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Fecha de Finalización</label>
+        <input
+          type="date"
+          [(ngModel)]="endDate"
+          class="form-control"
+          min="{{ selectedDate }}"
+          placeholder="Seleccione la fecha de finalización"
+        />
+      </div>
+
       <!-- Limitar la cantidad de empleados a 2 cuando se asigna un evento -->
       <div class="form-group mt-3">
         <label>Cantidad de Empleados (máximo 2)</label>
@@ -60,83 +83,121 @@
       </div>
 
       <!-- Asignación de empleados en el evento con límite de 2 -->
-      <div class="parent two-columns" *ngIf="employeeCount > 0">
-        <div *ngFor="let assignment of projectAssignments; let i = index">
-          <div class="form-group">
+      <div
+        [ngClass]="{
+          'parent two-columns': employeeCount > 0,
+          'parent single-column': employeeCount === 0
+        }"
+      >
+        <!-- Columna izquierda -->
+        <div class="div1">
+          <!-- Otros campos de información de proyecto -->
+        </div>
+
+        <!-- Columna derecha: visible solo cuando hay empleados asignados -->
+        <div class="div2" *ngIf="employeeCount > 0">
+          <div class="form-group" *ngIf="projectAssignments.length > 0">
             <label>Seleccione un Empleado</label>
             <select
-              [(ngModel)]="assignment.employeeId"
-              (change)="
-                assignment.employeeName = getEmployeeName(assignment.employeeId)
-              "
+              [(ngModel)]="selectedAssignmentIndex"
+              (change)="selectEmployeeAssignment()"
               class="form-control"
             >
-              <option value="">Selecciona un empleado</option>
-              <option *ngFor="let emp of employees" [value]="emp.id">
-                {{ emp.name }}
+              <option
+                *ngFor="let assignment of projectAssignments; let i = index"
+                [ngValue]="i"
+              >
+                Empleado {{ i + 1 }}
               </option>
             </select>
           </div>
 
-          <div class="form-group">
-            <label>Rol</label>
-            <select
-              [(ngModel)]="assignment.role"
-              (change)="updateAssignmentRole(i, assignment.role)"
-              class="form-control"
-            >
-              <option value="Operador">Operador (con máquina)</option>
-              <option value="Obrero">Obrero (sin máquina)</option>
-            </select>
-          </div>
+          <div *ngIf="selectedAssignment">
+            <!-- Aquí irían los campos de empleado, rol, maquinaria, y horas -->
+            <div class="form-group">
+              <label>Empleado</label>
+              <select
+                [(ngModel)]="selectedAssignment.employeeId"
+                (change)="
+                  selectedAssignment.employeeName = getEmployeeName(
+                    selectedAssignment.employeeId!
+                  )
+                "
+                class="form-control"
+              >
+                <option value="">Selecciona un empleado</option>
+                <option *ngFor="let emp of employees" [value]="emp.id">
+                  {{ emp.name }}
+                </option>
+              </select>
+            </div>
 
-          <!-- Seleccionar Maquinaria si es Operador -->
-          <div *ngIf="assignment.role === 'Operador'" class="form-group">
-            <label>Maquinaria</label>
-            <input
-              type="text"
-              [(ngModel)]="assignment.machineSearchQuery"
-              (input)="filterMachinesForAssignment(assignment)"
-              class="form-control"
-              placeholder="Buscar maquinaria..."
-              autocomplete="off"
-            />
+            <div class="form-group">
+              <label>Rol</label>
+              <select
+                [(ngModel)]="selectedAssignment.role"
+                (change)="
+                  updateAssignmentRole(
+                    selectedAssignmentIndex!,
+                    selectedAssignment.role
+                  )
+                "
+                class="form-control"
+              >
+                <option value="Operador">Operador (con máquina)</option>
+                <option value="Obrero">Obrero (sin máquina)</option>
+              </select>
+            </div>
+
             <div
-              *ngIf="
-                assignment.filteredMachines &&
-                assignment.filteredMachines.length > 0
-              "
-              class="dropdown-list"
+              *ngIf="selectedAssignment.role === 'Operador'"
+              class="form-group"
             >
-              <ul>
-                <li
-                  *ngFor="let machine of assignment.filteredMachines"
-                  (click)="selectMachine(assignment, machine)"
-                  class="dropdown-item"
-                >
-                  {{ machine.name }} - {{ machine.id }}
-                </li>
-              </ul>
+              <label>Maquinaria</label>
+              <input
+                type="text"
+                [(ngModel)]="selectedAssignment.machineSearchQuery"
+                (input)="filterMachinesForAssignment(selectedAssignment)"
+                class="form-control"
+                placeholder="Buscar maquinaria..."
+                autocomplete="off"
+              />
+              <div
+                *ngIf="
+                  selectedAssignment.filteredMachines &&
+                  selectedAssignment.filteredMachines.length > 0
+                "
+                class="dropdown-list"
+              >
+                <ul>
+                  <li
+                    *ngFor="let machine of selectedAssignment.filteredMachines"
+                    (click)="selectMachine(selectedAssignment, machine)"
+                    class="dropdown-item"
+                  >
+                    {{ machine.name }} - {{ machine.id }}
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
 
-          <!-- Horario de inicio y fin para cada empleado asignado -->
-          <div class="row">
-            <div class="col-6">
-              <label>Hora Inicio</label>
-              <input
-                type="time"
-                [(ngModel)]="assignment.startHour"
-                class="form-control"
-              />
-            </div>
-            <div class="col-6">
-              <label>Hora Fin</label>
-              <input
-                type="time"
-                [(ngModel)]="assignment.endHour"
-                class="form-control"
-              />
+            <div class="row">
+              <div class="col-6">
+                <label>Hora Inicio</label>
+                <input
+                  type="time"
+                  [(ngModel)]="selectedAssignment.startHour"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-6">
+                <label>Hora Fin</label>
+                <input
+                  type="time"
+                  [(ngModel)]="selectedAssignment.endHour"
+                  class="form-control"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -146,7 +207,12 @@
     <!-- Formulario para asignar un proyecto -->
     <div *ngIf="isEventSelected === false">
       <!-- Contenedor de las dos columnas -->
-      <div class="parent two-columns">
+      <div
+        [ngClass]="{
+          'parent two-columns': employeeCount > 0,
+          'parent single-column': employeeCount === 0
+        }"
+      >
         <!-- Columna izquierda -->
         <div class="div1">
           <div class="form-group">
@@ -179,6 +245,29 @@
               rows="3"
               placeholder="Descripción del proyecto"
             ></textarea>
+          </div>
+
+          <!-- Campos de Fecha de Inicio y Fecha de Finalización -->
+          <div class="form-group">
+            <label>Fecha de Inicio</label>
+            <input
+              type="date"
+              [(ngModel)]="startDate"
+              class="form-control"
+              [value]="selectedDate"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de Finalización</label>
+            <input
+              type="date"
+              [(ngModel)]="endDate"
+              class="form-control"
+              min="{{ selectedDate }}"
+              placeholder="Seleccione la fecha de finalización"
+            />
           </div>
         </div>
 

@@ -11,7 +11,16 @@ import { NgIf, NgFor, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { query, where } from 'firebase/firestore';
 import { ProjectDetailsComponent } from '../project-dashboard/project-details/project-details.component';
-import { ApexChart, ApexNonAxisChartSeries, ApexResponsive, ApexDataLabels, ApexLegend, ApexAxisChartSeries, ApexXAxis, ApexTitleSubtitle } from 'ng-apexcharts';
+import {
+  ApexChart,
+  ApexNonAxisChartSeries,
+  ApexResponsive,
+  ApexDataLabels,
+  ApexLegend,
+  ApexAxisChartSeries,
+  ApexXAxis,
+  ApexTitleSubtitle,
+} from 'ng-apexcharts';
 import { NgApexchartsModule } from 'ng-apexcharts';
 
 @Component({
@@ -24,7 +33,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
     NgFor,
     DatePipe,
     FormsModule,
-    NgApexchartsModule // Añadir aquí
+    NgApexchartsModule, // Añadir aquí
   ],
   styleUrls: ['./dashboard.component.css'],
 })
@@ -61,14 +70,15 @@ export class DashboardComponent implements OnInit {
     chart: {
       type: 'line',
       height: '100%',
-      toolbar: { // Añadir la configuración de la barra de herramientas
+      toolbar: {
+        // Añadir la configuración de la barra de herramientas
         show: true, // Mostrar la barra de herramientas
         tools: {
           download: true, // Ocultar el botón de descarga
           selection: true, // Ocultar el botón de selección
           zoom: true, // Ocultar el botón de zoom (lupa)
           pan: false, // Ocultar el botón de pan (mano)
-          reset: true // Mantener el botón de reinicio (casa)
+          reset: true, // Mantener el botón de reinicio (casa)
         },
       },
     },
@@ -78,29 +88,37 @@ export class DashboardComponent implements OnInit {
     },
     xaxis: {
       categories: [
-        'Enero', 'Febrero', 'Marzo', 'Abril', 
-        'Mayo', 'Junio', 'Julio', 'Agosto', 
-        'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        'Enero',
+        'Febrero',
+        'Marzo',
+        'Abril',
+        'Mayo',
+        'Junio',
+        'Julio',
+        'Agosto',
+        'Septiembre',
+        'Octubre',
+        'Noviembre',
+        'Diciembre',
       ],
     },
-  };  
+  };
 
   pieChartOptions: {
     series: number[];
-    chart: { 
-      type: 'donut';  // Cambiado de 'pie' a 'donut'
-      height: number; 
+    chart: {
+      type: 'donut'; // Cambiado de 'pie' a 'donut'
+      height: number;
     };
     labels: string[];
     responsive: ApexResponsive[];
     legend: ApexLegend;
     dataLabels: ApexDataLabels; // Agregado para el número en el centro
     fill: any; // Añadir configuración para el centro
-    
   } = {
-    series: [],  // Esto se actualizará con los datos de las máquinas
+    series: [], // Esto se actualizará con los datos de las máquinas
     chart: {
-      type: 'donut',  // Cambiado de pie a donut
+      type: 'donut', // Cambiado de pie a donut
       height: 350,
     },
     labels: [], // Esto se actualizará con las etiquetas de las máquinas
@@ -122,24 +140,24 @@ export class DashboardComponent implements OnInit {
       horizontalAlign: 'center',
     },
     dataLabels: {
-      enabled: true,  // Habilitar la visualización de números en el centro
+      enabled: true, // Habilitar la visualización de números en el centro
       style: {
-        fontSize: '24px',  // Tamaño del número
-        fontWeight: 'bold',  // Peso de la fuente
-        colors: ['#000'],  // Color del número
+        fontSize: '24px', // Tamaño del número
+        fontWeight: 'bold', // Peso de la fuente
+        colors: ['#000'], // Color del número
       },
       formatter: function (val: any, opts: any) {
         // Aquí mostramos la cantidad de máquinas
         const machineQuantity = opts.w.globals.series[opts.seriesIndex];
-        return machineQuantity.toFixed(0);  // Muestra la cantidad como número entero
+        return machineQuantity.toFixed(0); // Muestra la cantidad como número entero
       },
     },
     fill: {
-      type: 'solid',  // Establecer tipo de relleno sólido para el donut
-      opacity: 1,  // Total opacidad para el centro
+      type: 'solid', // Establecer tipo de relleno sólido para el donut
+      opacity: 1, // Total opacidad para el centro
     },
-  };  
-totalMachines: any;
+  };
+  totalMachines: any;
 
   constructor(private firestore: Firestore) {}
 
@@ -170,39 +188,51 @@ totalMachines: any;
         // Usamos la ruta correcta para acceder a los equipos del proyecto
         const teamCollection = collection(
           this.firestore,
-          `projects/${project.id}/team`  // Ruta correcta
+          `projects/${project.id}/team` // Ruta correcta
         );
         const teamSnapshot = await getDocs(teamCollection);
-        
+
         // Contamos el número de equipos (máquinas) asignadas a este proyecto
         const machineCount = teamSnapshot.size;
-        
-        console.log(`Máquinas encontradas para el proyecto ${project.name}: ${machineCount}`);
+
+        console.log(
+          `Máquinas encontradas para el proyecto ${project.name}: ${machineCount}`
+        );
 
         return {
           name: project.name,
-          quantity: machineCount,  // Cantidad de máquinas asignadas (en este caso equipos)
+          quantity: machineCount, // Cantidad de máquinas asignadas (en este caso equipos)
         };
       });
 
       // Esperamos a que todas las promesas sean resueltas
-      Promise.all(defaultProjects).then((projectsWithMachineCount) => {
-        console.log("Proyectos con las máquinas asignadas:", projectsWithMachineCount);
-        
-        // Asignamos los proyectos con sus respectivas cantidades de máquinas
-        this.assignedMachines = projectsWithMachineCount;
-        this.totalAssignedMachines = projectsWithMachineCount.reduce((total, project) => total + project.quantity, 0);
+      Promise.all(defaultProjects)
+        .then((projectsWithMachineCount) => {
+          console.log(
+            'Proyectos con las máquinas asignadas:',
+            projectsWithMachineCount
+          );
 
-        // Si no se obtienen proyectos con máquinas asignadas, aseguramos que se agregue un valor predeterminado
-        if (this.assignedMachines.length === 0) {
-          this.assignedMachines = [{ name: 'No hay máquinas asignadas', quantity: 0 }];
-        }
+          // Asignamos los proyectos con sus respectivas cantidades de máquinas
+          this.assignedMachines = projectsWithMachineCount;
+          this.totalAssignedMachines = projectsWithMachineCount.reduce(
+            (total, project) => total + project.quantity,
+            0
+          );
 
-        // Actualizamos el gráfico con los nuevos datos
-        this.updatePieChart();
-      }).catch(error => {
-        console.error("Error al cargar las máquinas:", error);
-      });
+          // Si no se obtienen proyectos con máquinas asignadas, aseguramos que se agregue un valor predeterminado
+          if (this.assignedMachines.length === 0) {
+            this.assignedMachines = [
+              { name: 'No hay máquinas asignadas', quantity: 0 },
+            ];
+          }
+
+          // Actualizamos el gráfico con los nuevos datos
+          this.updatePieChart();
+        })
+        .catch((error) => {
+          console.error('Error al cargar las máquinas:', error);
+        });
     }
   }
 
@@ -312,8 +342,8 @@ totalMachines: any;
 
   initializeLineChart() {
     // Suponiendo que monthlyFuelData ya está definido y contiene los datos de litros
-    const monthlyCostData = this.monthlyFuelData.map(litros => litros * 4.91);
-  
+    const monthlyCostData = this.monthlyFuelData.map((litros) => litros * 4.91);
+
     this.lineChartOptions.series = [
       {
         name: 'Litros de Combustible',
@@ -324,12 +354,22 @@ totalMachines: any;
         data: monthlyCostData, // Datos del costo total calculados
       },
     ];
-    
+
     this.lineChartOptions.xaxis.categories = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
     ];
-  }  
+  }
 
   onResourceChange() {
     if (this.selectedResource === 'default') {
@@ -343,70 +383,73 @@ totalMachines: any;
 
   async loadAssignedMachines() {
     if (!this.selectedResource) return;
-  
+
     try {
       const machinesCollection = collection(
         this.firestore,
         `projects/${this.selectedResource}/team`
       );
       const snapshot = await getDocs(machinesCollection);
-  
+
       const assignedMachines = snapshot.docs.map((doc) => ({
         name: doc.data()['maquina']?.nombre ?? 'Maquina sin nombre',
         quantity: 1,
       }));
-  
-      const machinesSnapshot = await getDocs(collection(this.firestore, 'machines'));
-  
+
+      const machinesSnapshot = await getDocs(
+        collection(this.firestore, 'machines')
+      );
+
       const groupedMachines: { [key: string]: number } = {};
-  
+
       assignedMachines.forEach((assignedMachine) => {
         let updatedName = assignedMachine.name;
-  
+
         machinesSnapshot.docs.forEach((machineDoc) => {
           const machineData = machineDoc.data();
           const machineList = machineData['maquinas'] || [];
-  
+
           if (machineList.includes(assignedMachine.name)) {
             updatedName = machineDoc.id;
           }
         });
-  
+
         if (groupedMachines[updatedName]) {
           groupedMachines[updatedName] += 1;
         } else {
           groupedMachines[updatedName] = 1;
         }
       });
-  
+
       const updatedMachines = Object.keys(groupedMachines).map((key) => ({
         name: key,
         quantity: groupedMachines[key],
       }));
-  
+
       this.assignedMachines = updatedMachines;
-  
+
       // Calcular el total de máquinas asignadas
-      this.totalAssignedMachines = updatedMachines.reduce((total, machine) => total + machine.quantity, 0);
-  
+      this.totalAssignedMachines = updatedMachines.reduce(
+        (total, machine) => total + machine.quantity,
+        0
+      );
+
       this.updatePieChart();
     } catch (error) {
       console.error('Error al cargar máquinas asignadas:', error);
     }
   }
 
-
   updatePieChart() {
     const labels = this.assignedMachines.map((machine) => machine.name);
     const data = this.assignedMachines.map((machine) => machine.quantity);
-  
+
     this.pieChartOptions = {
-      ...this.pieChartOptions,  // Conserva la configuración previa
-      series: data,            // Actualiza los datos del gráfico
-      labels: labels,          // Actualiza las etiquetas
+      ...this.pieChartOptions, // Conserva la configuración previa
+      series: data, // Actualiza los datos del gráfico
+      labels: labels, // Actualiza las etiquetas
     };
   }
-  
 
   // Métodos para el modal de cierre de sesión
   closeLogoutModal() {

@@ -1,12 +1,12 @@
 export const environment = {
   production: false,
   firebaseConfig: {
-    apiKey: 'AIzaSyDy96DheSGb3Nh04aJEJV0_ZMIKLdYfpvo',
-    authDomain: 'empleados-b142d.firebaseapp.com',
-    projectId: 'empleados-b142d',
-    storageBucket: 'empleados-b142d.firebasestorage.app',
-    messagingSenderId: '813823548611',
-    appId: '1:813823548611:web:9c7fbc06e40733e424d676',
-    measurementId: 'G-QQC824P31J',
+    apiKey: 'AIzaSyDxB9I5yB74Q69hb288nvwl-JtXAyAZULQ',
+    authDomain: 'margared-fa1ac.firebaseapp.com',
+    projectId: 'margared-fa1ac',
+    storageBucket: 'margared-fa1ac.firebasestorage.app',
+    messagingSenderId: '374224018779',
+    appId: '1:374224018779:web:026062e932fe1d37768e7e',
+    measurementId: 'G-E6SF1TV3GR',
   },
 };
