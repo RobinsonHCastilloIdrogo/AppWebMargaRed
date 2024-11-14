@@ -13,6 +13,7 @@ import { ProjectDashboardComponent } from './components/project-dashboard/projec
 import { ProjectDetailsComponent } from './components/project-dashboard/project-details/project-details.component';
 import { ProjectTasksComponent } from './components/project-dashboard/project-tasks/project-tasks.component';
 import { ProjectTeamComponent } from './components/project-dashboard/project-team/project-team.component';
+import { FuelAssignmentTableComponent } from './components/fuel-assignment-table/fuel-assignment-table.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,6 +26,7 @@ export const routes: Routes = [
   { path: 'projects', component: ProjectComponent },
   { path: 'fuel', component: FuelManagementComponent },
   { path: 'calendar', component: CalendarComponent },
+  { path: 'fuel-assignment', component: FuelAssignmentTableComponent },
 
   // Rutas anidadas para ProjectDashboard con manejo de parámetros
   {

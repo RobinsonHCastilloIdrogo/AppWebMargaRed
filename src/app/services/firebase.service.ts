@@ -289,4 +289,11 @@ export class FirebaseService {
       })
     );
   }
+
+  // Obtener combustible asignado de una máquina específica
+  async getFuelAssignment(machineId: string): Promise<any> {
+    const fuelDocRef = doc(this.firestore, `machineFuelTotals/${machineId}`);
+    const fuelDoc = await getDoc(fuelDocRef);
+    return fuelDoc.exists() ? fuelDoc.data() : null;
+  }
 }

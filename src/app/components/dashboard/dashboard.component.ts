@@ -5,6 +5,7 @@ import {
   getDocs,
   deleteDoc,
   doc,
+  Timestamp,
 } from '@angular/fire/firestore';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
 import { NgIf, NgFor, DatePipe } from '@angular/common';
@@ -427,21 +428,31 @@ export class DashboardComponent implements OnInit {
 
   async loadMonthlyFuelTotals() {
     try {
-      const monthlyFuelCollection = collection(
+      const machineFuelCollection = collection(
         this.firestore,
-        'monthlyFuelTotals'
+        'machineFuelTotals'
       );
-      const monthlyFuelSnapshot = await getDocs(monthlyFuelCollection);
+      const machineFuelSnapshot = await getDocs(machineFuelCollection);
 
-      monthlyFuelSnapshot.forEach((doc) => {
-        const month = doc.id;
-        const totalFuel = doc.data()['totalFuel'] ?? 0;
+      // Inicializa los datos mensuales con ceros
+      this.monthlyFuelData = new Array(12).fill(0);
 
-        const monthIndex = this.getMonthIndex(month);
-        if (monthIndex !== -1) {
-          this.monthlyFuelData[monthIndex] = totalFuel;
+      machineFuelSnapshot.forEach((doc) => {
+        const data = doc.data();
+        const totalFuelAssigned = data['totalFuelAssigned'] ?? 0;
+        const dateAssigned = data['dateAssigned']
+          ? (data['dateAssigned'] as Timestamp).toDate()
+          : null;
+
+        // Asegurarse de que la fecha de asignación esté definida
+        if (dateAssigned) {
+          const monthIndex = dateAssigned.getMonth(); // Obtiene el índice del mes (0-11)
+          this.monthlyFuelData[monthIndex] += totalFuelAssigned; // Suma el total de combustible al mes correspondiente
         }
       });
+
+      // Después de cargar los datos, actualizamos el gráfico de líneas
+      this.initializeLineChart();
     } catch (error) {
       console.error('Error al cargar los totales de combustible:', error);
     }
@@ -468,13 +479,11 @@ export class DashboardComponent implements OnInit {
   initializeLineChart() {
     const monthlyCostData = this.monthlyFuelData.map((litros) => litros * 4.91);
 
-    // Encuentra el valor máximo entre las dos series
     const maxValue = Math.max(
-      Math.max(...this.monthlyFuelData), // Valor máximo de Litros de Combustible
-      Math.max(...monthlyCostData) // Valor máximo de Costo Total
+      Math.max(...this.monthlyFuelData),
+      Math.max(...monthlyCostData)
     );
 
-    // Configura las series
     this.lineChartOptions.series = [
       {
         name: 'Litros de Combustible',
@@ -488,7 +497,6 @@ export class DashboardComponent implements OnInit {
       },
     ];
 
-    // Configura el eje X (categorías del gráfico)
     this.lineChartOptions.xaxis = {
       categories: [
         'Enero',
@@ -506,7 +514,6 @@ export class DashboardComponent implements OnInit {
       ],
     };
 
-    // Configura los ejes Y para que tengan el mismo rango
     this.lineChartOptions.yaxis = [
       {
         title: {
@@ -517,19 +524,17 @@ export class DashboardComponent implements OnInit {
             fontWeight: 'bold',
           },
         },
-        min: 0, // Valor mínimo
-        max: maxValue, // Valor máximo calculado
+        min: 0,
+        max: maxValue,
         labels: {
           style: {
-            colors: '#008FFB', // Coincide con el color del título
+            colors: '#008FFB',
           },
-          formatter: function (val) {
-            return val.toFixed(0); // Mostrar valores enteros
-          },
+          formatter: (val) => val.toFixed(0),
         },
       },
       {
-        opposite: true, // Coloca este eje Y en el lado derecho
+        opposite: true,
         title: {
           text: 'Costo Total',
           style: {
@@ -540,19 +545,24 @@ export class DashboardComponent implements OnInit {
         },
         labels: {
           style: {
-            colors: '#00E396', // Coincide con el color del título
+            colors: '#00E396',
           },
-          formatter: function (val) {
-            return `$${val.toFixed(2)}`;
-          },
+          formatter: (val) => `$${val.toFixed(2)}`,
         },
       },
     ];
 
-    // Configura la visualización del gráfico (sin necesidad de yAxisIndex en las series)
     this.lineChartOptions.chart = {
       type: 'line',
       height: '100%',
+    };
+
+    // Añadimos el SVG personalizado en los marcadores
+    this.lineChartOptions.markers = {
+      size: 5,
+      colors: ['#008FFB', '#00E396'],
+      strokeWidth: 2,
+      shape: 'circle', // Cambia a la forma deseada: "square", "triangle", etc.
     };
   }
 

@@ -118,7 +118,7 @@ export class FuelManagementComponent implements OnInit {
 
         const newFuelEntry = {
           Combustible: this.fuelAmount,
-          Fecha: Timestamp.now(),
+          Fecha: Timestamp.now(), // Fecha de la asignación individual
         };
 
         await setDoc(
@@ -127,14 +127,7 @@ export class FuelManagementComponent implements OnInit {
           { merge: true }
         );
 
-        const month = new Date().toLocaleString('default', { month: 'long' });
-        const monthDocRef = doc(this.firestore, `monthlyFuelTotals/${month}`);
-        await setDoc(
-          monthDocRef,
-          { totalFuel: increment(this.fuelAmount) },
-          { merge: true }
-        );
-
+        // Registrar la asignación de combustible en `machineFuelTotals` con fecha completa
         const machineTotalDocRef = doc(
           this.firestore,
           `machineFuelTotals/${this.selectedMachine.id}`
@@ -144,13 +137,16 @@ export class FuelManagementComponent implements OnInit {
           {
             totalFuelAssigned: increment(this.fuelAmount),
             machineType: this.selectedMachine.name,
+            dateAssigned: Timestamp.now(), // Almacena la fecha completa de la última asignación
             monthlyTotals: {
-              [month]: increment(this.fuelAmount),
+              [new Date().toLocaleString('default', { month: 'long' })]:
+                increment(this.fuelAmount),
             },
           },
           { merge: true }
         );
 
+        // Mensaje de éxito
         Swal.fire({
           title: '¡Éxito!',
           text: `Combustible asignado a ${this.selectedMachine.name}: ${this.fuelAmount} L`,

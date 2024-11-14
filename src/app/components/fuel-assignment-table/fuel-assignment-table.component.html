@@ -1,0 +1,39 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <app-shared-dashboard></app-shared-dashboard>
+
+  <!-- Contenido principal de la tabla de asignación de combustible -->
+  <div class="dashboard-content">
+    <header>
+      <h2 class="h2-list">Tabla de Combustible Asingado</h2>
+    </header>
+    <br /><br />
+
+    <div class="assign-form">
+      <table>
+        <thead>
+          <tr>
+            <th>Machine ID</th>
+            <th>Tipo de Maquina</th>
+            <th>Total de Combustible Asignado (L)</th>
+            <th>Fecha de Asignación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of fuelRecords">
+            <td>{{ record.machineId }}</td>
+            <td>{{ record.machineType }}</td>
+            <td>{{ record.totalFuelAssigned }}</td>
+            <td class="date-column">
+              {{
+                record.dateAssigned
+                  ? formatDate(record.dateAssigned)
+                  : "No asignado"
+              }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

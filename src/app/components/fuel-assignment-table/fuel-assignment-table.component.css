@@ -1,0 +1,156 @@
+/* Contenedor principal */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Contenido principal */
+.dashboard-content {
+  flex-grow: 1;
+  margin-left: 250px;
+  padding: 20px;
+  background-color: #f4f6f8;
+  color: #333;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra el contenido de la tabla horizontalmente */
+}
+
+/* Encabezado */
+h2.h2-list {
+  font-size: 32px;
+  color: #1a202c;
+  font-weight: bold;
+  margin: 10px 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #e2e8f0;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+/* Contenedor de la tabla */
+.assign-form {
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.assign-form:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+  color: #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.3s ease;
+}
+
+th {
+  background-color: #007bff;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+td {
+  font-weight: 400;
+  color: #4a5568;
+}
+
+/* Resaltar filas en hover */
+tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* Alternar color en las filas */
+tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+/* Estilo de listas dentro de celdas */
+ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+ul li {
+  list-style-type: disc;
+  color: #4a5568;
+}
+
+/* Estilos adicionales para la columna de fechas */
+td.date-column {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+/* Resaltar celda de total de combustible asignado */
+td:nth-child(3) {
+  font-weight: 600;
+  color: #007bff;
+}
+
+/* Efecto de sombra en la tabla */
+tbody tr {
+  transition: transform 0.2s ease;
+}
+
+tbody tr:hover {
+  transform: scale(1.01);
+}
+
+/* Bordes redondeados en la tabla */
+table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .dashboard-content {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  h2.h2-list {
+    font-size: 24px;
+  }
+
+  .assign-form {
+    padding: 20px;
+  }
+
+  table {
+    font-size: 14px;
+  }
+
+  th,
+  td {
+    padding: 8px;
+  }
+}
