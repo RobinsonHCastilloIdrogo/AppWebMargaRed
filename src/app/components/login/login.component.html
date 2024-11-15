@@ -71,7 +71,7 @@
           required
         /><br />
         <div class="button-container">
-          <button class="ingresar-button" type="submit">Ingresar</button>
+          <button class="ingresar-button" type="submit" [disabled]="!isFormValid">Ingresar</button>
         </div>
       </form>
     </div>

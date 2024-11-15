@@ -7,17 +7,32 @@
     <div class="modal-grid">
       <div class="input-group">
         <label for="dni">DNI:</label>
-        <input type="text" id="dni" [(ngModel)]="dni" required />
+        <input
+          type="text"
+          id="dni"
+          [(ngModel)]="dni"
+          (keydown)="onDniKeydown($event)"
+          maxlength="8" 
+          required
+        />
       </div>
 
       <div class="input-group">
         <label for="name">Nombre:</label>
-        <input type="text" id="name" [(ngModel)]="name" required />
+        <input
+          type="text"
+          id="name"
+          [(ngModel)]="name"
+          (keydown)="onNameKeydown($event)"
+          maxlength="30" 
+          required
+        />
       </div>
 
       <div class="input-group">
         <label for="workerType">Tipo de Trabajador:</label>
         <select id="workerType" [(ngModel)]="workerType" name="workerType" required>
+          <option value="" disabled selected>Selecciona un tipo</option>
           <option value="OPERADOR">OPERADOR</option>
           <option value="OBRERO">OBRERO</option>
         </select>

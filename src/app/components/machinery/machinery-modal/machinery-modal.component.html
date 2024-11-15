@@ -8,6 +8,7 @@
       id="machineryName"
       [(ngModel)]="machinery.name"
       class="input-field"
+      (keydown)="onNameKeydown($event)"
       placeholder="Nombre de la maquinaria"
       required
     />

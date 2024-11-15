@@ -37,6 +37,14 @@ export class MachineryModalComponent implements OnInit {
     console.log('Machinery input:', this.machinery); // Debugging
   }
 
+  // Método para asegurar que solo se ingresen letras en el campo 'name'
+  onNameKeydown(event: KeyboardEvent): void {
+    const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', ' ']; // Permitir teclas especiales y espacios
+    if (!/^[a-zA-ZÀ-ÿ]$/.test(event.key) && !allowedKeys.includes(event.key)) {
+      event.preventDefault(); // Bloquea cualquier tecla que no sea una letra o un espacio
+    }
+  }
+
   // Guardar maquinaria (agregar o editar)
   async saveMachinery(): Promise<void> {
     if (this.isValidInput()) {

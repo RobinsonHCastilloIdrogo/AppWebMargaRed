@@ -25,43 +25,38 @@ import Swal from 'sweetalert2';
   styleUrls: ['./employee-modal.component.css'],
 })
 export class EmployeeModalComponent implements OnChanges {
-  @Output() closeModal = new EventEmitter<void>(); // Evento para cerrar el modal
-  @Input() selectedEmployee: any = null; // Recibe el empleado seleccionado
+  @Output() closeModal = new EventEmitter<void>();
+  @Input() selectedEmployee: any = null;
 
-  // Variables para los campos del formulario
   dni: string = '';
   name: string = '';
   workerType: string = '';
-  entryDate: string = ''; // Se va a establecer a la fecha actual
+  entryDate: string = '';
 
   constructor(private firestore: Firestore) {}
 
-  // Detectar cambios en el empleado seleccionado
   ngOnChanges() {
     if (this.selectedEmployee) {
-      this.populateFields(); // Rellenar los campos si hay un empleado seleccionado
+      this.populateFields();
     } else {
-      this.resetFields(); // Limpiar los campos si no hay empleado seleccionado
+      this.resetFields();
     }
   }
 
-  // Función para rellenar los campos del formulario
   populateFields() {
     this.dni = this.selectedEmployee.dni;
     this.name = this.selectedEmployee.name;
     this.workerType = this.selectedEmployee.workerType;
-    this.entryDate = this.selectedEmployee.entryDate || this.getCurrentDate(); // Establecer fecha actual si no hay
+    this.entryDate = this.selectedEmployee.entryDate || this.getCurrentDate();
   }
 
-  // Función para limpiar los campos
   resetFields() {
     this.dni = '';
     this.name = '';
     this.workerType = '';
-    this.entryDate = this.getCurrentDate(); // Establecer fecha actual por defecto
+    this.entryDate = this.getCurrentDate();
   }
 
-  // Función para obtener la fecha actual en formato yyyy-mm-dd
   getCurrentDate(): string {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -70,95 +65,99 @@ export class EmployeeModalComponent implements OnChanges {
     return `${yyyy}-${mm}-${dd}`;
   }
 
-  // Validar el DNI (8 dígitos numéricos)
+ // Método para asegurarse que el DNI solo contenga números
+ onDniKeydown(event: KeyboardEvent): void {
+  // Permitir solo números y evitar letras y caracteres especiales
+  const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight']; // Permitir teclas especiales (retroceso, tab, flechas)
+  if (!/^[0-9]$/.test(event.key) && !allowedKeys.includes(event.key)) {
+    event.preventDefault(); // Bloquea cualquier tecla que no sea un número o una tecla especial permitida
+  }
+}
+
+// Método para asegurarse que el Nombre solo contenga letras y espacios
+onNameKeydown(event: KeyboardEvent): void {
+  // Permitir solo letras y espacios
+  const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', ' ']; // Permitir teclas especiales y espacios
+  if (!/^[a-zA-ZÀ-ÿ]$/.test(event.key) && !allowedKeys.includes(event.key)) {
+    event.preventDefault(); // Bloquea cualquier tecla que no sea una letra o un espacio
+  }
+}
+
   validateDNI(): boolean {
     const dniPattern = /^[0-9]{8}$/;
-    if (!dniPattern.test(this.dni)) {
-      return false; // El DNI no es válido
-    }
+    const repeatedNumbersPattern = /^(.)\1{7}$/;
+    const sequentialPattern = /^(01234567|12345678|23456789|34567890|98765432|87654321)$/;
 
-    // Validar que no sean secuencias de números repetidos o consecutivos
-    const repeatedNumbersPattern = /^(.)\1{7}$/; // Repite el mismo número 8 veces
-    const sequentialPattern = /^(01234567|12345678|23456789|34567890|98765432|87654321)$/; // Secuencias ascendentes o descendentes
+    if (!dniPattern.test(this.dni)) {
+      Swal.fire({
+        title: 'DNI Inválido',
+        text: 'El DNI debe tener 8 dígitos numéricos.',
+        icon: 'warning',
+      });
+      return false;
+    }
 
     if (repeatedNumbersPattern.test(this.dni) || sequentialPattern.test(this.dni)) {
-      return false; // DNI no válido por ser secuencia repetitiva o ascendente/descendente
-    }
-
-    return true; // El DNI es válido
-  }
-
-  // Validar el nombre (solo letras y espacios, no vacío)
-  validateName(): boolean {
-    const namePattern = /^[A-Za-zÀ-ÿ\s]+$/; // Permite letras con acentos y espacios
-    if (!namePattern.test(this.name) || this.name.trim().length < 8) {
-      return false; // No es un nombre válido
-    }
-
-    // Validar que no sea una secuencia de letras repetidas
-    const repeatedNamePattern = /^(.)\1+$/; // Detecta secuencias repetidas de letras (ejemplo: aaaaaaa)
-    if (repeatedNamePattern.test(this.name)) {
-      return false; // Nombre es una secuencia repetida
+      Swal.fire({
+        title: 'DNI Inválido',
+        text: 'El DNI no puede ser una secuencia repetida o consecutiva.',
+        icon: 'warning',
+      });
+      return false;
     }
 
     return true;
   }
 
-  // Validar si el nombre o el DNI ya existen
-  async checkIfEmployeeExists(): Promise<boolean> {
-  const employeesCollection = collection(this.firestore, 'employees');
-  const employeesSnapshot = await getDocs(employeesCollection);
-  let exists = false;
+  validateName(): boolean {
+    const namePattern = /^[A-Za-zÀ-ÿ\s]+$/;
+    const repeatedNamePattern = /^(.)\1+$/;
 
-  employeesSnapshot.forEach((doc) => {
-    const employee = doc.data();
-    // Acceder a las propiedades usando la notación de corchetes
-    if (employee['dni'] === this.dni) {
-      exists = true; // Ya existe un empleado con ese DNI
+    if (!namePattern.test(this.name) || this.name.trim().length < 8) {
+      Swal.fire({
+        title: 'Nombre Inválido',
+        text: 'El nombre debe tener al menos 8 caracteres y solo contener letras.',
+        icon: 'warning',
+      });
+      return false;
     }
-    if (employee['name'].toLowerCase() === this.name.toLowerCase()) {
-      exists = true; // Ya existe un empleado con ese nombre
-    }
-  });
 
-  return exists;
+    if (repeatedNamePattern.test(this.name)) {
+      Swal.fire({
+        title: 'Nombre Inválido',
+        text: 'El nombre no puede ser una secuencia repetida.',
+        icon: 'warning',
+      });
+      return false;
+    }
+
+    return true;
   }
 
-  // Agregar un empleado a Firestore con ID secuencial
+  async checkIfEmployeeExists(): Promise<boolean> {
+    const employeesCollection = collection(this.firestore, 'employees');
+    const employeesSnapshot = await getDocs(employeesCollection);
+
+    for (const docSnap of employeesSnapshot.docs) {
+      const employee = docSnap.data();
+      if (employee['dni'] === this.dni || employee['name'].toLowerCase() === this.name.toLowerCase()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   async addEmployee() {
-    if (!this.validateDNI()) {
-      alert('DNI inválido:\n' +
-        '-El DNI debe tener 8 dígitos numéricos.\n' +
-        '-No número repetitivos.\n' +
-        '-No debe ser una secuencia de número.'
-      );
+    if (!this.validateDNI() || !this.validateName() || !this.workerType) {
       return;
     }
 
-    if (!this.validateName()) {
-      alert('Nombre inválido:\n' +
-        '-El nombre no puede contener números.\n' +
-        '-El nombre debe tener mínimo 8 caracteres.\n' + 
-        '-Debe ser un nombre real.\n' +
-        '-El nombre no puede estar vacío.\n');
-      return;
-    }
-
-    if (!this.workerType) {
-      alert('Por favor, selecciona un tipo de trabajador:\n' + 
-        '-OPERADOR\n' + 
-        '-OBRERO');
-      return;
-    }
-
-    // Verificar si ya existe un empleado con el mismo DNI o nombre
-    const employeeExists = await this.checkIfEmployeeExists();
-    if (employeeExists) {
+    if (await this.checkIfEmployeeExists()) {
       Swal.fire({
-        title: 'Empleado ya existe',
-        text: 'Ya existe un empleado con el mismo nombre o DNI.',
+        title: 'Empleado Existente',
+        text: 'Ya existe un empleado con el mismo DNI o nombre.',
         icon: 'error',
-        confirmButtonText: 'Ok',
       });
       return;
     }
@@ -168,10 +167,8 @@ export class EmployeeModalComponent implements OnChanges {
       const employeesSnapshot = await getDocs(employeesCollection);
 
       let maxSequentialId = 0;
-
-      // Determinar el ID secuencial más alto existente
-      employeesSnapshot.forEach((doc) => {
-        const id = doc.id;
+      employeesSnapshot.forEach((docSnap) => {
+        const id = docSnap.id;
         if (/^\d{4}$/.test(id)) {
           const numericId = parseInt(id);
           if (numericId > maxSequentialId) {
@@ -186,65 +183,59 @@ export class EmployeeModalComponent implements OnChanges {
         dni: this.dni,
         name: this.name,
         workerType: this.workerType,
-        entryDate: this.entryDate, // Guardamos la fecha actual
+        entryDate: this.entryDate,
       };
 
       await setDoc(doc(this.firestore, `employees/${newId}`), newEmployee);
-      console.log('Empleado agregado con ID:', newId, newEmployee);
-      this.close(); // Cierra el modal después de agregar
-      Swal.fire('Agregado!', 'El empleado ha sido agregado.', 'success');
+      this.close();
+      Swal.fire({
+        title: 'Empleado Agregado',
+        text: 'El empleado ha sido agregado exitosamente.',
+        icon: 'success',
+      });
     } catch (error) {
       console.error('Error al agregar empleado:', error);
-      Swal.fire('Error', 'Hubo un problema al agregar el empleado.', 'error');
+      Swal.fire({
+        title: 'Error',
+        text: 'Hubo un problema al agregar el empleado.',
+        icon: 'error',
+      });
     }
   }
 
-  // Editar un empleado existente en Firestore
   async editEmployee() {
-    if (!this.validateDNI()) {
-      alert('DNI inválido:\n' +
-        '-El DNI debe tener 8 dígitos numéricos.\n' +
-        '-No número repetitivos.\n' +
-        '-No debe ser una secuencia de número.'
-      );
+    if (!this.validateDNI() || !this.validateName()) {
       return;
     }
 
-    if (!this.validateName()) {
-      alert('Nombre inválido:\n' +
-        '-El nombre no puede contener números.\n' +
-        '-El nombre debe tener mínimo 8 caracteres.\n' + 
-        '-Debe ser un nombre real.\n' +
-        '-El nombre no puede estar vacío.\n'
-      );
-      return;
-    }
     try {
-      const employeeDocRef = doc(
-        this.firestore,
-        `employees/${this.selectedEmployee.id}`
-      );
-
+      const employeeDocRef = doc(this.firestore, `employees/${this.selectedEmployee.id}`);
       const updatedEmployee = {
         dni: this.dni,
         name: this.name,
         workerType: this.workerType,
-        entryDate: this.entryDate, // Fecha que no se modifica
+        entryDate: this.entryDate,
       };
 
       await updateDoc(employeeDocRef, updatedEmployee);
-      console.log('Empleado actualizado:', updatedEmployee);
-      this.close(); // Cierra el modal después de actualizar
-      Swal.fire('Actualizado!', 'El empleado ha sido actualizado.', 'success');
+      this.close();
+      Swal.fire({
+        title: 'Empleado Actualizado',
+        text: 'El empleado ha sido actualizado exitosamente.',
+        icon: 'success',
+      });
     } catch (error) {
       console.error('Error al actualizar empleado:', error);
-      Swal.fire('Error', 'Hubo un problema al actualizar el empleado.', 'error');
+      Swal.fire({
+        title: 'Error',
+        text: 'Hubo un problema al actualizar el empleado.',
+        icon: 'error',
+      });
     }
   }
 
-  // Función para cerrar el modal
   close() {
-    this.resetFields(); // Limpia los campos del formulario
-    this.closeModal.emit(); // Emitir evento para cerrar el modal
+    this.resetFields();
+    this.closeModal.emit();
   }
 }
