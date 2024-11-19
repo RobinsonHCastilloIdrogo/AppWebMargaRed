@@ -19,6 +19,71 @@
   align-items: center; /* Centra el contenido de la tabla horizontalmente */
 }
 
+.export-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.export-button {
+  display: flex;
+  align-items: center;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.export-button:hover {
+  background-color: #1669c2;
+}
+
+.hamburger-icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.export-options {
+  position: absolute;
+  top: 45px;
+  left: 0;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+}
+
+.export-options button {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  color: #333;
+  border: none;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.export-options button:hover {
+  background-color: #f4f4f4;
+}
+
+.export-icon {
+  font-size: 16px;
+  margin-right: 8px;
+  color: #333;
+}
+
 /* Encabezado */
 h2.h2-list {
   font-size: 32px;
@@ -38,8 +103,11 @@ h2.h2-list {
   border-radius: 16px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
-  max-width: 1000px;
   width: 100%;
+  max-width: none; /* Se elimina la restricción del ancho máximo */
+  overflow-x: auto; /* Permite el deslizamiento horizontal si la tabla es demasiado ancha */
+  display: block;  /* Asegura que se use un bloque para el contenido y el scroll */
+  margin: 0 auto;  /* Centra la tabla dentro de su contenedor */
 }
 
 .assign-form:hover {
@@ -50,35 +118,69 @@ h2.h2-list {
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 16px;
+  font-size: 15px;
   color: #333;
   border-radius: 8px;
   overflow: hidden;
+  table-layout: auto; /* Esto permite que las celdas se ajusten automáticamente según el contenido */
 }
 
+/* Encabezado de la tabla */
 th,
 td {
   padding: 12px 15px;
   text-align: center;
   border-bottom: 1px solid #e2e8f0;
   transition: background-color 0.3s ease;
+  white-space: nowrap;  /* Evita que el texto se ajuste y forza todo en una sola línea */
+  overflow: visible;     /* Asegura que el contenido se vea completamente */
 }
 
+/* Aplicar estilo de texto con puntos suspensivos */
+.ellipsis {
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  overflow: hidden; /* Oculta el texto que se desborda */
+  text-overflow: ellipsis; /* Agrega los puntos suspensivos */
+  max-width: 150px; /* Ajusta el ancho máximo según lo que necesites */
+}
+
+/* Si quieres hacerlo específico para los empleados y proyectos */
+.employee-name, .project-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px; /* Puedes ajustar el valor según el espacio disponible */
+}
+
+/* Estilos de los encabezados */
 th {
   background-color: #007bff;
   color: #ffffff;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   position: sticky;
   top: 0;
   z-index: 1;
+  min-width: 100px; /* Asegura que cada columna tenga al menos un tamaño mínimo */
 }
 
+.total-fuel {
+  color: #ff6347; /* Cambia este valor por el color que desees */
+  font-weight: bold;
+}
+
+/* Estilo para las celdas */
 td {
   font-weight: 400;
   color: #4a5568;
+}
+
+/* Estilos adicionales para la columna de fechas */
+td.date-column {
+  font-weight: 500;
+  color: #2d3748;
 }
 
 /* Resaltar filas en hover */
@@ -91,25 +193,8 @@ tbody tr:nth-child(even) {
   background-color: #f9fafb;
 }
 
-/* Estilo de listas dentro de celdas */
-ul {
-  padding-left: 20px;
-  margin: 0;
-}
-
-ul li {
-  list-style-type: disc;
-  color: #4a5568;
-}
-
-/* Estilos adicionales para la columna de fechas */
-td.date-column {
-  font-weight: 500;
-  color: #2d3748;
-}
-
-/* Resaltar celda de total de combustible asignado */
-td:nth-child(3) {
+/* Estilo para el total de combustible asignado */
+td:nth-child(7) {
   font-weight: 600;
   color: #007bff;
 }
@@ -152,5 +237,11 @@ table {
   th,
   td {
     padding: 8px;
+  }
+
+  th,
+  td:nth-child(1), 
+  td:nth-child(2) {
+    font-size: 12px; /* Ajuste de tamaño de las celdas en pantallas pequeñas */
   }
 }

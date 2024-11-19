@@ -5,23 +5,59 @@
   <!-- Contenido principal de la tabla de asignación de combustible -->
   <div class="dashboard-content">
     <header>
-      <h2 class="h2-list">Tabla de Combustible Asingado</h2>
+      <h2 class="h2-list">Tabla de Combustible Asignado</h2>
     </header>
-    <br /><br />
-
+    
+    <!-- Menú de exportación -->
     <div class="assign-form">
-      <table>
+      <div class="export-menu" #exportMenu>
+        <button class="export-button" (click)="toggleExportMenu($event)">
+          <span class="hamburger-icon">☰</span>
+          <span>Exportar</span>
+        </button>
+
+        <!-- Opciones del menú desplegable -->
+        <div *ngIf="showExportMenu" class="export-options">
+          <button (click)="exportAsPDF()">
+            <i class="material-icons export-icon">picture_as_pdf</i> PDF
+          </button>
+          <button (click)="exportAsExcel()">
+            <i class="material-icons export-icon">grid_on</i> Excel
+          </button>
+          <button (click)="exportAsCSV()">
+            <i class="material-icons export-icon">table_chart</i> CSV
+          </button>
+          <button (click)="exportAsImage()">
+            <i class="material-icons export-icon">image</i> PNG
+          </button>
+        </div>
+      </div>
+      
+      <br/><br/>
+      
+      <!-- Tabla de combustible asignado -->
+      <table #table>
         <thead>
           <tr>
-            <th>Machine ID</th>
+            <th>Proyecto</th>
+            <th>Empleado Asignado</th>
+            <th>Máquina Asignada</th>
+            <th>Hora de Inicio</th> 
+            <th>Hora de Fin</th> 
             <th>Tipo de Maquina</th>
-            <th>Total de Combustible Asignado (L)</th>
-            <th>Fecha de Asignación</th>
+            <th>Combustible Asignado (L)</th>
+            <th>Fecha de Asignación</th>  
+            <th>Costo</th>
           </tr>
-        </thead>
+        </thead> 
+        
         <tbody>
           <tr *ngFor="let record of fuelRecords">
+            <td class="project-name">{{ getProjectName(record.machineId) }}</td>
+            <td class="employee-name">{{ getEmployeeName(record.machineId) }}</td>
             <td>{{ record.machineId }}</td>
+            <td>{{ formatHour(getStartHour(record.machineId)) }}</td> 
+            <td>{{ formatHour(getEndHour(record.machineId)) }}</td>   
             <td>{{ record.machineType }}</td>
             <td>{{ record.totalFuelAssigned }}</td>
             <td class="date-column">
@@ -31,8 +67,19 @@
                   : "No asignado"
               }}
             </td>
+            <td>{{ 'S/' + (record.totalFuelAssigned * 4.91).toFixed(2) }}</td>
           </tr>
         </tbody>
+
+        <!-- Fila de Totales -->
+        <tfoot>
+          <tr>
+            <td colspan="6" style="text-align:center; font-weight: bold; font-size: 18px;">Total</td>
+            <td class="total-fuel" style="font-size: 18px;">{{ totalFuel }}</td> 
+            <td></td>
+            <td style="font-size: 18px;">{{ 'S/' + totalCost.toFixed(2) }}</td> 
+          </tr>
+        </tfoot>
       </table>
     </div>
   </div>

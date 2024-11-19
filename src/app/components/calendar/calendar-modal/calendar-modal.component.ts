@@ -81,7 +81,6 @@ export class CalendarModalComponent implements OnInit {
     this.loadProjects();
     this.loadMachines();
   }
-
   // Filter functions
   filterEmployees(): void {
     if (!this.employeeSearchTerm.trim()) {
