@@ -9,8 +9,9 @@ import {
   updateDoc,
   deleteDoc,
   docData,
+  DocumentData,
 } from '@angular/fire/firestore';
-import { getDoc } from 'firebase/firestore';
+import { getDoc, getDocs } from 'firebase/firestore';
 import { Observable, from, Subject, firstValueFrom } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -295,5 +296,98 @@ export class FirebaseService {
     const fuelDocRef = doc(this.firestore, `machineFuelTotals/${machineId}`);
     const fuelDoc = await getDoc(fuelDocRef);
     return fuelDoc.exists() ? fuelDoc.data() : null;
+  }
+
+  getAllAssignments(): Observable<
+    { nombre: string; fecha: string; horaInicio: string; horaFin: string }[]
+  > {
+    const projectsPath = '/assignments/2024-11/projects';
+    return this.getCollection(projectsPath).pipe(
+      map((projects) => {
+        return projects.flatMap((project: any) => {
+          const empleados = project.empleados || [];
+          return empleados.map((empleado: any) => ({
+            nombre: empleado.nombre || 'Sin Nombre',
+            fecha: project.fecha || 'Sin Fecha',
+            horaInicio: empleado.horaInicio || '00:00:00',
+            horaFin: empleado.horaFin || '00:00:00',
+          }));
+        });
+      }),
+      catchError((error) => {
+        console.error('Error al cargar las asignaciones:', error);
+        return [];
+      })
+    );
+  }
+
+  async getAssignmentsFromDocument(
+    documentId: string
+  ): Promise<
+    { nombre: string; fecha: string; horaInicio: string; horaFin: string }[]
+  > {
+    try {
+      const docRef = doc(
+        this.firestore,
+        `/assignments/2024-11/projects/${documentId}`
+      );
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const empleados = data?.['empleados'] || [];
+
+        return empleados.map((empleado: any) => ({
+          nombre: empleado.nombre || 'Sin Nombre',
+          fecha: data['fecha'] || 'Sin Fecha',
+          horaInicio: empleado.horaInicio || '00:00:00',
+          horaFin: empleado.horaFin || '00:00:00',
+        }));
+      } else {
+        console.error('No se encontraron datos en el documento.');
+        return [];
+      }
+    } catch (error) {
+      console.error('Error al obtener datos de Firestore:', error);
+      return [];
+    }
+  }
+
+  getCollection(path: string): Observable<any[]> {
+    const collectionRef = collection(this.firestore, path);
+    return collectionData(collectionRef, { idField: 'id' }).pipe(
+      map((documents) => {
+        console.log('Documentos obtenidos de:', path, documents);
+        return documents;
+      }),
+      catchError((error) => {
+        console.error('Error al obtener la colección:', error);
+        return [];
+      })
+    );
+  }
+
+  // Método genérico para guardar un documento con ID específico
+  saveDocument(
+    collectionPath: string,
+    docId: string,
+    data: any
+  ): Promise<void> {
+    const docRef = doc(this.firestore, `${collectionPath}/${docId}`);
+    return setDoc(docRef, data).catch((error) => {
+      console.error('Error al guardar documento:', error);
+      throw error;
+    });
+  }
+
+  // Método para obtener un documento específico
+  getDocument(path: string): Observable<any> {
+    const docRef = doc(this.firestore, path);
+    return docData(docRef, { idField: 'id' }).pipe(
+      catchError((error) => {
+        console.error('Error al obtener documento:', error);
+        throw error;
+      })
+    );
   }
 }

@@ -1,0 +1,117 @@
+/* Contenedor principal: diseño con Flexbox */
+.dashboard-container {
+  display: flex; /* Estructura en fila */
+  height: 100vh; /* Altura completa de la pantalla */
+  background-color: #f4f4f4; /* Fondo claro */
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Evitar scroll no deseado */
+}
+
+/* Sidebar: ocupa un 15% del ancho */
+.sidebar {
+  width: 15%; /* Ancho fijo del sidebar */
+  background-color: #f8f9fa; /* Fondo claro */
+  border-right: 1px solid #ddd; /* Línea divisoria */
+  padding: 15px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sombra en el borde */
+  overflow-y: auto; /* Permitir scroll interno */
+  height: 100%; /* Asegura que ocupe toda la altura */
+}
+
+/* Contenedor del calendario */
+.calendar-container {
+  flex: 1; /* Ocupa el espacio restante */
+  padding: 0; /* Elimina padding interno */
+  background: #fff; /* Fondo blanco */
+  border-left: 1px solid #ddd; /* Borde izquierdo */
+  display: flex; /* Flexbox para alinear el contenido */
+  flex-direction: column;
+  height: 100%; /* Ocupa toda la altura del contenedor principal */
+  overflow: hidden; /* Evitar scroll adicional */
+}
+
+/* Wrapper para limitar el tamaño del calendario */
+.calendar-wrapper {
+  flex: 1; /* Ocupa todo el espacio restante */
+  max-height: calc(100vh - 50px); /* Limita la altura del calendario */
+  overflow: hidden; /* Evita scroll en el wrapper */
+  padding: 10px; /* Añade espacio interno */
+  box-sizing: border-box; /* Incluye el padding en el cálculo del tamaño */
+}
+
+/* FullCalendar: ajuste dinámico */
+.full-calendar {
+  height: 100%; /* Ocupa toda la altura del wrapper */
+  overflow: hidden; /* Evita scroll interno */
+}
+
+/* Ajustes específicos para la vista Semana y Día */
+.fc-timegrid {
+  overflow-y: auto; /* Permite scroll vertical si hay contenido adicional */
+}
+
+.fc-timegrid-slot {
+  height: 40px; /* Ajusta la altura de cada segmento de tiempo */
+}
+
+.fc-timegrid-slot-label {
+  font-size: 0.9rem; /* Ajusta el tamaño de las etiquetas de tiempo */
+}
+
+.fc-timegrid-slot .fc-scrollgrid-sync-inner {
+  height: 40px; /* Ajusta la altura del contenido */
+}
+
+/* Títulos y días */
+.fc-col-header-cell {
+  font-size: 1rem;
+  text-align: center;
+  background: #f4f4f4;
+  color: #333;
+  padding: 10px 0;
+}
+
+/* Estilo de la vista Día */
+.fc-timegrid-day {
+  max-height: calc(100vh - 120px); /* Limita la altura en la vista Día */
+}
+
+/* Fondo alternado para las horas */
+.fc-timegrid-slot {
+  background-color: #fafafa;
+  border: 1px solid #eaeaea; /* Bordes ligeros entre slots */
+}
+
+.fc-timegrid-slot:nth-child(even) {
+  background-color: #f0f0f0;
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column; /* Cambiar a columna para pantallas pequeñas */
+  }
+
+  .sidebar {
+    width: 100%; /* Sidebar ocupa todo el ancho */
+    border-right: none; /* Elimina borde lateral */
+    border-bottom: 1px solid #ddd; /* Agregar borde inferior */
+  }
+
+  .calendar-container {
+    flex: none;
+    height: calc(100vh - 150px); /* Ajusta la altura restante */
+    margin-top: 10px;
+  }
+
+  .calendar-wrapper {
+    max-height: calc(
+      100vh - 200px
+    ); /* Ajusta el tamaño en pantallas pequeñas */
+  }
+
+  .fc-timegrid-slot {
+    height: 30px; /* Reduce la altura de los slots en pantallas pequeñas */
+  }
+}

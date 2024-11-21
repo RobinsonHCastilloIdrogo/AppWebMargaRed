@@ -1,0 +1,15 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <app-shared-dashboard class="sidebar"></app-shared-dashboard>
+
+  <!-- Contenedor del calendario -->
+  <div class="calendar-container">
+    <div class="calendar-wrapper">
+      <!-- Componente FullCalendar -->
+      <full-calendar
+        class="full-calendar"
+        [options]="calendarOptions"
+      ></full-calendar>
+    </div>
+  </div>
+</div>
