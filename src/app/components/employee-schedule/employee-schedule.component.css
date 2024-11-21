@@ -1,117 +1,264 @@
+/* Variables de diseño */
+:root {
+  --color-sidebar-bg: #f8f9fa; /* Fondo del sidebar */
+  --color-border: #ddd; /* Color de los bordes */
+  --color-calendar-bg: #ffffff; /* Fondo del calendario */
+  --color-header-bg: #f4f4f4; /* Fondo del encabezado */
+  --color-header-text: #333; /* Color del texto del encabezado */
+  --color-background: #eaeaea; /* Fondo gris claro */
+}
+
 /* Contenedor principal: diseño con Flexbox */
 .dashboard-container {
-  display: flex; /* Estructura en fila */
+  display: flex;
   height: 100vh; /* Altura completa de la pantalla */
-  background-color: #f4f4f4; /* Fondo claro */
+  background-color: var(--color-background); /* Fondo gris claro */
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Evitar scroll no deseado */
+  overflow: hidden;
 }
 
 /* Sidebar: ocupa un 15% del ancho */
 .sidebar {
-  width: 15%; /* Ancho fijo del sidebar */
-  background-color: #f8f9fa; /* Fondo claro */
-  border-right: 1px solid #ddd; /* Línea divisoria */
+  width: 15%;
+  background-color: var(--color-sidebar-bg);
+  border-right: 1px solid var(--color-border);
   padding: 15px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sombra en el borde */
-  overflow-y: auto; /* Permitir scroll interno */
-  height: 100%; /* Asegura que ocupe toda la altura */
+  height: 100%;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
-/* Contenedor del calendario */
-.calendar-container {
+/* Título y selector en la columna izquierda */
+.calendar-selector-column {
+  flex: 0 0 400px; /* Ancho fijo de la columna */
+  display: flex;
+  flex-direction: column; /* Alineación en columna */
+  justify-content: flex-start; /* Alinea los elementos hacia arriba */
+  align-items: flex-start;
+  background: var(--color-sidebar-bg); /* Fondo claro */
+  border-right: 1px solid var(--color-border);
+  padding: 20px; /* Espaciado interno */
+  box-sizing: border-box;
+}
+
+.calendar-selector-title {
+  font-size: 1.5rem; /* Tamaño del título */
+  font-weight: bold;
+  color: var(--color-header-text);
+  margin-bottom: 20px; /* Espaciado con el selector */
+  text-align: left;
+  width: 100%; /* Alinea con la columna */
+}
+
+.calendar-view-selector {
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: #fff;
+  color: var(--color-header-text);
+  cursor: pointer;
+  width: 100%; /* Ocupa todo el ancho disponible */
+  transition: border-color 0.3s ease;
+}
+
+.calendar-view-selector:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.calendar-view-selector:hover {
+  border-color: #0056b3;
+}
+
+/* Columna del calendario */
+.calendar-main-column {
   flex: 1; /* Ocupa el espacio restante */
-  padding: 0; /* Elimina padding interno */
-  background: #fff; /* Fondo blanco */
-  border-left: 1px solid #ddd; /* Borde izquierdo */
-  display: flex; /* Flexbox para alinear el contenido */
+  display: flex;
   flex-direction: column;
-  height: 100%; /* Ocupa toda la altura del contenedor principal */
-  overflow: hidden; /* Evitar scroll adicional */
-}
-
-/* Wrapper para limitar el tamaño del calendario */
-.calendar-wrapper {
-  flex: 1; /* Ocupa todo el espacio restante */
-  max-height: calc(100vh - 50px); /* Limita la altura del calendario */
-  overflow: hidden; /* Evita scroll en el wrapper */
-  padding: 10px; /* Añade espacio interno */
-  box-sizing: border-box; /* Incluye el padding en el cálculo del tamaño */
+  background: var(--color-calendar-bg);
+  padding: 20px; /* Espaciado entre el calendario y la columna izquierda */
+  box-sizing: border-box;
+  border-radius: 8px; /* Bordes redondeados para el calendario */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera */
 }
 
 /* FullCalendar: ajuste dinámico */
 .full-calendar {
-  height: 100%; /* Ocupa toda la altura del wrapper */
-  overflow: hidden; /* Evita scroll interno */
+  flex: 1;
+  height: 100%; /* Altura completa */
+  overflow: hidden;
 }
 
-/* Ajustes específicos para la vista Semana y Día */
-.fc-timegrid {
-  overflow-y: auto; /* Permite scroll vertical si hay contenido adicional */
+/* Contenedor del calendario */
+.calendar-container {
+  flex: 1;
+  flex-direction: row;
+  background: var(--color-background);
+  height: 100%;
+  gap: 20px; /* Espaciado entre columnas */
 }
 
-.fc-timegrid-slot {
-  height: 40px; /* Ajusta la altura de cada segmento de tiempo */
+/* Wrapper para limitar el tamaño del calendario */
+.calendar-wrapper {
+  flex: 1;
+  height: 100%;
+  padding: 0; /* Sin padding adicional en el wrapper */
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-.fc-timegrid-slot-label {
-  font-size: 0.9rem; /* Ajusta el tamaño de las etiquetas de tiempo */
+/* Contenedor de columnas */
+.calendar-columns {
+  display: flex;
+  gap: 20px; /* Espaciado entre columnas */
+  height: 100%;
 }
 
-.fc-timegrid-slot .fc-scrollgrid-sync-inner {
-  height: 40px; /* Ajusta la altura del contenido */
+/* Encabezado para la sección de empleados */
+.employee-header-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--color-header-text);
+  margin-bottom: 20px;
+  text-align: left;
 }
 
-/* Títulos y días */
-.fc-col-header-cell {
-  font-size: 1rem;
+/* Card para el formulario de búsqueda */
+.employee-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.employee-card h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: var(--color-header-text);
   text-align: center;
-  background: #f4f4f4;
-  color: #333;
-  padding: 10px 0;
 }
 
-/* Estilo de la vista Día */
-.fc-timegrid-day {
-  max-height: calc(100vh - 120px); /* Limita la altura en la vista Día */
+/* Estilo del formulario */
+.employee-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-/* Fondo alternado para las horas */
-.fc-timegrid-slot {
-  background-color: #fafafa;
-  border: 1px solid #eaeaea; /* Bordes ligeros entre slots */
+.employee-form label {
+  font-size: 1rem;
+  color: var(--color-header-text);
+  font-weight: 600;
 }
 
-.fc-timegrid-slot:nth-child(even) {
-  background-color: #f0f0f0;
+.employee-form input {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
 }
 
-/* Responsividad para pantallas pequeñas */
+.employee-form input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.employee-form input::placeholder {
+  color: #bbb;
+  font-style: italic;
+}
+
+/* Lista de empleados */
+.employee-list {
+  margin-top: 10px;
+  list-style: none;
+  padding: 0;
+  max-height: 150px; /* Altura máxima con scroll */
+  overflow-y: auto; /* Scroll vertical */
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.employee-list li {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--color-header-text);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.employee-list li:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Detalles del empleado seleccionado */
+.employee-details {
+  margin-top: 20px;
+  background: #f9f9f9;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.employee-details h4 {
+  font-size: 1.2rem;
+  color: var(--color-header-text);
+  margin-bottom: 10px;
+}
+
+.employee-details ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.employee-details li {
+  font-size: 1rem;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.employee-details li:last-child {
+  border-bottom: none;
+}
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+/* Responsividad */
 @media (max-width: 768px) {
-  .dashboard-container {
-    flex-direction: column; /* Cambiar a columna para pantallas pequeñas */
+  .calendar-columns {
+    flex-direction: column; /* Cambiar a disposición en fila */
   }
 
-  .sidebar {
-    width: 100%; /* Sidebar ocupa todo el ancho */
-    border-right: none; /* Elimina borde lateral */
-    border-bottom: 1px solid #ddd; /* Agregar borde inferior */
-  }
-
-  .calendar-container {
+  .calendar-selector-column {
     flex: none;
-    height: calc(100vh - 150px); /* Ajusta la altura restante */
-    margin-top: 10px;
+    width: 100%; /* Ocupa todo el ancho */
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
   }
 
-  .calendar-wrapper {
-    max-height: calc(
-      100vh - 200px
-    ); /* Ajusta el tamaño en pantallas pequeñas */
+  .calendar-view-selector {
+    font-size: 0.9rem;
   }
 
-  .fc-timegrid-slot {
-    height: 30px; /* Reduce la altura de los slots en pantallas pequeñas */
+  .calendar-selector-title {
+    font-size: 1.2rem; /* Reduce el tamaño del título en pantallas pequeñas */
+  }
+
+  .calendar-main-column {
+    padding: 10px; /* Reduce el espaciado en pantallas pequeñas */
   }
 }

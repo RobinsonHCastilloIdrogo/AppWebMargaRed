@@ -2,14 +2,55 @@
   <!-- Sidebar -->
   <app-shared-dashboard class="sidebar"></app-shared-dashboard>
 
-  <!-- Contenedor del calendario -->
+  <!-- Contenedor principal del calendario -->
   <div class="calendar-container">
-    <div class="calendar-wrapper">
-      <!-- Componente FullCalendar -->
-      <full-calendar
-        class="full-calendar"
-        [options]="calendarOptions"
-      ></full-calendar>
+    <div class="calendar-columns">
+      <!-- Columna izquierda con título y selector -->
+      <div class="calendar-selector-column">
+        <div class="employee-header-title">Horario Laboral</div>
+        <div class="employee-card">
+          <h3>Buscar Empleado</h3>
+          <form class="employee-form">
+            <input
+              type="text"
+              id="search-employee"
+              name="search-employee"
+              placeholder="Escriba un nombre..."
+              (input)="filterByEmployee($event)"
+            />
+            <div *ngIf="inputError" class="error-message">
+              Por favor, ingrese solo letras.
+            </div>
+          </form>
+          <!-- Lista de empleados filtrados -->
+          <ul class="employee-list" *ngIf="filteredAssignments.length > 0">
+            <li
+              *ngFor="let employee of filteredAssignments"
+              (click)="selectEmployee(employee)"
+            >
+              {{ employee.nombre }}
+            </li>
+          </ul>
+          <!-- Detalles del empleado seleccionado -->
+          <div *ngIf="selectedEmployee" class="employee-details">
+            <h4>Asignaciones para {{ selectedEmployee.nombre }}</h4>
+            <ul>
+              <li *ngFor="let assignment of selectedEmployeeAssignments">
+                Día: {{ assignment.fecha }} | Horario:
+                {{ assignment.horaInicio }} - {{ assignment.horaFin }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha con el calendario -->
+      <div class="calendar-main-column">
+        <full-calendar
+          class="full-calendar"
+          [options]="calendarOptions"
+        ></full-calendar>
+      </div>
     </div>
   </div>
 </div>
