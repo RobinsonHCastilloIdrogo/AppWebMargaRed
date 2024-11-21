@@ -50,19 +50,35 @@ export class EmployeeScheduleComponent implements OnInit {
   loadAllAssignments(): void {
     this.firebaseService.getAllAssignments().subscribe(
       (assignments) => {
-        this.allAssignments = assignments;
+        this.allAssignments = this.processAssignments(assignments); // Procesar asignaciones para eliminar duplicados
         this.filteredAssignments = []; // Lista cerrada por defecto
 
         // Asignar colores únicos a cada empleado
-        this.assignColorsToEmployees(assignments);
+        this.assignColorsToEmployees(this.allAssignments);
 
         // Configurar eventos iniciales
-        this.updateCalendarEvents(assignments);
+        this.updateCalendarEvents(this.allAssignments);
       },
       (error) => {
         console.error('Error al cargar las asignaciones:', error);
       }
     );
+  }
+
+  // Procesar asignaciones para evitar duplicados y respetar rangos de fechas
+  processAssignments(assignments: any[]): any[] {
+    const processedAssignments: any[] = [];
+    const assignmentMap = new Map(); // Map para evitar duplicados
+
+    assignments.forEach((assignment) => {
+      const uniqueKey = `${assignment.nombre}-${assignment.fecha}-${assignment.horaInicio}-${assignment.horaFin}`;
+      if (!assignmentMap.has(uniqueKey)) {
+        assignmentMap.set(uniqueKey, assignment);
+        processedAssignments.push(assignment);
+      }
+    });
+
+    return processedAssignments;
   }
 
   // Asignar colores únicos a cada empleado
@@ -80,8 +96,7 @@ export class EmployeeScheduleComponent implements OnInit {
     const letters = '0123456789ABCDEF';
     let color = '#';
     for (let i = 0; i < 6; i++) {
-      // Limitar los valores a rangos más bajos (0-8) para colores más oscuros
-      const randomValue = Math.floor(Math.random() * 9); // 0-8
+      const randomValue = Math.floor(Math.random() * 9); // 0-8 para tonos oscuros
       color += letters[randomValue];
     }
     return color;
