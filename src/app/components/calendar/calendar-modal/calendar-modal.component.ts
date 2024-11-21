@@ -276,6 +276,8 @@ export class CalendarModalComponent implements OnInit {
     const selectedEmployeeIds = new Set<string>();
     for (const assignment of this.projectAssignments) {
       const employeeId = assignment.employeeId;
+
+      // Verifica si el empleado ya ha sido asignado
       if (employeeId && selectedEmployeeIds.has(employeeId)) {
         Swal.fire({
           icon: 'warning',
@@ -289,43 +291,44 @@ export class CalendarModalComponent implements OnInit {
       if (employeeId) {
         selectedEmployeeIds.add(employeeId);
       }
-    }
 
-    for (const assignment of this.projectAssignments) {
-      if (assignment.role === 'Operador' && !assignment.machineId) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Máquina no asignada',
-          text: 'Si el rol es "Operador", debe asignarse una máquina para el evento.',
-        });
-        return false;
-      }
-    }
-
-    const selectedMachineIds = new Set<string>();
-    for (const assignment of this.projectAssignments) {
-      const machineId = assignment.machineId;
-      if (machineId && selectedMachineIds.has(machineId)) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Máquina duplicada',
-          text: `La máquina ${this.getMachineName(
-            machineId
-          )} ya ha sido asignada.`,
-        });
-        return false;
-      }
-      if (machineId) {
-        selectedMachineIds.add(machineId);
-      }
-    }
-
-    for (const assignment of this.projectAssignments) {
+      // Validación de horarios
       if (!assignment.startHour || !assignment.endHour) {
         Swal.fire({
           icon: 'warning',
           title: 'Horas incompletas',
           text: 'Por favor, complete las horas de inicio y fin para cada asignación.',
+        });
+        return false;
+      }
+
+      // Valida que la hora de inicio no sea posterior a la hora de fin
+      if (assignment.startHour >= assignment.endHour) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Horario no válido',
+          text: `La hora de inicio (${assignment.startHour}) debe ser anterior a la hora de fin (${assignment.endHour}).`,
+        });
+        return false;
+      }
+
+      // Validación de solapamiento de horarios para el mismo empleado
+      const overlappingAssignments = this.projectAssignments.filter(
+        (otherAssignment) =>
+          otherAssignment.employeeId === employeeId &&
+          otherAssignment !== assignment && // Evitar comparar con la misma asignación
+          ((otherAssignment.startHour! < assignment.endHour! &&
+            otherAssignment.endHour! > assignment.startHour!) || // Solapamiento
+            (assignment.startHour! < otherAssignment.endHour! &&
+              assignment.endHour! > otherAssignment.startHour!))
+      );
+      if (overlappingAssignments.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Conflicto de horarios',
+          text: `El empleado ${this.getEmployeeName(
+            employeeId
+          )} tiene horarios superpuestos.`,
         });
         return false;
       }
@@ -400,7 +403,10 @@ export class CalendarModalComponent implements OnInit {
 
     const selectedEmployeeIds = new Set<string>();
     for (let i = 0; i < this.employeeCount; i++) {
-      const employeeId = this.projectAssignments[i]?.employeeId;
+      const assignment = this.projectAssignments[i];
+      const employeeId = assignment.employeeId;
+
+      // Verifica si el empleado ya ha sido asignado
       if (employeeId && selectedEmployeeIds.has(employeeId)) {
         Swal.fire({
           icon: 'warning',
@@ -414,50 +420,44 @@ export class CalendarModalComponent implements OnInit {
       if (employeeId) {
         selectedEmployeeIds.add(employeeId);
       }
-    }
 
-    for (let i = 0; i < this.employeeCount; i++) {
-      const assignment = this.projectAssignments[i];
-      if (assignment.role === 'Operador' && !assignment.machineId) {
+      // Validación de horarios
+      if (!assignment.startHour || !assignment.endHour) {
         Swal.fire({
           icon: 'warning',
-          title: 'Máquina no asignada',
-          text: 'Si el rol es "Operador", debe asignarse una máquina.',
+          title: 'Horas incompletas',
+          text: 'Por favor, complete las horas de inicio y fin para cada asignación.',
         });
         return false;
       }
-    }
 
-    const selectedMachineIds = new Set<string>();
-    for (let i = 0; i < this.employeeCount; i++) {
-      const machineId = this.projectAssignments[i]?.machineId;
-      if (machineId && selectedMachineIds.has(machineId)) {
+      // Valida que la hora de inicio no sea posterior a la hora de fin
+      if (assignment.startHour >= assignment.endHour) {
         Swal.fire({
           icon: 'warning',
-          title: 'Máquina duplicada',
-          text: `La máquina ${this.getMachineName(
-            machineId
-          )} ya ha sido asignada.`,
+          title: 'Horario no válido',
+          text: `La hora de inicio (${assignment.startHour}) debe ser anterior a la hora de fin (${assignment.endHour}).`,
         });
         return false;
       }
-      if (machineId) {
-        selectedMachineIds.add(machineId);
-      }
-    }
 
-    for (let i = 0; i < this.employeeCount; i++) {
-      const assignment = this.projectAssignments[i];
-      if (
-        !assignment.employeeId ||
-        !assignment.role ||
-        !assignment.startHour ||
-        !assignment.endHour
-      ) {
+      // Validación de solapamiento de horarios para el mismo empleado
+      const overlappingAssignments = this.projectAssignments.filter(
+        (otherAssignment) =>
+          otherAssignment.employeeId === employeeId &&
+          otherAssignment !== assignment && // Evitar comparar con la misma asignación
+          ((otherAssignment.startHour! < assignment.endHour! &&
+            otherAssignment.endHour! > assignment.startHour!) || // Solapamiento
+            (assignment.startHour! < otherAssignment.endHour! &&
+              assignment.endHour! > otherAssignment.startHour!))
+      );
+      if (overlappingAssignments.length > 0) {
         Swal.fire({
           icon: 'warning',
-          title: 'Campos incompletos',
-          text: 'Por favor, complete todos los campos, incluyendo las horas de inicio y fin, para todos los empleados.',
+          title: 'Conflicto de horarios',
+          text: `El empleado ${this.getEmployeeName(
+            employeeId
+          )} tiene horarios superpuestos.`,
         });
         return false;
       }
