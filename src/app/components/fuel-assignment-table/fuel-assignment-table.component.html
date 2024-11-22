@@ -7,6 +7,28 @@
     <header>
       <h2 class="h2-list">Tabla de Combustible Asignado</h2>
     </header>
+
+    <!-- Controles de Filtro -->
+  <div class="filter-controls">
+    <label>
+      <input type="radio" name="filterType" value="day" [(ngModel)]="filterType" (change)="setFilterType('day')" />
+      Filtrar por Día
+    </label>
+    <label>
+      <input type="radio" name="filterType" value="month" [(ngModel)]="filterType" (change)="setFilterType('month')" />
+      Filtrar por Mes
+    </label>
+
+    <div *ngIf="filterType === 'day'">
+      <label for="filterDate">Fecha:</label>
+      <input type="date" id="filterDate" (change)="onFilterDateChange($event)" />
+    </div>
+
+    <div *ngIf="filterType === 'month'">
+      <label for="filterMonth">Mes:</label>
+      <input type="month" id="filterMonth" (change)="onFilterMonthChange($event)" />
+    </div>
+  </div>
     
     <!-- Menú de exportación -->
     <div class="assign-form">
@@ -41,46 +63,58 @@
           <tr>
             <th>Proyecto</th>
             <th>Empleado Asignado</th>
-            <th>Máquina Asignada</th>
-            <th>Hora de Inicio</th> 
-            <th>Hora de Fin</th> 
-            <th>Tipo de Maquina</th>
+            <th>Máquina asignada</th>
+            <th>Máquina Específica</th>
             <th>Combustible Asignado (L)</th>
-            <th>Fecha de Asignación</th>  
             <th>Costo</th>
+            <th>Detalle</th>
           </tr>
         </thead> 
         
         <tbody>
-          <tr *ngFor="let record of fuelRecords">
+          <tr *ngFor="let record of filteredFuelRecords">
             <td class="project-name">{{ getProjectName(record.machineId) }}</td>
             <td class="employee-name">{{ getEmployeeName(record.machineId) }}</td>
-            <td>{{ record.machineId }}</td>
-            <td>{{ formatHour(getStartHour(record.machineId)) }}</td> 
-            <td>{{ formatHour(getEndHour(record.machineId)) }}</td>   
             <td>{{ record.machineType }}</td>
+            <td>{{ record.machineId }}</td>
             <td>{{ record.totalFuelAssigned }}</td>
-            <td class="date-column">
-              {{
-                record.dateAssigned
-                  ? formatDate(record.dateAssigned)
-                  : "No asignado"
-              }}
-            </td>
             <td>{{ 'S/' + (record.totalFuelAssigned * 4.91).toFixed(2) }}</td>
+            <td>
+              <button
+        class="detail-button"
+        *ngIf="record.dateAssigned"
+        (click)="viewDetails(record.machineId, record.dateAssigned.toDate().toISOString().split('T')[0])">
+        Ver detalle
+      </button>
+            </td>
           </tr>
         </tbody>
 
         <!-- Fila de Totales -->
         <tfoot>
           <tr>
-            <td colspan="6" style="text-align:center; font-weight: bold; font-size: 18px;">Total</td>
+            <td colspan="4" style="text-align:center; font-weight: bold; font-size: 18px;">Total</td>
             <td class="total-fuel" style="font-size: 18px;">{{ totalFuel }}</td> 
-            <td></td>
             <td style="font-size: 18px;">{{ 'S/' + totalCost.toFixed(2) }}</td> 
+            <td></td>
           </tr>
-        </tfoot>
+        </tfoot>        
       </table>
     </div>
   </div>
+
+  <!-- Modal para mostrar el historial de combustible -->
+  <div *ngIf="modalVisible" class="modal">
+    <div class="modal-content">
+      <h2>Detalle de Combustible</h2>
+      <ul>
+        <li *ngFor="let record of modalFuelHistory">
+          Combustible: {{ record.totalFuelAssigned }} litros,
+          Fecha: {{ record.dateAssigned.toDate() | date: 'dd/MM/yyyy HH:mm' }}
+        </li>
+      </ul>
+      <button (click)="closeModal()">Cerrar</button>
+    </div>
+  </div>
+  
 </div>
