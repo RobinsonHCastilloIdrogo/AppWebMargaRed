@@ -5,12 +5,21 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
 import { FirebaseService } from '../../services/firebase.service';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf, CommonModule } from '@angular/common';
+import moment from 'moment';
+import 'moment/locale/es'; // Importar la localización en español
+import esLocale from '@fullcalendar/core/locales/es';
 
 @Component({
   selector: 'app-employee-schedule',
   standalone: true,
-  imports: [FullCalendarModule, SharedDashboardComponent, NgFor, NgIf],
+  imports: [
+    FullCalendarModule,
+    SharedDashboardComponent,
+    NgFor,
+    NgIf,
+    CommonModule,
+  ],
   templateUrl: './employee-schedule.component.html',
   styleUrls: ['./employee-schedule.component.css'],
 })
@@ -22,96 +31,109 @@ export class EmployeeScheduleComponent implements OnInit {
   selectedEmployeeAssignments: any[] = []; // Asignaciones del empleado seleccionado
   inputError: boolean = false; // Indica si hay un error en el cuadro de texto
   employeeColors: Map<string, string> = new Map(); // Colores únicos por empleado
+  allEmployees: any[] = []; // Lista de empleados únicos para la búsqueda
 
-  constructor(private firebaseService: FirebaseService) {}
+  constructor(private firebaseService: FirebaseService) {
+    moment.locale('es'); // Configurar moment para usar el idioma español
+  }
 
   ngOnInit(): void {
     this.loadAllAssignments(); // Carga las asignaciones desde Firestore
 
     // Configuración inicial del calendario
     this.calendarOptions = {
-      initialView: 'timeGridWeek', // Vista inicial: semana con horas
+      initialView: 'dayGridMonth',
       plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay', // Botones para cambiar entre vistas
+        right: 'dayGridMonth,timeGridWeek,timeGridDay',
       },
-      editable: true, // Permitir editar eventos
-      selectable: true, // Permitir seleccionar fechas
-      slotMinTime: '07:00:00', // Horario inicial: 7:00 AM
-      slotMaxTime: '23:00:00', // Horario final: 11:00 PM
-      events: [], // Eventos dinámicos
-      eventClick: this.handleEventClick.bind(this), // Evento al hacer clic
+      buttonText: {
+        today: 'Hoy',
+        month: 'Mes',
+        week: 'Semana',
+        day: 'Día',
+      },
+      editable: true,
+      selectable: true,
+      slotMinTime: '07:00:00',
+      slotMaxTime: '23:00:00',
+      events: [],
+      slotEventOverlap: false,
+      eventMaxStack: 3,
+      eventClick: this.handleEventClick.bind(this),
+      locale: esLocale, // Configuración del idioma a español
+      dayHeaderFormat: { weekday: 'long' },
+      eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false },
     };
   }
 
   // Cargar todas las asignaciones desde Firebase
   loadAllAssignments(): void {
-    this.firebaseService.getAllAssignments().subscribe(
-      (assignments) => {
-        this.allAssignments = this.processAssignments(assignments); // Procesar asignaciones para eliminar duplicados
-        this.filteredAssignments = []; // Lista cerrada por defecto
+    this.firebaseService
+      .getCollection('/assignments/2024-11/projects')
+      .subscribe(
+        (projects) => {
+          const eventos: {
+            title: string;
+            start: Date;
+            end: Date;
+            color: string;
+          }[] = [];
 
-        // Asignar colores únicos a cada empleado
-        this.assignColorsToEmployees(this.allAssignments);
+          const employeesSet = new Set();
 
-        // Configurar eventos iniciales
-        this.updateCalendarEvents(this.allAssignments);
-      },
-      (error) => {
-        console.error('Error al cargar las asignaciones:', error);
-      }
-    );
-  }
+          projects.forEach((project: any) => {
+            const empleados = project.empleados || [];
+            empleados.forEach((empleado: any) => {
+              const startDate = moment(project.fechaInicio);
+              const endDate = moment(project.fechaFin);
 
-  // Procesar asignaciones para evitar duplicados y respetar rangos de fechas
-  processAssignments(assignments: any[]): any[] {
-    const processedAssignments: any[] = [];
-    const assignmentMap = new Map(); // Map para evitar duplicados
+              if (!employeesSet.has(empleado.nombre)) {
+                employeesSet.add(empleado.nombre);
+                this.allEmployees.push(empleado);
+              }
 
-    assignments.forEach((assignment) => {
-      const uniqueKey = `${assignment.nombre}-${assignment.fecha}-${assignment.horaInicio}-${assignment.horaFin}`;
-      if (!assignmentMap.has(uniqueKey)) {
-        assignmentMap.set(uniqueKey, assignment);
-        processedAssignments.push(assignment);
-      }
-    });
+              // Iterar desde fechaInicio hasta fechaFin para generar eventos diarios
+              while (startDate.isSameOrBefore(endDate)) {
+                const color =
+                  this.employeeColors.get(empleado.nombre) ||
+                  this.generateDarkColor();
+                this.employeeColors.set(empleado.nombre, color);
 
-    return processedAssignments;
-  }
+                eventos.push({
+                  title: empleado.nombre,
+                  start: new Date(
+                    startDate.year(),
+                    startDate.month(),
+                    startDate.date(),
+                    ...empleado.horaInicio.split(':')
+                  ),
+                  end: new Date(
+                    startDate.year(),
+                    startDate.month(),
+                    startDate.date(),
+                    ...empleado.horaFin.split(':')
+                  ),
+                  color: color,
+                });
 
-  // Asignar colores únicos a cada empleado
-  assignColorsToEmployees(assignments: any[]): void {
-    assignments.forEach((assignment) => {
-      if (!this.employeeColors.has(assignment.nombre)) {
-        const color = this.generateDarkColor();
-        this.employeeColors.set(assignment.nombre, color);
-      }
-    });
-  }
+                startDate.add(1, 'day'); // Incrementar día usando moment
+              }
+            });
+          });
 
-  // Generar un color oscuro aleatorio
-  generateDarkColor(): string {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      const randomValue = Math.floor(Math.random() * 9); // 0-8 para tonos oscuros
-      color += letters[randomValue];
-    }
-    return color;
-  }
+          this.allAssignments = eventos;
 
-  // Actualizar los eventos del calendario
-  updateCalendarEvents(assignments: any[]): void {
-    const events = assignments.map((assignment: any) => ({
-      title: assignment.nombre,
-      start: `${assignment.fecha}T${assignment.horaInicio}`,
-      end: `${assignment.fecha}T${assignment.horaFin}`,
-      color: this.employeeColors.get(assignment.nombre), // Color único del empleado
-    }));
-
-    this.calendarOptions = { ...this.calendarOptions, events };
+          // Actualizar las opciones del calendario
+          this.calendarOptions = { ...this.calendarOptions, events: eventos };
+          console.log('Eventos generados:', eventos);
+        },
+        (error) => {
+          console.error('Error al cargar asignaciones:', error);
+        }
+      );
   }
 
   // Filtrar asignaciones por empleado
@@ -124,33 +146,56 @@ export class EmployeeScheduleComponent implements OnInit {
     this.inputError = !isValid;
 
     if (!isValid || !searchValue) {
-      // Si la entrada no es válida o está vacía, cerrar la lista y restablecer el calendario
+      // Si la entrada no es válida o está vacía, cerrar la lista
       this.filteredAssignments = [];
-      this.selectedEmployee = null;
-      this.selectedEmployeeAssignments = [];
-      this.updateCalendarEvents(this.allAssignments); // Mostrar todas las asignaciones
       return;
     }
 
-    // Filtrar empleados por el texto ingresado
-    this.filteredAssignments = this.allAssignments.filter((assignment) =>
-      assignment.nombre.toLowerCase().includes(searchValue.toLowerCase())
-    );
-
-    // Actualizar el calendario con los empleados filtrados
-    this.updateCalendarEvents(this.filteredAssignments);
+    // Filtrar empleados en los eventos usando el nombre del empleado
+    const uniqueNames = new Set();
+    this.filteredAssignments = this.allAssignments
+      .filter((assignment) =>
+        assignment.title.toLowerCase().includes(searchValue.toLowerCase())
+      )
+      .filter((assignment) => {
+        // Filtrar solo empleados únicos por nombre
+        if (!uniqueNames.has(assignment.title)) {
+          uniqueNames.add(assignment.title);
+          return true;
+        }
+        return false;
+      });
   }
 
   // Seleccionar un empleado de la lista
   selectEmployee(employee: any): void {
     this.selectedEmployee = employee;
 
-    // Mostrar solo las asignaciones del empleado seleccionado
+    // Filtrar eventos del empleado seleccionado
     this.selectedEmployeeAssignments = this.allAssignments.filter(
-      (assignment) => assignment.nombre === employee.nombre
+      (assignment) => assignment.title === employee.title
     );
 
-    // Actualizar el calendario solo con las asignaciones del empleado
+    // Formatear las fechas con moment
+    this.selectedEmployeeAssignments = this.selectedEmployeeAssignments.map(
+      (assignment) => {
+        return {
+          ...assignment,
+          formattedStart: moment(assignment.start).format(
+            'dddd, D [de] MMMM [de] YYYY, HH:mm'
+          ),
+          formattedEnd: moment(assignment.end).format('HH:mm'),
+        };
+      }
+    );
+
+    // Mostrar en consola para verificar los datos
+    console.log(
+      'Asignaciones del empleado seleccionado:',
+      this.selectedEmployeeAssignments
+    );
+
+    // Actualizar los datos del calendario para reflejar solo el empleado seleccionado
     this.updateCalendarEvents(this.selectedEmployeeAssignments);
 
     // Restablecer el cuadro de búsqueda
@@ -165,7 +210,30 @@ export class EmployeeScheduleComponent implements OnInit {
     this.filteredAssignments = [];
   }
 
+  // Actualizar los eventos del calendario
+  updateCalendarEvents(assignments: any[]): void {
+    const events = assignments.map((assignment: any) => ({
+      title: assignment.title,
+      start: assignment.start,
+      end: assignment.end,
+      color: assignment.color,
+    }));
+
+    this.calendarOptions = { ...this.calendarOptions, events };
+  }
+
   handleEventClick(eventInfo: any): void {
     alert(`Evento: ${eventInfo.event.title}`);
+  }
+
+  // Generar un color oscuro aleatorio
+  generateDarkColor(): string {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      const randomValue = Math.floor(Math.random() * 9); // 0-8 para tonos oscuros
+      color += letters[randomValue];
+    }
+    return color;
   }
 }

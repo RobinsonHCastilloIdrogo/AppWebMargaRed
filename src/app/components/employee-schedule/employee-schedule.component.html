@@ -28,16 +28,30 @@
               *ngFor="let employee of filteredAssignments"
               (click)="selectEmployee(employee)"
             >
-              {{ employee.nombre }}
+              {{ employee.title }}
             </li>
           </ul>
           <!-- Detalles del empleado seleccionado -->
           <div *ngIf="selectedEmployee" class="employee-details">
-            <h4>Asignaciones para {{ selectedEmployee.nombre }}</h4>
+            <h4>Asignaciones para {{ selectedEmployee.title }}</h4>
             <ul>
-              <li *ngFor="let assignment of selectedEmployeeAssignments">
-                Día: {{ assignment.fecha }} | Horario:
-                {{ assignment.horaInicio }} - {{ assignment.horaFin }}
+              <li
+                *ngFor="let assignment of selectedEmployeeAssignments"
+                class="assignment-item"
+              >
+                <div class="assignment-day">
+                  Día: {{ assignment.formattedStart.split(",")[0] }}
+                  <!-- Mostrar solo el día de la semana -->
+                </div>
+                <div class="assignment-details">
+                  <div class="assignment-date">
+                    Fecha: {{ assignment.formattedStart.split(",")[1] }}
+                  </div>
+                  <div class="assignment-time">
+                    Horario: {{ assignment.formattedStart.split(",")[2] }} -
+                    {{ assignment.formattedEnd }}
+                  </div>
+                </div>
               </li>
             </ul>
           </div>

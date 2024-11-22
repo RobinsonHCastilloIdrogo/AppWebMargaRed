@@ -31,7 +31,7 @@
 
 /* Título y selector en la columna izquierda */
 .calendar-selector-column {
-  flex: 0 0 400px; /* Ancho fijo de la columna */
+  flex: 0 0 450px; /* Ancho fijo de la columna */
   display: flex;
   flex-direction: column; /* Alineación en columna */
   justify-content: flex-start; /* Alinea los elementos hacia arriba */
@@ -162,12 +162,14 @@
   border: 1px solid var(--color-border);
   border-radius: 4px;
   box-sizing: border-box;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  background-color: #f0f8ff; /* Fondo azul claro para diferenciar el campo */
 }
 
 .employee-form input:focus {
   outline: none;
   border-color: #007bff;
+  background-color: #ffffff; /* Fondo blanco al enfocarse */
 }
 
 .employee-form input::placeholder {
@@ -184,8 +186,10 @@
   overflow-y: auto; /* Scroll vertical */
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: #fff;
+  background: #ffffff; /* Asegurar un fondo blanco visible */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Asegurarse de que esté sobre otros elementos */
+  position: relative; /* Controlar la posición para evitar superposiciones */
 }
 
 .employee-list li {
@@ -194,6 +198,7 @@
   font-size: 1rem;
   color: var(--color-header-text);
   border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transiciones suaves */
 }
 
 .employee-list li:hover {
@@ -203,30 +208,75 @@
 
 /* Detalles del empleado seleccionado */
 .employee-details {
+  background-color: #f9f9f9; /* Fondo claro */
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
-  background: #f9f9f9;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .employee-details h4 {
-  font-size: 1.2rem;
-  color: var(--color-header-text);
-  margin-bottom: 10px;
+  font-size: 1.2em; /* Tamaño del texto */
+  margin-bottom: 15px; /* Separación inferior */
+  color: #333; /* Color del texto */
 }
 
 .employee-details ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  list-style: none; /* Sin viñetas */
+  padding: 0; /* Sin espaciado */
+}
+.assignment-item {
+  background-color: #ffffff; /* Fondo blanco para cada asignación */
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.assignment-item:hover {
+  background-color: #f1f1f1;
+  transition: background-color 0.3s ease;
+}
+
+.assignment-day {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #333;
+  margin-bottom: 10px; /* Espacio inferior para separar del horario */
+}
+
+.assignment-details {
+  display: flex;
+  flex-direction: column; /* Colocar fecha y horario en columnas */
+  gap: 5px; /* Espacio entre la fecha y el horario */
 }
 
 .employee-details li {
-  font-size: 1rem;
-  padding: 5px 0;
-  border-bottom: 1px solid var(--color-border);
+  background-color: #ffffff; /* Fondo blanco para cada asignación */
+  border: 1px solid #e0e0e0; /* Borde suave para diferenciar */
+  border-radius: 5px; /* Bordes redondeados */
+  padding: 15px; /* Espaciado interno */
+  margin-bottom: 10px; /* Espaciado inferior */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.employee-details li:hover {
+  background-color: #f1f1f1; /* Fondo más oscuro al pasar el cursor */
+  transition: background-color 0.3s ease; /* Suavidad en el cambio de fondo */
+}
+
+.assignment-date {
+  font-weight: bold; /* Negrita para las fechas */
+  color: #333; /* Color del texto */
+}
+
+.assignment-time {
+  color: #555; /* Color gris para las horas */
+  font-size: 0.9em; /* Tamaño ligeramente más pequeño */
 }
 
 .employee-details li:last-child {
@@ -237,6 +287,26 @@
   font-size: 0.9rem;
   margin-top: 5px;
 }
+
+.fc-event {
+  font-size: 12px;
+  line-height: 1.2;
+  padding: 2px;
+}
+.fc-event-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc-daygrid-event {
+  margin-bottom: 1px;
+}
+
+.fc-timegrid-event {
+  height: auto;
+}
+
 /* Responsividad */
 @media (max-width: 768px) {
   .calendar-columns {

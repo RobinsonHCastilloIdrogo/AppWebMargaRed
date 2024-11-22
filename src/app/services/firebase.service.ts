@@ -304,15 +304,37 @@ export class FirebaseService {
     const projectsPath = '/assignments/2024-11/projects';
     return this.getCollection(projectsPath).pipe(
       map((projects) => {
-        return projects.flatMap((project: any) => {
+        // Declara explícitamente el tipo de la variable 'eventos'
+        const eventos: {
+          nombre: string;
+          fecha: string;
+          horaInicio: string;
+          horaFin: string;
+        }[] = [];
+
+        projects.forEach((project: any) => {
           const empleados = project.empleados || [];
-          return empleados.map((empleado: any) => ({
-            nombre: empleado.nombre || 'Sin Nombre',
-            fecha: project.fecha || 'Sin Fecha',
-            horaInicio: empleado.horaInicio || '00:00:00',
-            horaFin: empleado.horaFin || '00:00:00',
-          }));
+          const fechaInicio = new Date(project.fechaInicio); // Convertir a fecha
+          const fechaFin = new Date(project.fechaFin); // Convertir a fecha
+
+          // Iterar por cada día en el rango de fechas
+          for (
+            let fecha = fechaInicio;
+            fecha <= fechaFin;
+            fecha.setDate(fecha.getDate() + 1)
+          ) {
+            empleados.forEach((empleado: any) => {
+              eventos.push({
+                nombre: empleado.nombre || 'Sin Nombre',
+                fecha: new Date(fecha).toISOString().split('T')[0], // YYYY-MM-DD
+                horaInicio: empleado.horaInicio || '00:00:00',
+                horaFin: empleado.horaFin || '00:00:00',
+              });
+            });
+          }
         });
+
+        return eventos;
       }),
       catchError((error) => {
         console.error('Error al cargar las asignaciones:', error);

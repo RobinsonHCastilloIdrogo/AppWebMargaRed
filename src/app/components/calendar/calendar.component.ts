@@ -11,6 +11,7 @@ import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.c
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
+import esLocale from '@fullcalendar/core/locales/es';
 
 @Component({
   selector: 'app-calendar',
@@ -151,6 +152,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.calendarOptions = {
       initialView: 'dayGridMonth',
       plugins: [dayGridPlugin, interactionPlugin],
+      locale: esLocale, // Configurar el idioma a español
       selectable: true,
       events: this.assignments, // Mantener los eventos cargados sin restricciones
       dateClick: (arg: any) => this.handleDateClick(arg, currentDate),
