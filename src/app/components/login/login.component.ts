@@ -25,28 +25,39 @@ export class LoginComponent {
   handleLogin(event: Event) {
     event.preventDefault();
 
+    if (!this.isFormValid) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario Incompleto',
+        text: 'Por favor, complete todos los campos.',
+        confirmButtonText: 'Aceptar',
+      });
+      return;
+    }
+
     this.authService
       .login(this.username, this.password)
       .then(() => {
-        // Mostrar una confirmación con SweetAlert
+        // Mostrar confirmación con SweetAlert
         Swal.fire({
           icon: 'success',
           title: 'Inicio de sesión exitoso',
           text: 'Bienvenido a MargaRed',
           confirmButtonText: 'Continuar',
         }).then(() => {
-          this.router.navigate(['/dashboard']); // Redirige al dashboard
+          // Redirige al dashboard
+          this.router.navigate(['/dashboard']);
         });
       })
       .catch((error) => {
-        // Mostrar un error con SweetAlert
+        // Mostrar error con SweetAlert
         Swal.fire({
           icon: 'error',
           title: 'Error',
           text: 'Usuario o contraseña incorrectos',
           confirmButtonText: 'Intentar de nuevo',
         });
-        console.error(error);
+        console.error('Error en el inicio de sesión:', error);
       });
   }
 }

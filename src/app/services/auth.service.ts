@@ -1,33 +1,36 @@
 import { Injectable } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, signOut, User, onAuthStateChanged } from '@angular/fire/auth';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Auth, onAuthStateChanged, signInWithEmailAndPassword, User } from '@angular/fire/auth';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  user$: Observable<User | null>;
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
 
   constructor(private auth: Auth) {
-    // Observa el estado de autenticación
-    this.user$ = new Observable((subscriber) => {
-      onAuthStateChanged(auth, subscriber);
+    // Observa los cambios en el estado de autenticación
+    onAuthStateChanged(this.auth, (user) => {
+      this.isAuthenticatedSubject.next(!!user);
     });
   }
 
   // Método para iniciar sesión
-  login(email: string, password: string): Promise<any> {
-    return signInWithEmailAndPassword(this.auth, email, password);
+  login(email: string, password: string): Promise<void> {
+    return signInWithEmailAndPassword(this.auth, email, password).then(() => {
+      this.isAuthenticatedSubject.next(true); // Cambiar estado a autenticado
+    });
+  }
+
+  // Método para verificar si el usuario está autenticado
+  isAuthenticated(): Observable<boolean> {
+    return this.isAuthenticatedSubject.asObservable();
   }
 
   // Método para cerrar sesión
   logout(): Promise<void> {
-    return signOut(this.auth);
-  }
-
-  // Método para obtener el usuario autenticado
-  getUser(): Observable<User | null> {
-    return this.user$;
+    return this.auth.signOut().then(() => {
+      this.isAuthenticatedSubject.next(false); // Cambiar estado a no autenticado
+    });
   }
 }

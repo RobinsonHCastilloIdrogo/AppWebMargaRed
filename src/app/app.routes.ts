@@ -15,37 +15,42 @@ import { ProjectTasksComponent } from './components/project-dashboard/project-ta
 import { ProjectTeamComponent } from './components/project-dashboard/project-team/project-team.component';
 import { FuelAssignmentTableComponent } from './components/fuel-assignment-table/fuel-assignment-table.component';
 import { EmployeeScheduleComponent } from './components/employee-schedule/employee-schedule.component';
+import { AuthGuard } from './auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'roles', component: RolesComponent },
-  { path: 'employees', component: EmployeesComponent },
-  { path: 'work-hours', component: WorkHoursComponent },
-  { path: 'machinery', component: MachineryComponent },
-  { path: 'assign-resources', component: AssignResourcesComponent },
-  { path: 'projects', component: ProjectComponent },
-  { path: 'fuel', component: FuelManagementComponent },
-  { path: 'calendar', component: CalendarComponent },
-  { path: 'fuel-assignment', component: FuelAssignmentTableComponent },
-  { path: 'employee-schedule', component: EmployeeScheduleComponent },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]  },
+  { path: 'roles', component: RolesComponent, canActivate: [AuthGuard]  },
+  { path: 'employees', component: EmployeesComponent, canActivate: [AuthGuard]  },
+  { path: 'work-hours', component: WorkHoursComponent, canActivate: [AuthGuard]  },
+  { path: 'machinery', component: MachineryComponent , canActivate: [AuthGuard] },
+  { path: 'assign-resources', component: AssignResourcesComponent, canActivate: [AuthGuard]  },
+  { path: 'projects', component: ProjectComponent, canActivate: [AuthGuard]  },
+  { path: 'fuel', component: FuelManagementComponent, canActivate: [AuthGuard]  },
+  { path: 'calendar', component: CalendarComponent, canActivate: [AuthGuard]  },
+  { path: 'fuel-assignment', component: FuelAssignmentTableComponent, canActivate: [AuthGuard]  },
+  { path: 'employee-schedule', component: EmployeeScheduleComponent, canActivate: [AuthGuard]  },
 
   // Rutas anidadas para ProjectDashboard con manejo de parámetros
   {
     path: 'projects/:id',
     component: ProjectDashboardComponent,
+    canActivate: [AuthGuard], // Protect parent route
     children: [
       {
         path: 'details',
         component: ProjectDetailsComponent,
+        canActivate: [AuthGuard], 
       },
       {
         path: 'tasks',
         component: ProjectTasksComponent,
+        canActivate: [AuthGuard], 
       },
       {
         path: 'team',
         component: ProjectTeamComponent,
+        canActivate: [AuthGuard], 
       },
       {
         path: '', // Redirección a 'details' por defecto si se accede a /projects/:id
