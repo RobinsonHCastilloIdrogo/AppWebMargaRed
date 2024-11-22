@@ -15,6 +15,11 @@ import { Machine } from '../../models/machine.model';
 import { SharedDashboardComponent } from '../shared-dashboard/shared-dashboard.component';
 import Swal from 'sweetalert2';
 
+// Nueva interfaz extendida para incluir projectName
+export interface MachineWithProject extends Machine {
+  projectName: string; // Nombre del proyecto asociado
+}
+
 @Component({
   selector: 'app-fuel-management',
   standalone: true,
@@ -23,11 +28,11 @@ import Swal from 'sweetalert2';
   styleUrls: ['./fuel-management.component.css'],
 })
 export class FuelManagementComponent implements OnInit {
-  @Input() machines: Machine[] = [];
+  @Input() machines: MachineWithProject[] = []; // Máquinas cargadas con proyectos asociados
   machineTypes: string[] = [];
   specificMachines: Machine[] = [];
-  filteredMachines: Machine[] = []; // Lista para las máquinas filtradas en el campo de búsqueda
-  selectedMachine?: Machine;
+  filteredMachines: MachineWithProject[] = []; // Lista para las máquinas filtradas
+  selectedMachine?: MachineWithProject; // Máquina seleccionada para asignar combustible
   fuelAmount: number | null = null; // Inicializado como null
   searchQuery: string = ''; // Variable para el cuadro de búsqueda
   successMessage: string = '';
@@ -41,29 +46,49 @@ export class FuelManagementComponent implements OnInit {
   }
 
   async loadMachines(): Promise<void> {
-    const machinesCollection = collection(this.firestore, 'machines');
-    const machineSnapshot = await getDocs(machinesCollection);
-
-    const machinesMap = new Map<string, Machine[]>();
-    machineSnapshot.docs.forEach((doc) => {
-      const data = doc.data() as { machines: Machine[] };
-      if (data && Array.isArray(data['machines'])) {
-        data['machines'].forEach((machine) => {
-          const { id, name, quantity, status } = machine;
-          if (!machinesMap.has(name)) {
-            machinesMap.set(name, []);
-            this.machineTypes.push(name);
+    try {
+      const projectsCollection = collection(this.firestore, '/assignments/2024-11/projects');
+      const projectsSnapshot = await getDocs(projectsCollection);
+  
+      const machinesList: MachineWithProject[] = []; // Lista para todas las máquinas
+  
+      projectsSnapshot.docs.forEach((projectDoc) => {
+        const projectData = projectDoc.data();
+        const empleados = projectData['empleados'] || [];
+        const projectName = projectData['nombreProyecto'] || 'Sin Proyecto';
+  
+        // Iterar sobre cada empleado en el proyecto
+        empleados.forEach((empleado: any) => {
+          const machine = empleado['maquina'];
+  
+          if (machine && machine.id && machine.nombre) {
+            // Verificar si ya existe una máquina con este ID y proyecto en la lista
+            const machineExists = machinesList.some(
+              (m) => m.id === machine.id && m.projectName === projectName
+            );
+  
+            if (!machineExists) {
+              machinesList.push({
+                id: machine.id,
+                name: machine.nombre,
+                quantity: 1,
+                status: 'Disponible',
+                projectName,
+              });
+            }
           }
-          machinesMap
-            .get(name)
-            ?.push({ id, name, quantity, status } as Machine);
         });
-      }
-    });
-
-    this.machines = Array.from(machinesMap.values()).flat();
-    console.log('Máquinas cargadas:', this.machines);
+      });
+  
+      // Actualizar la lista de máquinas en el componente
+      this.machines = machinesList;
+  
+      console.log('Máquinas cargadas:', this.machines);
+    } catch (error) {
+      console.error('Error al cargar máquinas:', error);
+    }
   }
+  
 
   filterMachines(event: Event): void {
     const query = (event.target as HTMLInputElement).value.toLowerCase().trim();
@@ -71,17 +96,17 @@ export class FuelManagementComponent implements OnInit {
       ? this.machines.filter(
           (machine) =>
             machine.name.toLowerCase().includes(query) ||
-            machine.id.toString().includes(query)
+            machine.id.toLowerCase().includes(query)
         )
       : [];
   }
 
-  selectMachine(machine: Machine): void {
+  selectMachine(machine: MachineWithProject): void {
     this.selectedMachine = machine;
-    this.fuelAmount = null; // Set null to clear the input
-    this.filteredMachines = []; // Oculta la lista desplegable después de seleccionar
+    this.fuelAmount = null; // Limpiar la cantidad de combustible
+    this.filteredMachines = []; // Ocultar la lista de máquinas
   }
-
+  
   async assignFuel(): Promise<void> {
     if (this.selectedMachine) {
       // Validar que la cantidad de combustible sea un número válido

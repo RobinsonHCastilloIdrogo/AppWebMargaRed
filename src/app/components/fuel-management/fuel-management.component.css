@@ -185,11 +185,28 @@ button:disabled {
 
 /* Dropdown Items */
 .dropdown-item {
+  display: flex; /* Alinea los elementos en fila */
+  justify-content: space-between; /* Espacio entre los elementos */
+  align-items: center; /* Alinea verticalmente */
   padding: 10px;
-  font-size: 1rem;
-  color: #4a5568;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s;
+}
+
+dropdown-item:hover {
+  background-color: #f0f0f0; /* Color de fondo al pasar el cursor */
+}
+
+/* Información principal de la máquina */
+.machine-info {
+  font-weight: bold;
+  color: #333; /* Color oscuro para el nombre de la máquina */
+}
+
+/* Nombre del proyecto */
+.project-name {
+  font-size: 0.9em; /* Tamaño más pequeño */
+  color: #aaa; /* Color gris claro */
 }
 
 .dropdown-item:hover {
