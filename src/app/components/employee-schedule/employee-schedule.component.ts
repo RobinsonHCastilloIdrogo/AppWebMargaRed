@@ -76,25 +76,13 @@ export class EmployeeScheduleComponent implements OnInit {
       .getCollection('/assignments/2024-11/projects')
       .subscribe(
         (projects) => {
-          const eventos: {
-            title: string;
-            start: Date;
-            end: Date;
-            color: string;
-          }[] = [];
-
-          const employeesSet = new Set();
+          const eventos: any[] = [];
 
           projects.forEach((project: any) => {
             const empleados = project.empleados || [];
             empleados.forEach((empleado: any) => {
               const startDate = moment(project.fechaInicio);
               const endDate = moment(project.fechaFin);
-
-              if (!employeesSet.has(empleado.nombre)) {
-                employeesSet.add(empleado.nombre);
-                this.allEmployees.push(empleado);
-              }
 
               // Iterar desde fechaInicio hasta fechaFin para generar eventos diarios
               while (startDate.isSameOrBefore(endDate)) {
@@ -118,6 +106,7 @@ export class EmployeeScheduleComponent implements OnInit {
                     ...empleado.horaFin.split(':')
                   ),
                   color: color,
+                  machine: empleado.maquina, // Incluir información de la máquina
                 });
 
                 startDate.add(1, 'day'); // Incrementar día usando moment
@@ -159,7 +148,7 @@ export class EmployeeScheduleComponent implements OnInit {
         assignment.title.toLowerCase().includes(searchValue.toLowerCase())
       )
       .filter((assignment) => {
-        // Filtrar solo empleados únicos por nombre
+        // Asegurarse de que solo se agreguen empleados únicos
         if (!uniqueNames.has(assignment.title)) {
           uniqueNames.add(assignment.title);
           return true;
@@ -187,7 +176,7 @@ export class EmployeeScheduleComponent implements OnInit {
       (assignment) => assignment.title === employee.title
     );
 
-    // Formatear las fechas con moment
+    // Formatear las fechas y agregar máquina
     this.selectedEmployeeAssignments = this.selectedEmployeeAssignments.map(
       (assignment) => {
         return {
@@ -196,6 +185,9 @@ export class EmployeeScheduleComponent implements OnInit {
             'dddd, D [de] MMMM [de] YYYY, HH:mm'
           ),
           formattedEnd: moment(assignment.end).format('HH:mm'),
+          machineName: assignment.machine
+            ? assignment.machine.nombre
+            : 'Sin Máquina', // Agregar máquina asignada
         };
       }
     );
@@ -204,12 +196,11 @@ export class EmployeeScheduleComponent implements OnInit {
     this.totalAssignedHours = this.getTotalHours(
       this.selectedEmployeeAssignments
     );
-    console.log(`Total de horas asignadas: ${this.totalAssignedHours}`);
 
     // Actualizar el calendario
     this.updateCalendarEvents(this.selectedEmployeeAssignments);
 
-    // Limpiar el cuadro de búsqueda
+    // Restablecer el cuadro de búsqueda y la lista de resultados
     const inputElement = document.getElementById(
       'search-employee'
     ) as HTMLInputElement;
@@ -217,8 +208,7 @@ export class EmployeeScheduleComponent implements OnInit {
       inputElement.value = ''; // Limpiar el campo de texto
     }
 
-    // Cerrar la lista de resultados
-    this.filteredAssignments = [];
+    this.filteredAssignments = []; // Vaciar la lista filtrada
   }
 
   // Actualizar los eventos del calendario
@@ -228,6 +218,7 @@ export class EmployeeScheduleComponent implements OnInit {
       start: assignment.start,
       end: assignment.end,
       color: assignment.color,
+      maquina: assignment.machine ? assignment.machine.nombre : 'Sin Máquina', // Incluir máquina en los eventos
     }));
 
     this.calendarOptions = { ...this.calendarOptions, events };
