@@ -6,32 +6,38 @@
   <div class="dashboard-content">
     <header>
       <h2 class="h2-list">Tabla de Combustible Asignado</h2>
-    </header>
-
-    <!-- Controles de Filtro -->
-  <div class="filter-controls">
-    <label>
-      <input type="radio" name="filterType" value="day" [(ngModel)]="filterType" (change)="setFilterType('day')" />
-      Filtrar por Día
-    </label>
-    <label>
-      <input type="radio" name="filterType" value="month" [(ngModel)]="filterType" (change)="setFilterType('month')" />
-      Filtrar por Mes
-    </label>
-
-    <div *ngIf="filterType === 'day'">
-      <label for="filterDate">Fecha:</label>
-      <input type="date" id="filterDate" (change)="onFilterDateChange($event)" />
-    </div>
-
-    <div *ngIf="filterType === 'month'">
-      <label for="filterMonth">Mes:</label>
-      <input type="month" id="filterMonth" (change)="onFilterMonthChange($event)" />
-    </div>
-  </div>
-    
-    <!-- Menú de exportación -->
+    </header> 
+  
     <div class="assign-form">
+      <!-- Controles de Filtro -->
+      <div class="filter-section">
+        <h3 class="filter-title">Filtrar Registros</h3>
+        <div class="filter-options">
+          <label class="filter-option">
+            <input type="radio" name="filterType" value="day" [(ngModel)]="filterType" (change)="setFilterType('day')" />
+            <span>Por Día</span>
+          </label>
+          <label class="filter-option">
+            <input type="radio" name="filterType" value="month" [(ngModel)]="filterType" (change)="setFilterType('month')" />
+            <span>Por Mes</span>
+          </label>
+        </div>
+    
+        <!-- Inputs dinámicos según el filtro seleccionado -->
+        <div class="filter-inputs">
+          <div *ngIf="filterType === 'day'">
+            <label for="filterDate">Seleccionar Fecha:</label>
+            <input type="date" id="filterDate" (change)="onFilterDateChange($event)" />
+          </div>
+    
+          <div *ngIf="filterType === 'month'">
+            <label for="filterMonth">Seleccionar Mes:</label>
+            <input type="month" id="filterMonth" (change)="onFilterMonthChange($event)" />
+          </div>
+        </div>
+      </div>
+
+    <!-- Menú de exportación -->
       <div class="export-menu" #exportMenu>
         <button class="export-button" (click)="toggleExportMenu($event)">
           <span class="hamburger-icon">☰</span>
