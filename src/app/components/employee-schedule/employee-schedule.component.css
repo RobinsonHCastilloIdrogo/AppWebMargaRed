@@ -307,6 +307,27 @@
   height: auto;
 }
 
+.total-hours {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.total-hours h4 {
+  margin: 0;
+  font-size: 1.2em;
+  color: #333;
+}
+
+.total-hours p {
+  margin: 5px 0 0;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #007bff;
+}
+
 /* Responsividad */
 @media (max-width: 768px) {
   .calendar-columns {

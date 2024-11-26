@@ -32,6 +32,7 @@ export class EmployeeScheduleComponent implements OnInit {
   inputError: boolean = false; // Indica si hay un error en el cuadro de texto
   employeeColors: Map<string, string> = new Map(); // Colores únicos por empleado
   allEmployees: any[] = []; // Lista de empleados únicos para la búsqueda
+  totalAssignedHours: number = 0; // Total de horas asignadas al empleado seleccionado
 
   constructor(private firebaseService: FirebaseService) {
     moment.locale('es'); // Configurar moment para usar el idioma español
@@ -167,6 +168,16 @@ export class EmployeeScheduleComponent implements OnInit {
       });
   }
 
+  // Calcular el total de horas asignadas
+  getTotalHours(assignments: any[]): number {
+    return assignments.reduce((total, assignment) => {
+      const start = moment(assignment.start);
+      const end = moment(assignment.end);
+      const duration = moment.duration(end.diff(start)).asHours();
+      return total + duration;
+    }, 0);
+  }
+
   // Seleccionar un empleado de la lista
   selectEmployee(employee: any): void {
     this.selectedEmployee = employee;
@@ -189,16 +200,16 @@ export class EmployeeScheduleComponent implements OnInit {
       }
     );
 
-    // Mostrar en consola para verificar los datos
-    console.log(
-      'Asignaciones del empleado seleccionado:',
+    // Calcular las horas totales
+    this.totalAssignedHours = this.getTotalHours(
       this.selectedEmployeeAssignments
     );
+    console.log(`Total de horas asignadas: ${this.totalAssignedHours}`);
 
-    // Actualizar los datos del calendario para reflejar solo el empleado seleccionado
+    // Actualizar el calendario
     this.updateCalendarEvents(this.selectedEmployeeAssignments);
 
-    // Restablecer el cuadro de búsqueda
+    // Limpiar el cuadro de búsqueda
     const inputElement = document.getElementById(
       'search-employee'
     ) as HTMLInputElement;
